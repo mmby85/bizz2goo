@@ -1,0 +1,15 @@
+<!-- post_list.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Posts</title>
+</head>
+<body>
+    <h1>Posts</h1>
+    <ul>
+        {% for post in posts %}
+            {{ post.content | safe}}
+        {% endfor %}
+    </ul>
+</body>
+</html>

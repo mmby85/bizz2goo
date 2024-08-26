@@ -6,6 +6,10 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .models import *
 
+from django.urls import reverse
+from django.views import generic
+
+
 from .models import Comment,Post
 # Create your views here.
 def index(request):
@@ -90,7 +94,7 @@ def profile(request,id):
         'media_url':settings.MEDIA_URL,
     })
     
-    
+
 def profileedit(request,id):
     if request.method == 'POST':
         firstname = request.POST['firstname']
@@ -114,6 +118,11 @@ def increaselikes(request,id):
         post.save() 
     return redirect("index")
 
+def removepost(request,id):
+    if request.method == 'POST':
+        post = Post.objects.get(id=id)
+        post.delete()
+    return redirect("index")
 
 def post(request,id):
     post = Post.objects.get(id=id)
@@ -178,3 +187,41 @@ def contact_us(request):
         context['message']=f"Dear {name}, Thanks for your time!"
 
     return render(request,"contact.html")
+
+
+from . import forms
+
+
+class CkEditorFormView(generic.FormView):
+    form_class = forms.CkEditorForm
+    template_name = "ckeditor.html"
+
+    def get_success_url(self):
+        return reverse("ckeditor-form")
+
+
+
+class CkEditorMultiWidgetFormView(generic.FormView):
+    form_class = forms.CkEditorMultiWidgetForm
+    template_name = "ckeditor.html"
+
+    def get_success_url(self):
+        return reverse("ckeditor-multi-widget-form")
+
+def create_post(request):
+    if request.method == 'POST':
+        form = forms.CKPostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')  # Assuming you have a URL for listing posts
+    else:
+        form = forms.CKPostForm()
+    return render(request, 'ckeditor.html', {'form': form})
+
+def post_list(request):
+    posts = CKPost.objects.all()
+    return render(request, 'post_list.html', {'posts': posts})
+
+
+ckeditor_form_view = CkEditorFormView.as_view()
+# ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()

@@ -129,6 +129,11 @@
                   </div>
                   <div class="down-content">
                     <span>{{post.category}}</span>
+                    <form method="post" action="{% url 'removepost' post.id %}">
+                      {% csrf_token %}
+                      <button class="float-right btn btn-outline-danger" type="submit ">
+                        {{post.likes}} <i class="fa fa-recycle"></i></button>
+                    </form>
                     <form method="post" action="{% url 'increaselikes' post.id %}">
                       {% csrf_token %}
                       <button class="float-right btn btn-outline-danger" type="submit ">

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime  
+from ckeditor.fields import RichTextField
 
 now =  datetime.now()
 time = now.strftime("%d %B %Y")
@@ -18,8 +19,11 @@ class Post(models.Model):
     
     def __str__(self):
         return str( self.postname)
-    
-    
+
+
+class CKPost(models.Model):
+    content = RichTextField()
+
 class Comment(models.Model):
     content = models.CharField(max_length=200)
     time = models.CharField(default=time,max_length=100, blank=True)
