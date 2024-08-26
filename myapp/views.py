@@ -222,6 +222,8 @@ def post_list(request):
     posts = CKPost.objects.all()
     return render(request, 'post_list.html', {'posts': posts})
 
+def home_new(request):
+    return render(request, 'blog/base.html')
 
 ckeditor_form_view = CkEditorFormView.as_view()
 # ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()

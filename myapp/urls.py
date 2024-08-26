@@ -5,7 +5,8 @@ urlpatterns = [
     path("",views.index,name="index"),
 
     path("ckeditor" , views.create_post, name="ckeditor-form"),
-        path('posts/', views.post_list, name='post_list'),  # This is the URL for listing posts
+    path('posts/', views.post_list, name='post_list'),  # This is the URL for listing posts
+    path("new-home" , views.home_new, name="new-home"),
 
 
     path("blog",views.blog,name="blog"),
