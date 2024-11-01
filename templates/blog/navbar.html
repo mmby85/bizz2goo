@@ -29,12 +29,7 @@
                         <li>
                     </ul>
                 </li>
-                <li>
-                    <a href="#">
-                        <i class="material-icons">login</i>
-                        Login
-                    </a>
-                </li>
+
                 {% if user.is_authenticated %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create' %}">Create</a>
@@ -46,8 +41,11 @@
                   <a class="nav-link text-primary" href="{% url 'logout' %}">Logout</a>
                 </li>
                 {% else %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'signin' %}"><i class="fa fa-user"></i></a>
+                <li>
+                    <a href="{% url 'signin' %}">
+                        <i class="material-icons">login</i>
+                        Login
+                    </a>
                 </li>
                 {% endif %}
       
