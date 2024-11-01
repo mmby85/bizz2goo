@@ -2,12 +2,14 @@ from . import views
 from django.urls import path
 
 urlpatterns = [
-    path("",views.index,name="index"),
+    path("",views.new_index,name="index"),
+    path("old_index",views.index,name="old_index"),
 
     path("ckeditor" , views.create_post, name="ckeditor-form"),
     path('posts/', views.post_list, name='post_list'),  # This is the URL for listing posts
+    path('edit_post/<int:post_id>/', views.edit_post, name='edit_post'),    
+    
     path("new-home" , views.home_new, name="new-home"),
-
 
     path("blog",views.blog,name="blog"),
     path("signin",views.signin,name="signin"),
@@ -15,6 +17,8 @@ urlpatterns = [
     path("logout",views.logout,name="logout"),
     path("create",views.create,name="create"),
     path("increaselikes/<int:id>",views.increaselikes,name='increaselikes'),
+    path("create_old",views.create_old,name="create_old"),
+
     path("removepost/<int:id>",views.removepost,name='removepost'),
     path("profile/<int:id>",views.profile,name='profile'),
     path("profile/edit/<int:id>",views.profileedit,name='profileedit'),

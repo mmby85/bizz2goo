@@ -5,22 +5,52 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .models import *
+from . import forms
 
 from django.urls import reverse
 from django.views import generic
 
 
 from .models import Comment,Post
+
 # Create your views here.
 def index(request):
+    if request.method == 'POST':
+        form = forms.CKPostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')  # Assuming you have a URL for listing posts
+    else:
+        form = forms.CKPostForm()
+
     return render(request,"index.html",{
         'posts':Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
         'top_posts':Post.objects.all().order_by("-likes"),
         'recent_posts':Post.objects.all().order_by("-id"),
         'user':request.user,
-        'media_url':settings.MEDIA_URL
+        'media_url':settings.MEDIA_URL,
+        'form' : form
     })
 
+
+def new_index(request):
+    if request.method == 'POST':
+        form = forms.CKPostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')  # Assuming you have a URL for listing posts
+    else:
+        form = forms.CKPostForm()
+
+    return render(request,"blog/home.html",{
+        'posts':Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
+        'top_posts':Post.objects.all().order_by("-likes"),
+        'recent_posts':Post.objects.all().order_by("-id"),
+        'user':request.user,
+        'media_url':settings.MEDIA_URL,
+        'form' : form,
+
+    })
 
 def signup(request):
     if request.method == 'POST':
@@ -75,16 +105,41 @@ def blog(request):
 def create(request):
     if request.method == 'POST':
         try:
-            postname = request.POST['postname']
-            content = request.POST['content']
-            category = request.POST['category']
-            image = request.FILES['image']
-            Post(postname=postname,content=content,category=category,image=image,user=request.user).save()
+            # postname = request.POST['postname']
+            # content = request.POST['content']
+            # category = request.POST['category']
+            # image = request.FILES['image']
+            # Post(postname=postname,content=content,category=category,image=image,user=request.user).save()
+            form = forms.CKPostForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('post_list')  # Assuming you have a URL for listing posts
         except:
             print("Error")
         return redirect('index')
     else:
-        return render(request,"create.html")
+        form = forms.CKPostForm()
+        return render(request,"create.html" , context={"form" : form})
+    
+def create_old(request):
+    if request.method == 'POST':
+        try:
+            # postname = request.POST['postname']
+            # content = request.POST['content']
+            # category = request.POST['category']
+            # image = request.FILES['image']
+            # Post(postname=postname,content=content,category=category,image=image,user=request.user).save()
+            form = forms.CKPostForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('post_list')  # Assuming you have a URL for listing posts
+        except:
+            print("Error")
+        return redirect('index')
+    else:
+        form = forms.CKPostForm()
+        return render(request,"create_old.html" , context={"form" : form})
+
     
 def profile(request,id):
     
@@ -189,17 +244,13 @@ def contact_us(request):
     return render(request,"contact.html")
 
 
-from . import forms
-
-
+# CKEditor
 class CkEditorFormView(generic.FormView):
     form_class = forms.CkEditorForm
     template_name = "ckeditor.html"
 
     def get_success_url(self):
         return reverse("ckeditor-form")
-
-
 
 class CkEditorMultiWidgetFormView(generic.FormView):
     form_class = forms.CkEditorMultiWidgetForm
@@ -220,7 +271,19 @@ def create_post(request):
 
 def post_list(request):
     posts = CKPost.objects.all()
+    print(vars(posts[0]))
     return render(request, 'post_list.html', {'posts': posts})
+
+def edit_post(request, post_id):
+    post = CKPost.objects.get(id=post_id)
+    if request.method == 'POST':
+        form = forms.CKPostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect('post_list')  # Replace with your detail view
+    else:
+        form = forms.CKPostForm(instance=post)
+    return render(request, 'create.html', {'form': form})
 
 def home_new(request):
     return render(request, 'blog/base.html')
