@@ -7,8 +7,10 @@ urlpatterns = [
 
     path("ckeditor" , views.create_post, name="ckeditor-form"),
     path('posts/', views.post_list, name='post_list'),  # This is the URL for listing posts
-    path('edit_post/<int:post_id>/', views.edit_post, name='edit_post'),    
-    
+    path('edit_post/<int:post_id>/', views.edit_post, name='edit_post'),
+    # to do url for article post by title
+    # path('post/<int:post_id>/', views.post_detail, name='post_detail'),
+
     path("new-home" , views.home_new, name="new-home"),
 
     path("blog",views.blog,name="blog"),

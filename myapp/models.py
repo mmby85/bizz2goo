@@ -21,6 +21,7 @@ class Post(models.Model):
         return str( self.postname)
 
 
+#@Islem implement the model + update the form in forms.py + @Walid upadte the form in html
 class CKPost(models.Model):
     # title = models.CharField(max_length=600)
     # image = models.ImageField(upload_to='images/posts',blank=True,null=True)

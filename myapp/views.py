@@ -285,6 +285,13 @@ def edit_post(request, post_id):
         form = forms.CKPostForm(instance=post)
     return render(request, 'create.html', {'form': form})
 
+
+# @Walid to do post_detail.html
+# create view post_detail path('post/<int:post_id>/', views.post_detail, name='post_detail'),
+# def post_detail(request, post_id):
+#     post = CKPost.objects.get(id=post_id)
+#     return render(request, 'post_detail.html', {'post': post})
+
 def home_new(request):
     return render(request, 'blog/base.html')
 
