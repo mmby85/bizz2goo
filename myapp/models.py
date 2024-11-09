@@ -22,7 +22,15 @@ class Post(models.Model):
 
 
 class CKPost(models.Model):
+    # title = models.CharField(max_length=600)
+    # image = models.ImageField(upload_to='images/posts',blank=True,null=True)
     content = RichTextField()
+    # likes = models.IntegerField(null=True,blank=True,default=0)
+    # user = models.ForeignKey(User,on_delete=models.CASCADE)
+    # time = models.DateTimeField(auto_now=True)
+    # category = models.CharField(max_length=600)
+    # subCategory = models.CharField(max_length=600)
+
 
 class Comment(models.Model):
     content = models.CharField(max_length=200)

@@ -14,7 +14,7 @@
   {% include "blog/heroSection.html" %}
 
   <div class="main main-raised">
-    <div class="justify-content-center align-items-center" style="position: relative; margin: 3%;">
+    <div class="justify-content-center align-items-center" style="position: relative; margin: 3%; display: flex; justify-content: center; align-items: center;">
 
       <form method="post">
         {% csrf_token %}
@@ -27,9 +27,21 @@
               <input type="text" class="form-control" id="title" name="title" aria-describedby="textHelp">
           </div>
       </div>
-                              {{ form }}
+      <div class="row justify-content-center align-items-center">
+        <div class="mb-3 col-md-2 text-center">
+            <h4>Article Image Preview</h4>
         </div>
-        <p><input type="submit" value="post"></p>
+        <div class="mb-3 col-md-2">
+            <input type="file" class="form-control" id="image" name="image" >
+        </div>
+    </div>
+    <div class="align-item-center" style="text-align: center;margin : 0px 50px ">
+      {{ form }}
+    </div>              
+        </div>
+        <div class="align-item-right" style="text-align: right;margin : 0px 50px ">
+          <input class="btn" type="submit" value="post">
+        </div>
     </form>
   </div>
 
