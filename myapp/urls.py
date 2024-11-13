@@ -8,8 +8,8 @@ urlpatterns = [
     path("ckeditor" , views.create_post, name="ckeditor-form"),
     path('posts/', views.post_list, name='post_list'),  # This is the URL for listing posts
     path('edit_post/<int:post_id>/', views.edit_post, name='edit_post'),
-    # to do url for article post by title
-    # path('post/<int:post_id>/', views.post_detail, name='post_detail'),
+   
+    path('post/<str:title>/', views.post_detail, name='post_detail'),
 
     path("new-home" , views.home_new, name="new-home"),
 
@@ -30,4 +30,5 @@ urlpatterns = [
     path("post/edit/<int:id>",views.editpost,name="editpost"),
     path("post/delete/<int:id>",views.deletepost,name="deletepost"),
     path("contact",views.contact_us,name="contact"),
+    path('get_subcategories/', views.get_subcategories, name='get_subcategories'),
 ]

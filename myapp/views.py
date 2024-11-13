@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect , get_object_or_404
 from django.contrib.auth.models import User,auth
 from django.contrib.auth import authenticate
 from django.contrib import messages
@@ -286,14 +286,21 @@ def edit_post(request, post_id):
     return render(request, 'create.html', {'form': form})
 
 
-# @Walid to do post_detail.html
-# create view post_detail path('post/<int:post_id>/', views.post_detail, name='post_detail'),
-# def post_detail(request, post_id):
-#     post = CKPost.objects.get(id=post_id)
-#     return render(request, 'post_detail.html', {'post': post})
+def post_detail(request, title):
+    post = get_object_or_404(CKPost, title=title)
+    return render(request, 'blog/post-detail.html', {'post': post})
 
 def home_new(request):
     return render(request, 'blog/base.html')
 
 ckeditor_form_view = CkEditorFormView.as_view()
 # ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()
+from django.template.loader import render_to_string
+from .models import SubCategory
+from django.http import JsonResponse
+def get_subcategories(request):
+    category_id = request.GET.get('category_id')
+    subcategories = SubCategory.objects.filter(category_id=category_id)
+    return JsonResponse({
+        'html': render_to_string('subcategories_dropdown.html', {'subcategories': subcategories})
+    })

@@ -5,7 +5,8 @@ from ckeditor.widgets import CKEditorWidget
 from ckeditor_uploader.fields import RichTextUploadingFormField
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
-from .models import CKPost
+from .models import CKPost , Category, SubCategory
+
 
 from django.forms import MultiWidget
 
@@ -42,9 +43,22 @@ class CkEditorMultiWidgetForm(forms.Form):
 class CKPostForm(forms.ModelForm):
     class Meta:
         model = CKPost
-        fields = "__all__"
+        fields = ['title', 'category', 'sub_category','slug', 'content']
 
-
+"""     def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Si une catégorie est déjà sélectionnée, filtrez les sous-catégories
+        if 'category' in self.data:
+            try:
+                category_id = int(self.data.get('category'))
+                self.fields['sub_category'].queryset = SubCategory.objects.filter(category_id=category_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk:
+            self.fields['sub_category'].queryset = self.instance.category.subcategories.order_by('name')
+        else:
+            # Par défaut, on n'affiche aucune sous-catégorie si la catégorie n'est pas sélectionnée
+            self.fields['sub_category'].queryset = SubCategory.objects.none() """
 # class CKPostOverriddenWidgetForm(forms.ModelForm):
 #     class Meta:
 #         model = CKPost
