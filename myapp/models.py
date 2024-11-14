@@ -22,6 +22,10 @@ class Post(models.Model):
 
 
 #@Islem implement the model + update the form in forms.py + @Walid upadte the form in html
+from django.db import models
+from django.contrib.auth.models import User
+from ckeditor.fields import RichTextField
+
 class Category(models.Model):
     name = models.CharField(max_length=600, blank=True, null=True)
     
@@ -38,16 +42,15 @@ class SubCategory(models.Model):
 class CKPost(models.Model):
     title = models.CharField(max_length=600)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True)
-    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, blank=True, null=True)  # Ajout de sub_category
+    sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     content = RichTextField()
     slug = models.SlugField(max_length=200, unique=True, blank=True)
-
+    image = models.ImageField(upload_to='images/posts', blank=True, null=True)
+    likes = models.IntegerField(null=True, blank=True, default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now_add=True, blank=True)  # Automatically set the time created
     def __str__(self):
         return self.title
-    # image = models.ImageField(upload_to='images/posts',blank=True,null=True)
-    # likes = models.IntegerField(null=True,blank=True,default=0)
-    # user = models.ForeignKey(User,on_delete=models.CASCADE)
-    # time = models.DateTimeField(auto_now=True)
       
     
 

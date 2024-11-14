@@ -43,9 +43,9 @@ class CkEditorMultiWidgetForm(forms.Form):
 class CKPostForm(forms.ModelForm):
     class Meta:
         model = CKPost
-        fields = ['title', 'category', 'sub_category','slug', 'content']
+        fields = '__all__'
 
-"""     def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Si une catégorie est déjà sélectionnée, filtrez les sous-catégories
         if 'category' in self.data:
@@ -58,7 +58,7 @@ class CKPostForm(forms.ModelForm):
             self.fields['sub_category'].queryset = self.instance.category.subcategories.order_by('name')
         else:
             # Par défaut, on n'affiche aucune sous-catégorie si la catégorie n'est pas sélectionnée
-            self.fields['sub_category'].queryset = SubCategory.objects.none() """
+            self.fields['sub_category'].queryset = SubCategory.objects.none()
 # class CKPostOverriddenWidgetForm(forms.ModelForm):
 #     class Meta:
 #         model = CKPost

@@ -10,26 +10,25 @@ class PostAdminForm(forms.ModelForm):
 
     class Meta:
         model = CKPost
-        fields = ['title', 'category', 'sub_category', 'slug', 'content']
-
+        fields = '__all__'
 
 class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "sub_category":
+    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
+    #     if db_field.name == "sub_category":
             
-            category_id = request.POST.get('category') if request.method == 'POST' else request.GET.get('category')
+    #         category_id = request.POST.get('category') if request.method == 'POST' else request.GET.get('category')
             
-            if category_id:
-                try:
+    #         if category_id:
+    #             try:
                     
-                    kwargs["queryset"] = SubCategory.objects.filter(category_id=category_id).order_by('name')
-                except (ValueError, TypeError): 
-                    kwargs["queryset"] = SubCategory.objects.none() 
-            else:
-                kwargs["queryset"] = SubCategory.objects.none()  
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+    #                 kwargs["queryset"] = SubCategory.objects.filter(category_id=category_id).order_by('name')
+    #             except (ValueError, TypeError): 
+    #                 kwargs["queryset"] = SubCategory.objects.none() 
+    #         else:
+    #             kwargs["queryset"] = SubCategory.objects.none()  
+    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 admin.site.register(CKPost, PostAdmin)
