@@ -3,7 +3,7 @@ from django import forms
 from .models import Post,Comment,Contact
 from ckeditor.widgets import CKEditorWidget
 
-from .models import CKPost , SubCategory
+from .models import CKPost , SubCategory , Category
 
 class PostAdminForm(forms.ModelForm):
     content = forms.CharField(widget=CKEditorWidget())
@@ -12,23 +12,20 @@ class PostAdminForm(forms.ModelForm):
         model = CKPost
         fields = '__all__'
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ajoutez les classes CSS ici
+        self.fields['title'].widget.attrs.update({'class': 'form-control'})
+        self.fields['category'].widget.attrs.update({'class': 'form-control'})
+        self.fields['sub_category'].widget.attrs.update({'class': 'form-control'})
+        self.fields['content'].widget.attrs.update({'class': 'form-control'})
+        self.fields['image'].widget.attrs.update({'class': 'form-control-file'})
+        self.fields['slug'].widget.attrs.update({'class': 'form-control'})
+
 class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
 
-    # def formfield_for_foreignkey(self, db_field, request, **kwargs):
-    #     if db_field.name == "sub_category":
-            
-    #         category_id = request.POST.get('category') if request.method == 'POST' else request.GET.get('category')
-            
-    #         if category_id:
-    #             try:
-                    
-    #                 kwargs["queryset"] = SubCategory.objects.filter(category_id=category_id).order_by('name')
-    #             except (ValueError, TypeError): 
-    #                 kwargs["queryset"] = SubCategory.objects.none() 
-    #         else:
-    #             kwargs["queryset"] = SubCategory.objects.none()  
-    #     return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 
 admin.site.register(CKPost, PostAdmin)
@@ -36,7 +33,8 @@ admin.site.register(CKPost, PostAdmin)
 admin.site.register(Post)
 admin.site.register(Comment)
 admin.site.register(Contact)
-
+admin.site.register(Category)
+admin.site.register(SubCategory)
 
 
 admin.site.site_header = 'BLOGSPOT | ADMIN PANEL'

@@ -280,15 +280,17 @@ def create_post(request):
             return redirect('post_list' , category=category.name)  
     else:
         form = forms.CKPostForm()
-    return render(request, 'ckeditor.html', {'form': form})
+    return render(request, 'blog/ckeditor.html', {'form': form})
 
 def post_list(request, category):  
-    category_obj = get_object_or_404(Category, name=category)  
-    posts = CKPost.objects.filter(category=category_obj).order_by('-time')  
+    if category == "TOUS LES ARTICLES":
+        posts = post.objects.all()
+    else:
+        posts = post.objects.filter(category__iexact=category)  
 
     return render(request, 'blog/post_list.html', {
         'posts': posts,
-        'category': category_obj,  
+        
     })
 
 def edit_post(request, post_id):
@@ -307,7 +309,7 @@ def post_detail(request, slug):
     print(f"Attempting to retrieve post with title: {slug}")
     post = get_object_or_404(CKPost, slug=slug)
     
-    return render(request, 'blog/articlesTabV2htmx.html', {'post': post})
+    return render(request, 'blog/post-detail.html', {'post': post})
 
 def home_new(request):
     return render(request, 'blog/base.html')
