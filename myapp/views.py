@@ -42,14 +42,13 @@ def new_index(request):
     else:
         form = forms.CKPostForm()
 
-    return render(request,"blog/home.html",{
-        'posts':Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
-        'top_posts':Post.objects.all().order_by("-likes"),
-        'recent_posts':Post.objects.all().order_by("-id"),
-        'user':request.user,
-        'media_url':settings.MEDIA_URL,
-        'form' : form,
-
+    return render(request, "blog/home.html", {
+        'posts': CKPost.objects.filter(user_id=request.user.id).order_by("id").reverse()[:2],  
+        'top_posts': CKPost.objects.all().order_by("-likes")[:2],  
+        'recent_posts': CKPost.objects.all().order_by("-id")[:2],  
+        'user': request.user,
+        'media_url': settings.MEDIA_URL,
+        'form': form,
     })
 
 def signup(request):
@@ -179,10 +178,10 @@ def removepost(request,id):
         post.delete()
     return redirect("index")
 
-def post(request,id):
+def post(request,id):             ### BECH TETBADEL CKPOST
     post = Post.objects.get(id=id)
     
-    return render(request,"post-details.html",{
+    return render(request,"post-detail.html",{
         "user":request.user,
         'post':Post.objects.get(id=id),
         'recent_posts':Post.objects.all().order_by("-id"),
@@ -190,7 +189,17 @@ def post(request,id):
         'comments':Comment.objects.filter(post_id = post.id),
         'total_comments': len(Comment.objects.filter(post_id = post.id))
     })
+# def CKPost(request,id):             ### BECH TETBADEL CKPOST
+#     post = Post.objects.get(id=id)
     
+#     return render(request,"post-detail.html",{
+#         "user":request.user,
+#         'post':CKPost.objects.get(id=id),
+#         'recent_posts':CKPost.objects.all().order_by("-id"),
+#         'media_url':settings.MEDIA_URL,
+#         'comments':Comment.objects.filter(post_id = post.id),
+#         'total_comments': len(Comment.objects.filter(post_id = post.id))
+#     })
 def savecomment(request,id):
     post = Post.objects.get(id=id)
     if request.method == 'POST':
@@ -263,16 +272,24 @@ def create_post(request):
     if request.method == 'POST':
         form = forms.CKPostForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('post_list')  # Assuming you have a URL for listing posts
+            
+            post = form.save(commit=False)  
+            post.user = request.user  
+            post.save()  
+            category = post.category
+            return redirect('post_list' , category=category.name)  
     else:
         form = forms.CKPostForm()
     return render(request, 'ckeditor.html', {'form': form})
 
-def post_list(request):
-    posts = CKPost.objects.all()
-    print(vars(posts[0]))
-    return render(request, 'post_list.html', {'posts': posts})
+def post_list(request, category):  
+    category_obj = get_object_or_404(Category, name=category)  
+    posts = CKPost.objects.filter(category=category_obj).order_by('-time')  
+
+    return render(request, 'blog/post_list.html', {
+        'posts': posts,
+        'category': category_obj,  
+    })
 
 def edit_post(request, post_id):
     post = CKPost.objects.get(id=post_id)
@@ -280,21 +297,26 @@ def edit_post(request, post_id):
         form = forms.CKPostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('post_list')  # Replace with your detail view
+            return redirect('post_list')  
     else:
         form = forms.CKPostForm(instance=post)
     return render(request, 'create.html', {'form': form})
 
 
-def post_detail(request, title):
-    post = get_object_or_404(CKPost, title=title)
-    return render(request, 'blog/post-detail.html', {'post': post})
+def post_detail(request, slug):
+    print(f"Attempting to retrieve post with title: {slug}")
+    post = get_object_or_404(CKPost, slug=slug)
+    
+    return render(request, 'blog/articlesTabV2htmx.html', {'post': post})
 
 def home_new(request):
     return render(request, 'blog/base.html')
 
 ckeditor_form_view = CkEditorFormView.as_view()
 # ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()
+
+
+
 from django.template.loader import render_to_string
 from .models import SubCategory
 from django.http import JsonResponse
@@ -304,3 +326,6 @@ def get_subcategories(request):
     return JsonResponse({
         'html': render_to_string('subcategories_dropdown.html', {'subcategories': subcategories})
     })
+    
+    
+#fel home2 naffichy les 3 premiers posts nzidouhom les filters w nzidouha petite description // bel post bel post bel slug mte3ou

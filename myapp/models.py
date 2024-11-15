@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from datetime import datetime  
 from ckeditor.fields import RichTextField
+from django.utils.text import slugify
 
 now =  datetime.now()
 time = now.strftime("%d %B %Y")
@@ -44,15 +45,28 @@ class CKPost(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     content = RichTextField()
-    slug = models.SlugField(max_length=200, unique=True, blank=True)
+    slug = models.SlugField(default="",max_length=200, unique=True, blank=True , null=False)
     image = models.ImageField(upload_to='images/posts', blank=True, null=True)
     likes = models.IntegerField(null=True, blank=True, default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    time = models.DateTimeField(auto_now_add=True, blank=True)  # Automatically set the time created
+    user = models.ForeignKey(User, on_delete=models.CASCADE , blank=True, null=True)
+    time = models.DateTimeField(auto_now_add=True, blank=True)  
     def __str__(self):
         return self.title
       
-    
+    def save(self, *args, **kwargs):
+        
+        self.slug = slugify(self.title) if self.title else self.slug
+        
+        original_slug = self.slug
+        slug = original_slug
+        counter = 1
+
+        while CKPost.objects.filter(slug=slug).exclude(pk=self.pk).exists():  
+            slug = f"{original_slug}-{counter}"
+            counter += 1
+
+        self.slug = slug
+        super().save(*args, **kwargs)
 
 
 class Comment(models.Model):
