@@ -189,17 +189,7 @@ def post(request,id):             ### BECH TETBADEL CKPOST
         'comments':Comment.objects.filter(post_id = post.id),
         'total_comments': len(Comment.objects.filter(post_id = post.id))
     })
-# def CKPost(request,id):             ### BECH TETBADEL CKPOST
-#     post = Post.objects.get(id=id)
-    
-#     return render(request,"post-detail.html",{
-#         "user":request.user,
-#         'post':CKPost.objects.get(id=id),
-#         'recent_posts':CKPost.objects.all().order_by("-id"),
-#         'media_url':settings.MEDIA_URL,
-#         'comments':Comment.objects.filter(post_id = post.id),
-#         'total_comments': len(Comment.objects.filter(post_id = post.id))
-#     })
+
 def savecomment(request,id):
     post = Post.objects.get(id=id)
     if request.method == 'POST':
@@ -277,32 +267,37 @@ def create_post(request):
             post.user = request.user  
             post.save()  
             category = post.category
-            return redirect('post_list' , category=category.name)  
+            return redirect('post_list')  
     else:
         form = forms.CKPostForm()
     return render(request, 'blog/ckeditor.html', {'form': form})
 
-def post_list(request, category):  
-    if category == "TOUS LES ARTICLES":
-        posts = post.objects.all()
-    else:
-        posts = post.objects.filter(category__iexact=category)  
+def post_list(request):  
+    posts = CKPost.objects.all().order_by('-time')  
 
     return render(request, 'blog/post_list.html', {
-        'posts': posts,
-        
+        'posts': posts,  
     })
 
-def edit_post(request, post_id):
-    post = CKPost.objects.get(id=post_id)
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import CKPost
+from . import forms
+
+def edit_post(request, slug):
+    # Récupérer le post via le slug
+    post = get_object_or_404(CKPost, slug=slug)
+
     if request.method == 'POST':
         form = forms.CKPostForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('post_list')  
+            return redirect('post_list')  # Rediriger vers la liste des posts après sauvegarde
     else:
         form = forms.CKPostForm(instance=post)
-    return render(request, 'create.html', {'form': form})
+    
+    # Passer l'utilisateur actuel dans le contexte
+    return render(request, 'edit_post.html', {'form': form, 'user': request.user})
+
 
 
 def post_detail(request, slug):

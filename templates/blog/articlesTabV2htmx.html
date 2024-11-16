@@ -15,13 +15,7 @@
                 <li><a href="#pill5" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'financement' %}" hx-target="#article-content" hx-swap="innerHTML">Financement et investissement</a></li>
                 <li><a href="#pill6" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'competences' %}" hx-target="#article-content" hx-swap="innerHTML">Compétences</a></li>
                 <li><a href="#pill7" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'events' %}" hx-target="#article-content" hx-swap="innerHTML">Events</a></li>
-                <li><a href="#pill8" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'ai' %}" hx-target="#article-content" hx-swap="innerHTML">AI</a></li>
-                <li><a href="#pill9" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'artificial-intelligence' %}" hx-target="#article-content" hx-swap="innerHTML">Artificial Intelligence</a></li>
-                <li><a href="#pill10" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'education' %}" hx-target="#article-content" hx-swap="innerHTML">Education</a></li>
-                <li><a href="#pill11" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'nature' %}" hx-target="#article-content" hx-swap="innerHTML">Nature</a></li>
-                <li><a href="#pill12" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'travel' %}" hx-target="#article-content" hx-swap="innerHTML">Travel</a></li>
             </ul>
-            
     
             <div class="tab-content tab-space" id="article-content">
                 <div class="tab-pane active" id="all">
@@ -133,14 +127,18 @@
         link.addEventListener('click', function(event) {
             event.preventDefault();
             const target = this.getAttribute('href');
-    
-            // Supprimer la classe active de tous les onglets
+
+            // Remove active class from all tabs and hide all content
             document.querySelectorAll('.nav-pills li').forEach(tab => {
                 tab.classList.remove('active');
             });
-    
-            // Ajouter la classe active à l'onglet actuel
+            document.querySelectorAll('.tab-pane').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Add active class to the clicked tab and show the corresponding content
             this.parentElement.classList.add('active');
+            document.querySelector(target).classList.add('active');
         });
     });
 </script>

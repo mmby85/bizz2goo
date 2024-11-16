@@ -11,10 +11,14 @@
 <body>
     <div class="container">
     <h1>Posts</h1>
-        {% for post in posts %}
-            {{ post.content | safe}}
-            <a href="/edit_post/{{ post.id | safe}}">Edit</a>
-        {% endfor %}
+    {% for post in posts %}
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.content | safe}}</p>
+    <p><strong>Category:</strong> {{ post.category.name }}</p>
+    <p><em>Published on {{ post.time }}</em></p>
+    <a href="/edit_post/{{ post.slug | safe}}">Edit</a>
+{% endfor %}
+
     </div>
 </body>
 </html>
