@@ -7,14 +7,14 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3 text-center">
             <ul class="nav nav-pills nav-pills-primary">
-                <li class="active"><a href="#all" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'all' %}" hx-target="#article-content" hx-swap="innerHTML">Tous les articles</a></li>
-                <li><a href="#pill1" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'creation' %}" hx-target="#article-content" hx-swap="innerHTML">Création d’entreprise</a></li>
-                <li><a href="#pill2" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'management' %}" hx-target="#article-content" hx-swap="innerHTML">Management et Stratégie</a></li>
-                <li><a href="#pill3" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'digitalisation' %}" hx-target="#article-content" hx-swap="innerHTML">Digitalisation & IA</a></li>
-                <li><a href="#pill4" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'startups' %}" hx-target="#article-content" hx-swap="innerHTML">Startups</a></li>
-                <li><a href="#pill5" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'financement' %}" hx-target="#article-content" hx-swap="innerHTML">Financement et investissement</a></li>
-                <li><a href="#pill6" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'competences' %}" hx-target="#article-content" hx-swap="innerHTML">Compétences</a></li>
-                <li><a href="#pill7" data-toggle="tab" class="tab-link" hx-get="{% url 'post_list' 'events' %}" hx-target="#article-content" hx-swap="innerHTML">Events</a></li>
+                {% comment %} <li class="active"><a href="#all" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/all/' %}" hx-target="#article-content" hx-swap="innerHTML">Tous les articles</a></li>
+                <li><a href="#pill1" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/creation/' %}" hx-target="#article-content" hx-swap="innerHTML">Création d’entreprise</a></li>
+                <li><a href="#pill2" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/management/' %}" hx-target="#article-content" hx-swap="innerHTML">Management et Stratégie</a></li>
+                <li><a href="#pill3" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/digitalisation/' %}" hx-target="#article-content" hx-swap="innerHTML">Digitalisation & IA</a></li>
+                <li><a href="#pill4" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/startups/' %}" hx-target="#article-content" hx-swap="innerHTML">Startups</a></li>
+                <li><a href="#pill5" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/financement/' %}" hx-target="#article-content" hx-swap="innerHTML">Financement et investissement</a></li>
+                <li><a href="#pill6" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/competences/' %}" hx-target="#article-content" hx-swap="innerHTML">Compétences</a></li>
+                <li><a href="#pill7" data-toggle="tab" class="tab-link" hx-get="{% url 'posts/events/' %}" hx-target="#article-content" hx-swap="innerHTML">Events</a></li> {% endcomment %}
             </ul>
     
             <div class="tab-content tab-space" id="article-content">

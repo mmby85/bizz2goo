@@ -118,7 +118,7 @@ def create(request):
         return redirect('index')
     else:
         form = forms.CKPostForm()
-        return render(request,"create.html" , context={"form" : form})
+        return render(request,"blog/create_post.html" , context={"form" : form})
     
 def create_old(request):
     if request.method == 'POST':
