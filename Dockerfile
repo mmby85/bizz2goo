@@ -11,4 +11,5 @@ RUN python3 manage.py makemigrations
 
 RUN python3 manage.py migrate
 
-CMD python3 manage.py runserver 0.0.0.0:8000
+# CMD ["gunicorn", "--bind", "0.0.0.0:8000", "myproject.wsgi:application"]
+CMD ["gunicorn", "-c", "gunicorn_config.py", "myproject.wsgi:application"]
