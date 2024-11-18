@@ -9,9 +9,21 @@ from . import forms
 
 from django.urls import reverse
 from django.views import generic
+from django.http import JsonResponse
 
 
 from .models import Comment,Post
+
+convert_category = {
+'creation-dentreprise': 'Création d’entreprise',
+'management-and-strategie': 'Management & Stratégie',
+'technologies': 'Technologies',
+'financement-et-startups': 'Financement et Startups',
+'gestion-et-conformite': 'Gestion et Conformité',
+'competences': 'Compétences',
+'events': 'Events',
+}
+
 
 # Create your views here.
 def index(request):
@@ -34,22 +46,22 @@ def index(request):
 
 
 def new_index(request):
-    if request.method == 'POST':
-        form = forms.CKPostForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('post_list')  # Assuming you have a URL for listing posts
-    else:
-        form = forms.CKPostForm()
-
-    return render(request, "blog/home.html", {
-        'posts': CKPost.objects.filter(user_id=request.user.id).order_by("id").reverse()[:2],  
-        'top_posts': CKPost.objects.all().order_by("-likes")[:2],  
-        'recent_posts': CKPost.objects.all().order_by("-id")[:2],  
+    posts = CKPost.objects.filter(user=request.user).order_by("-time")[:5]
+    top_posts = CKPost.objects.all().order_by("-likes")[:5]
+    recent_posts = CKPost.objects.all().order_by("-time")[:5]
+    categories = Category.objects.all()
+    
+    context = {
+        'posts': posts,
+        'top_posts': top_posts,
+        'recent_posts': recent_posts,
+        'categories': categories,
         'user': request.user,
         'media_url': settings.MEDIA_URL,
-        'form': form,
-    })
+    }
+
+    return render(request, "blog/home.html", context)
+
 
 def signup(request):
     if request.method == 'POST':
@@ -139,7 +151,18 @@ def create_old(request):
         form = forms.CKPostForm()
         return render(request,"create_old.html" , context={"form" : form})
 
+
+def posts_by_category(request, id):
     
+    if id == 'all':
+        ckposts = CKPost.objects.all()  # Fetch all CKPosts
+    else:
+        # id_category = convert_category[category]        
+        ckposts = CKPost.objects.filter(category__id=int(id))  # Fetch CKPosts by category
+        
+    return render(request, 'blog/articlesSWAP_HTMX.html', {'ckposts': ckposts})
+
+
 def profile(request,id):
     
     return render(request,'profile.html',{
@@ -260,17 +283,18 @@ class CkEditorMultiWidgetFormView(generic.FormView):
 
 def create_post(request):
     if request.method == 'POST':
-        form = forms.CKPostForm(request.POST)
+        form = forms.CKPostForm(request.POST, request.FILES)  # Inclure les fichiers pour l'image
         if form.is_valid():
-            
-            post = form.save(commit=False)  
-            post.user = request.user  
-            post.save()  
-            category = post.category
-            return redirect('post_list')  
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            messages.success(request, "Post created successfully!")
+            return redirect('post_detail', slug=post.slug)
     else:
         form = forms.CKPostForm()
-    return render(request, 'blog/ckeditor.html', {'form': form})
+
+    categories = Category.objects.all()
+    return render(request, 'blog/create_post.html', {'form': form, 'categories': categories})
 
 def post_list(request):  
     posts = CKPost.objects.all().order_by('-time')  
@@ -284,27 +308,31 @@ from .models import CKPost
 from . import forms
 
 def edit_post(request, slug):
-    # Récupérer le post via le slug
     post = get_object_or_404(CKPost, slug=slug)
 
     if request.method == 'POST':
-        form = forms.CKPostForm(request.POST, instance=post)
+        form = forms.CKPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('post_list')  # Rediriger vers la liste des posts après sauvegarde
+            messages.success(request, "Post updated successfully!")
+            return redirect('post_detail', slug=post.slug)
     else:
         form = forms.CKPostForm(instance=post)
-    
-    # Passer l'utilisateur actuel dans le contexte
-    return render(request, 'edit_post.html', {'form': form, 'user': request.user})
+
+    return render(request, 'blog/edit_post.html', {'form': form, 'post': post})
 
 
 
 def post_detail(request, slug):
-    print(f"Attempting to retrieve post with title: {slug}")
     post = get_object_or_404(CKPost, slug=slug)
-    
-    return render(request, 'blog/post-detail.html', {'post': post})
+    related_posts = CKPost.objects.filter(category=post.category).exclude(id=post.id)[:3]
+
+    context = {
+        'post': post,
+        'related_posts': related_posts,
+        'media_url': settings.MEDIA_URL,
+    }
+    return render(request, 'blog/post-detail.html', context)
 
 def home_new(request):
     return render(request, 'blog/base.html')
@@ -312,17 +340,10 @@ def home_new(request):
 ckeditor_form_view = CkEditorFormView.as_view()
 # ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()
 
-
-
-from django.template.loader import render_to_string
-from .models import SubCategory
-from django.http import JsonResponse
 def get_subcategories(request):
     category_id = request.GET.get('category_id')
     subcategories = SubCategory.objects.filter(category_id=category_id)
     return JsonResponse({
-        'html': render_to_string('subcategories_dropdown.html', {'subcategories': subcategories})
+        'subcategories': [{'id': sub.id, 'name': sub.name} for sub in subcategories]
     })
     
-    
-#fel home2 naffichy les 3 premiers posts nzidouhom les filters w nzidouha petite description // bel post bel post bel slug mte3ou

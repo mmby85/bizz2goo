@@ -10,6 +10,9 @@ urlpatterns = [
     path('edit_post/<slug:slug>/', views.edit_post, name='edit_post'),
    
     path('post/<slug:slug>/', views.post_detail, name='post_detail'),
+    # Gestion des catégories et sous-catégories
+    path('categories/<str:id>/', views.posts_by_category, name='posts_by_category'),  # Articles par catégorie
+    path('get-subcategories/', views.get_subcategories, name='get_subcategories'),  # Récupérer les sous-catégories (HTMX)
 
     path("new-home" , views.home_new, name="new-home"),
 

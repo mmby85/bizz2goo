@@ -35,6 +35,86 @@
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
+    <style>
+        /* Sections générales */
+        .section {
+            padding: 50px 0;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #333;
+        }
+
+        /* Liste des catégories */
+        .categories-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* Afficher les catégories en 4 colonnes */
+            gap: 15px;
+            list-style: none;
+            padding: 0;
+            margin: 0 auto;
+            max-width: 800px; /* Limiter la largeur totale */
+            text-align: center;
+        }
+
+        .category-link {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 20px;
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            display: block;
+        }
+
+        .category-link:hover {
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* Articles */
+        .card {
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .card-text {
+            color: #666;
+        }
+
+        /* Articles populaires */
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Responsivité : Réduire la largeur de la carte en fonction de l'écran */
+        @media (max-width: 768px) {
+            .categories-list {
+                grid-template-columns: repeat(2, 1fr); /* Sur mobile, 2 colonnes */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .categories-list {
+                grid-template-columns: 1fr; /* Sur petits écrans, 1 seule colonne */
+            }
+        }
+        
+    </style>
+
 </head>
 
 <body class="blog-posts">
@@ -142,3 +222,4 @@
 <script src="{% static 'blog/assets/js/jasny-bootstrap.min.js' %}" ></script>
 
 <script src="{% static 'blog/assets/js/material-kit.min.js' %}" ></script>
+<script src="https://unpkg.com/htmx.org@1.9.3"></script> <!-- HTMX CDN -->
