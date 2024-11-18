@@ -1,0 +1,12 @@
+{% for post in ckposts %}
+    <div class="post">
+        <h3><a href="{% url 'post_detail' post.slug %}">{{ post.title }}</a></h3>
+        <p>{{ post.content|truncatewords:50 }}</p>
+        <p>
+            <small>Publié le {{ post.time|date:"d/m/Y H:i" }}</small> |
+            <small>{{ post.likes }} likes</small>
+        </p>
+    </div>
+{% empty %}
+    <p>Aucun article trouvé pour cette catégorie.</p>
+{% endfor %}

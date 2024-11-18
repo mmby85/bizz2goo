@@ -47,18 +47,34 @@ class CKPostForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Si une catégorie est déjà sélectionnée, filtrez les sous-catégories
+
+        # Filtrage dynamique des sous-catégories
         if 'category' in self.data:
             try:
                 category_id = int(self.data.get('category'))
                 self.fields['sub_category'].queryset = SubCategory.objects.filter(category_id=category_id).order_by('name')
             except (ValueError, TypeError):
-                pass
-        elif self.instance.pk:
+                self.fields['sub_category'].queryset = SubCategory.objects.none()
+        elif self.instance.pk and self.instance.category:
             self.fields['sub_category'].queryset = self.instance.category.subcategories.order_by('name')
         else:
-            # Par défaut, on n'affiche aucune sous-catégorie si la catégorie n'est pas sélectionnée
             self.fields['sub_category'].queryset = SubCategory.objects.none()
+
+        # Option par défaut pour les sous-catégories
+        self.fields['sub_category'].empty_label = "Sélectionnez une sous-catégorie"
+
+    def clean(self):
+        cleaned_data = super().clean()
+        category = cleaned_data.get("category")
+        sub_category = cleaned_data.get("sub_category")
+
+        # Validation que la sous-catégorie appartient bien à la catégorie
+        if sub_category and sub_category.category != category:
+            self.add_error('sub_category', "La sous-catégorie ne correspond pas à la catégorie sélectionnée.")
+
+        return cleaned_data
+
+
 # class CKPostOverriddenWidgetForm(forms.ModelForm):
 #     class Meta:
 #         model = CKPost
