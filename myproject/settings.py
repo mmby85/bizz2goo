@@ -16,6 +16,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMP_DIR = os.path.join(BASE_DIR,"templates")
 STATIC_DIR = os.path.join(BASE_DIR,"static")
+# STATIC_DIR = "/var/www/html/blogStatic/"
 MEDIA_DIR = os.path.join(BASE_DIR,"media")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -24,7 +25,7 @@ MEDIA_DIR = os.path.join(BASE_DIR,"media")
 SECRET_KEY = "django-insecure-s0eg9q5^i%wy4n5m78yvbpwkb3j3u)w8nx=pr&c6+ag8ltvs5t"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -54,6 +55,14 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "myproject.urls"
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://blog.intelligence.tn",
+    "http://www.blog.intelligence.tn",  # Add both HTTP and HTTPS if applicable
+    "https://blog.intelligence.tn",
+
+]
+
 
 TEMPLATES = [
     {
@@ -122,13 +131,16 @@ USE_TZ = True
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
 STATIC_URL = "static/"
-STATIC_ROOT= "collectstatic"
+# STATIC_ROOT= "collectstatic"
+STATIC_ROOT=  "/var/www/html/blogStatic"
 
-STATICFILES_DIRS = [STATIC_DIR]
+STATICFILES_DIRS = [ BASE_DIR / "static"]
 
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = MEDIA_DIR
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
