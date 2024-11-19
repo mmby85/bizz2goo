@@ -46,7 +46,7 @@ def index(request):
 
 
 def new_index(request):
-    posts = CKPost.objects.filter(user=request.user).order_by("-time")[:5]
+    posts = CKPost.objects.order_by("-time")[:5]
     top_posts = CKPost.objects.all().order_by("-likes")[:5]
     recent_posts = CKPost.objects.all().order_by("-time")[:5]
     categories = Category.objects.all()
