@@ -1,125 +1,66 @@
 {% extends "blog/base.html" %}
-
 {% load static %}
-
-{% block title %} Post {{ post.title}}{% endblock %}
-
 {% block body %}
-
 {% include "blog/heroSection.html" %}
 
-
 <div class="main main-raised">
+  <section class="blog-posts grid-system">
+    <div class="container py-5">
+      <!-- Blog Header -->
+      <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+          <h2 class="text-primary">{{ post.category }}</h2>
+          <h3 class="title-uppercase">
+            <small>Written by {{ post.user }}</small>
+          </h3>
+        </div>
+      </div>
 
+      <!-- Blog Content -->
+      <div class="row justify-content-center mt-4">
+        <div class="col-md-10 text-center">
+          <span class="main-tag badge badge-warning">Trending</span>
+          <h3 class="title my-3">{{ post.title }}</h3>
+          <h6 class="title-uppercase text-muted">{{ post.time | date:"F d, Y" }}</h6>
+        </div>
 
-    <section class="blog-posts grid-system">
-      <div class="container">
-        <div class="row">
-          <div class="col-lg-8">
-            <div class="all-blog-posts">
-              <div class="row">
-                <div class="col-lg-12">
-                  <div class="blog-post">
-                    <div class="blog-thumb">
-                      <img src="{{media_url}}{{post.image}}" alt="post_image">
-                    </div>
-                    <div class="down-content">
-                      <span>{{post.category}}</span>
-                      <a><h4>{{post.postname}}</h4></a>
-                      <ul class="post-info">
-                        <li><a href="#">{{post.user}}</a></li>
-                        <li><a href="#">{{post.time}}</a></li>
-                        <li><a href="#">10 Comments</a></li>
-                      </ul>
-                      <p>{{post.content |safe}}</p>
-                      <div class="post-options">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-lg-12">
-                  <div class="sidebar-item comments">
-                    <div class="sidebar-heading">
-                      <h2 class="text-dark-emphasis">{{total_comments}} comments</h2>
-                    </div>
-                    <div class="content">
-                      <ul>
-                        {% for comment in comments %}
-                        <li style="display: block;">
-                          <div class="ps-3">
-                            <h5>{{comment.user}}<span class="small text-black-50 px-5 text-danger">{{comment.time}}</span>
-                              {% if post.user == user or comment.user == post.user%}
-                              <a href="{% url 'deletecomment' comment.id %}" class="small text-danger float-right fw-bold pt-1">Delete</a>
-                              {% endif %}
-                            </h5>
-                            <p>{{comment.content}}</p>
-                          </div>
-                        </li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                {% if user.is_authenticated %}
-                <div class="col-lg-12">
-                  <div class="sidebar-item submit-comment">
-                    <div class="sidebar-heading">
-                      <h2>Your comment</h2>
-                    </div>
-                    <div class="content">
-                      <form id="comment" action="{% url 'savecomment' post.id %}" method="post">
-                        {% csrf_token %}
-                        <div class="row">
-                          <div class="col-lg-12">
-                            <fieldset>
-                              <textarea name="message" rows="6" id="message" placeholder="Type your comment" class="text-lowercase" required></textarea>
-                            </fieldset>
-                          </div>
-                          <div class="col-lg-12">
-                            <fieldset>
-                              <button type="submit" id="form-submit" class="main-button">Submit</button>
-                            </fieldset>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-                {% endif %}
-              </div>
-            </div>
+        <div class="col-md-12 text-center">
+          <div data-radius="none" class="card" style='background-image: url("{{media_url}}{{post.image}}"); width: ; height: 400px; background-size: cover;'></div>
           </div>
-          <div class="col-lg-4">
-            <div class="sidebar">
-              <div class="row">
-                <div class="col-lg-12">
-                  <div class="sidebar-item recent-posts">
-                    <div class="sidebar-heading">
-                      <h2>Recent Posts</h2>
-                    </div>
-                    <div class="content">
-                      <ul>
-                        {% for post in recent_posts|slice:"0:4" %}
-                        <li>
-                          <img src="{{media_url}}{{post.image}}" class="img-fluid" alt="">
-                          <a href="post-details.html">
-                            <a href="{% url 'post_detail' title=post.title %}" class="text-decoration-none text-dark">
-                              <h5>{{ post.postname }}</h5>
-                          </a>
-                          
-                          <span>{{post.time}}</span>
-                        </a></li>
-                        {% endfor %}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-                
-              </div>
-            </div>
+        </div>
+        <div class="col-md-10">
+          <div class="article-content text-justify">
+            <h4>{{ post.content | safe }}</h4>
           </div>
         </div>
       </div>
-    </section>
 
-    {% endblock %}
+      
+
+      <!-- Comments Section -->
+      <div class="row justify-content-center mt-5">
+        <div class="col-md-10">
+          <div class="comments media-area">
+            <h3 class="text-center">Comments</h3>
+            {% for comment in post.comments %}
+            <div class="media mt-4">
+              <div class="avatar mr-3">
+                <img src="{{ comment.avatar_url }}" alt="Avatar" class="rounded-circle" style="width: 50px; height: 50px;">
+              </div>
+              <div class="media-body">
+                <h5 class="media-heading">{{ comment.author }}</h5>
+                <p>{{ comment.content }}</p>
+                <small class="text-muted">{{ comment.timestamp }}</small>
+              </div>
+            </div>
+            {% empty %}
+            <p class="text-center text-muted">No comments yet. Be the first to comment!</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock %}

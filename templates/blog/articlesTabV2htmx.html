@@ -41,7 +41,7 @@
                                     {{ post.title }}
                                 </a>
                             </h3>
-                            <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+                            <p class="card-text">{{ post.content |truncatewords:30 |safe }}</p>
                             <p class="text-muted">
                                 <small>Publié le {{ post.time|date:"d/m/Y H:i" }}</small>
                             </p>

@@ -1,79 +1,37 @@
+{% extends "blog/base.html" %}
 {% load static %}
-<!doctype html>
 
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Style Example</title>
+{% block title %}Edit Post{% endblock %}
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+{% block body %}
+{% include "blog/heroSection.html" %}
 
-    <style>
-        body {
-            background-color: #f4f7fa; /* Couleur de fond douce */
-            font-family: Arial, sans-serif;
-        }
+<div class="main main-raised">
+  <section class="blog-posts grid-system">
+    <div class="container py-5">
+      <!-- Form Header -->
+      <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+          <h2 class="text-primary">Edit Post</h2>
+        </div>
+      </div>
 
-        .container {
-            margin-top: 50px;
-            padding: 40px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Ombre douce */
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-control:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-        }
-
-        .btn-primary {
-            width: 100%; /* Bouton large */
-            padding: 10px;
-            background-color: #007bff;
-            border: none;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        #id_content {
-            display: none; /* Champ masqué si nécessaire */
-        }
-    </style>
-</head>
-
-<body>
-    <div class="container">
-        <h2>Edit Post</h2>
-
-        <form method="post">
+      <!-- Form Section -->
+      <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+          <form method="post">
             {% csrf_token %}
             {{ form.media }}
-            {{ form.as_p }} <!-- Affiche le formulaire avec un style de paragraphe -->
+            {{ form.as_p }} <!-- Form with paragraph style -->
 
-            <div class="form-group">
-                <input type="submit" class="btn btn-primary" value="Update Post">
+            <div class="form-group mt-3">
+              <input type="submit" class="btn btn-primary btn-block" value="Update Post">
             </div>
-        </form>
+          </form>
+        </div>
+      </div>
     </div>
+  </section>
+</div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+{% endblock %}

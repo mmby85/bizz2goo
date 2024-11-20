@@ -44,7 +44,8 @@ class CKPostForm(forms.ModelForm):
     class Meta:
         model = CKPost
         fields = '__all__'
-
+        exclude = ['slug']
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

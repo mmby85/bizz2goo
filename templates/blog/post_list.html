@@ -1,24 +1,80 @@
+{% extends "blog/base.html" %}
 {% load static %}
-<!-- post_list.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Posts</title>
-    <link href="{% static 'blog/assets/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="{% static 'blog/assets/css/material-kit.css' %}" rel="stylesheet">
+{% load custom_filters %}
 
-</head>
-<body>
-    <div class="container">
-    <h1>Posts</h1>
-    {% for post in posts %}
-    <h2>{{ post.title }}</h2>
-    <p>{{ post.content | safe}}</p>
-    <p><strong>Category:</strong> {{ post.category.name }}</p>
-    <p><em>Published on {{ post.time }}</em></p>
-    <a href="/edit_post/{{ post.slug | safe}}">Edit</a>
-{% endfor %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+<style>
+    
+        .image-container {
+            width: 300px; /* Ajuste à la largeur du parent */
+            height: 300px; /* Augmente la hauteur */
+            background-size: cover; /* Assure que l'image occupe tout l'espace */
+            background-repeat: no-repeat; /* Évite la répétition de l'image */
+            background-position: center; /* Centre l'image */
+            border-radius: 10px; /* Coins arrondis */
+            border: 2px solid #ddd; /* Bordure légère */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Ombre douce */
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Effet au survol */
+        }
+    
+        /* Effet au survol */
+        .image-container:hover {
+            transform: scale(1.05); /* Zoom léger */
+            box-shadow: 0px 8px 12px rgba(0, 0, 0, 0.2); /* Accentue l'ombre */
+        }
+    
+    
+</style>      
+<div class="main main-raised">
+  <section class="blog-posts grid-system">
+    <div class="container py-5">
+      <!-- Header Section -->
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-md-offset-2 text-center">
+          <h1 style="color: #4CAF50; font-size: 7rem; font-weight: bold; text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);">
+            Blog Posts
+          </h1>
+        </div>
+      </div>
+      
 
+      <!-- Posts List Section -->
+      <div class="row mt-4">
+        {% for post in posts %}
+        
+        <div class="col-md-4">
+          <div class="card mb-4">
+            <!-- Post Image -->
+            <div class="col-md-12 text-center">
+                <div 
+                  data-radius="none" 
+                  class="card image-container" 
+                  style='background-image: url("{{post.image.url}}");'>
+                </div>
+            </div>
+              
+            
+
+            <!-- Post Content -->
+            <div class="card-body">
+              <h3 class="card-title text-primary">{{ post.title }}</h3>
+              <p class="card-text">{{ post.content|first_words:50|safe }}</p>
+              <p class="text-muted">
+                <strong>Catégorie :</strong> {{ post.category.name }}
+              </p>
+              <p class="text-muted"><em>Publié le {{ post.time|date:"F d, Y" }}</em></p>
+              <a href="{% url 'post_detail' post.slug %}" class="btn btn-primary btn-sm">Lire Plus</a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12 text-center">
+          <p class="text-muted">Aucun post disponible.</p>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-</body>
-</html>
+  </section>
+</div>
+{% endblock %}
