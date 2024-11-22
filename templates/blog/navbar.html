@@ -1,8 +1,12 @@
 
+{% load static %}
 <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
     <div class="container">
         <div class="navbar-header">
-           <h3>Bizz2Go</h3> 
+           <h3><img
+            src = '{% static 'blog/assets/img/logo test.png' %}'>
+                
+           </img></h3> 
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -12,7 +16,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#ml">
+                    <a href="{% url 'post_list' %}">
                        Articles
                     </a>
                 </li>                    

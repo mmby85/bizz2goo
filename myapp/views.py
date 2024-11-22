@@ -46,10 +46,11 @@ def index(request):
 
 
 def new_index(request):
-    posts = CKPost.objects.order_by("-time")[:5]
-    top_posts = CKPost.objects.all().order_by("-likes")[:5]
-    recent_posts = CKPost.objects.all().order_by("-time")[:5]
+    posts = CKPost.objects.order_by("-time")
+    top_posts = CKPost.objects.all().order_by("-likes")[:3]
+    recent_posts = CKPost.objects.all().order_by("-time")[:3]
     categories = Category.objects.all()
+    all_posts = CKPost.objects.all()
     
     context = {
         'posts': posts,
@@ -58,6 +59,8 @@ def new_index(request):
         'categories': categories,
         'user': request.user,
         'media_url': settings.MEDIA_URL,
+        'all_posts': all_posts,
+        
     }
 
     return render(request, "blog/home.html", context)
@@ -325,7 +328,7 @@ def edit_post(request, slug):
 
 def post_detail(request, slug):
     post = get_object_or_404(CKPost, slug=slug)
-    related_posts = CKPost.objects.filter(category=post.category).exclude(id=post.id)[:3]
+    related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
 
     context = {
         'post': post,

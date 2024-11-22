@@ -1,28 +1,58 @@
 <!-- Section des Catégories -->
+{% load custom_filters %}
+<head>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+</head>
 <section id="categories" class="section">
     <div class="container">
-        <h2 class="text-center section-title">Catégories</h2>
+        <h3 class="title text-center" style="margin-bottom: 50px; font-family: 'IBM Plex Sans', sans-serif; font-size: 40px;">
+            You may also be interested in
+        </h3>
+        
+        
+        
         <ul class="categories-list">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 text-center">
+                    <ul class="nav nav-pills" style="background-color: #f0f0f0; border-radius: 5px;box-shadow: 0px 4px 6px #1260CC;">
+                        <li class="active">
+                            <a href="#" 
+                               hx-get="{% url 'posts_by_category' 'all' %}" 
+                               hx-target="#posts-container" 
+                               hx-trigger="click"
+                               class="category-link btn btn-outline-secondary"
+                               style="color: #fff; background-color: #05012e; border-color: #1260CC;box-shadow: 0px 4px 6px #1260CC;">
+                               Tous les articles
+                            </a>
+                        </li>
+                    </ul>
+                    
+                </div>
+            </div>
+            
             {% for category in categories %}
-                <li>
-                    <a href="#" 
-                       hx-get="{% url 'posts_by_category' category.id %}" 
-                       hx-target="#posts-container" 
-                       hx-trigger="click"
-                       class="category-link btn btn-outline-primary">
-                       {{ category.name }}
-                    </a>
-                </li>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3 text-center">
+                        <ul class="nav nav-pills" style="background-color: #f0f0f0; border-radius: 5px;box-shadow: 0px 4px 6px #1260CC;">
+                            <li class="active">
+                                <a href="#" 
+                                hx-get="{% url 'posts_by_category' category.id %}" 
+                                hx-target="#posts-container" 
+                                hx-trigger="click"
+                                class="category-link btn btn-outline-secondary"
+                                style="color: #fff; background-color: #05012e; border-color: #05012e;box-shadow: 0px 4px 6px #1260CC;">
+                                {{ category.name }}</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                
+
+                
             {% endfor %}
-            <li>
-                <a href="#" 
-                   hx-get="{% url 'posts_by_category' 'all' %}" 
-                   hx-target="#posts-container" 
-                   hx-trigger="click"
-                   class="category-link btn btn-outline-secondary">
-                   Tous les articles
-                </a>
-            </li>
+            
         </ul>
     </div>
 </section>
@@ -30,21 +60,34 @@
 <!-- Section des Articles -->
 <section id="posts" class="section">
     <div class="container">
-        <h2 class="text-center section-title">Articles</h2>
+        
+        <h3 class="title text-center"style="margin-bottom: 50px" >Articles plus récents</h3>
         <div id="posts-container" class="row">
-            {% for post in all_posts %}
+            {% for post in recent_posts %}
                 <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title">
-                                <a href="{% url 'post_detail' post.slug %}" class="text-dark">
-                                    {{ post.title }}
-                                </a>
-                            </h3>
-                            <p class="card-text">{{ post.content |truncatewords:30 |safe }}</p>
+                    <div class="card card-plain card-blog">
+                        <div class="card-image">
+                            <div 
+            data-radius="none" 
+            class="card" 
+            style="
+              background-image: url('{{media_url}}{{post.image}}'); 
+              width: 100%; 
+              height: 200px; 
+              background-size: contain; 
+              background-repeat: no-repeat; 
+              background-position: center;
+              "
+                            ></div>
+                            
+                            <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+                            <h4 class="card-text">{{ post.title|safe }}</h4>
+                            <p class="card-text">{{ post.content|first_words:20|safe }}</p>
                             <p class="text-muted">
-                                <small>Publié le {{ post.time|date:"d/m/Y H:i" }}</small>
+                                <small>{{ post.time|date:"d/m/Y H:i" }}</small>
                             </p>
+                            <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
+                            
                         </div>
                     </div>
                 </div>
@@ -60,17 +103,32 @@
         <div id="top-posts-container" class="row">
             {% for post in top_posts %}
                 <div class="col-md-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h3 class="card-title">
-                                <a href="{% url 'post_detail' post.slug %}" class="text-dark">
-                                    {{ post.title }}
-                                </a>
-                            </h3>
-                            <p class="card-text">{{ post.content|truncatewords:30 }}</p>
+                    <div class="card card-plain card-blog">
+                        <div class="card-image">
+                            <div 
+            data-radius="none" 
+            class="card" 
+            style="
+              background-image: url('{{media_url}}{{post.image}}'); 
+              width: 100%; 
+              height: 200px; 
+              background-size: contain; 
+              background-repeat: no-repeat; 
+              background-position: center;
+              "
+                            ></div>
+                            
+                            <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+                            <h4 class="card-text">{{ post.title|safe }}</h4>
+                            <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                            <p class="text-muted">
+                                <small>{{ post.time|date:"d/m/Y H:i" }}</small>
+                            </p>
                             <p class="text-muted">
                                 <small>{{ post.likes }} likes</small>
                             </p>
+                            <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
+                            
                         </div>
                     </div>
                 </div>
