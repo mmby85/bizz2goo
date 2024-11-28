@@ -1,5 +1,6 @@
 from . import views
 from django.urls import path
+from .views import AuthorProfileCreateView 
 
 urlpatterns = [
     path("",views.new_index,name="index"),
@@ -13,9 +14,9 @@ urlpatterns = [
     # Gestion des catégories et sous-catégories
     path('categories/<str:id>/', views.posts_by_category, name='posts_by_category'),  # Articles par catégorie
     path('get-subcategories/', views.get_subcategories, name='get_subcategories'),  # Récupérer les sous-catégories (HTMX)
-
+    path('author/<str:username>/', views.author_profile, name='author_profile'),
     path("new-home" , views.home_new, name="new-home"),
-
+    path('author-profile/create/', AuthorProfileCreateView.as_view(), name='create-author-profile'),
     path("blog",views.blog,name="blog"),
     path("signin",views.signin,name="signin"),
     path("signup",views.signup,name="signup"),
@@ -23,7 +24,7 @@ urlpatterns = [
     path("create",views.create,name="create"),
     path("increaselikes/<int:id>",views.increaselikes,name='increaselikes'),
     path("create_old",views.create_old,name="create_old"),
-
+    path('add-comment/', views.add_comment, name='add_comment'),
     path("removepost/<int:id>",views.removepost,name='removepost'),
     path("profile/<int:id>",views.profile,name='profile'),
     path("profile/edit/<int:id>",views.profileedit,name='profileedit'),
@@ -34,4 +35,5 @@ urlpatterns = [
     path("post/delete/<int:id>",views.deletepost,name="deletepost"),
     path("contact",views.contact_us,name="contact"),
     path('get_subcategories/', views.get_subcategories, name='get_subcategories'),
+    
 ]

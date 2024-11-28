@@ -1,5 +1,6 @@
 <!-- Section des Catégories -->
 {% load custom_filters %}
+
 <head>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -15,7 +16,7 @@
         <ul class="categories-list">
             <div class="row">
                 <div class="col-md-6 col-md-offset-3 text-center">
-                    <ul class="nav nav-pills" style="background-color: #f0f0f0; border-radius: 5px;box-shadow: 0px 4px 6px #1260CC;">
+                    <ul class="nav nav-pills nav-justified" style="background: #f0f0f0; border-radius: 5px;box-shadow: 0px 4px 6px #1260CC; margin:0px ;width:0px">
                         <li class="active">
                             <a href="#" 
                                hx-get="{% url 'posts_by_category' 'all' %}" 
@@ -34,7 +35,7 @@
             {% for category in categories %}
                 <div class="row">
                     <div class="col-md-6 col-md-offset-3 text-center">
-                        <ul class="nav nav-pills" style="background-color: #f0f0f0; border-radius: 5px;box-shadow: 0px 4px 6px #1260CC;">
+                        <ul class="nav nav-pills nav-justified" style="background-color: #f0f0f0; border-radius: 5px;box-shadow: 0px 4px 6px #1260CC;margin:0px ;width:0px">
                             <li class="active">
                                 <a href="#" 
                                 hx-get="{% url 'posts_by_category' category.id %}" 
@@ -55,13 +56,14 @@
             
         </ul>
     </div>
+    
 </section>
 
 <!-- Section des Articles -->
 <section id="posts" class="section">
     <div class="container">
         
-        <h3 class="title text-center"style="margin-bottom: 50px" >Articles plus récents</h3>
+        <h3 class="title text-center"style="margin-bottom: 50px" >Articles</h3>
         <div id="posts-container" class="row">
             {% for post in recent_posts %}
                 <div class="col-md-4">

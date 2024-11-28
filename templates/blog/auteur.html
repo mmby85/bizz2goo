@@ -1,0 +1,94 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+<style>
+    .align-vertical {
+        vertical-align: middle; /* Exemple : middle, top, bottom */
+        display: inline-block; /* Assure que l'image respecte l'alignement */
+    }
+    .circle-image {
+        width: 150px; /* Ajuste la taille selon tes besoins */
+        height: 150px; /* Assure une hauteur égale à la largeur */
+        border-radius: 50%; /* Rend l'image circulaire */
+        object-fit: cover; /* Assure que l'image s'ajuste bien dans le cercle */
+        border: 2px solid #ccc; /* Optionnel : ajoute une bordure */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Optionnel : ajoute une ombre */
+    }
+    .wrapper {
+        transition: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
+        left: 0;
+        background-color: #fff;
+        position: relative;
+        z-index: 1;
+    }
+    
+
+</style>
+<div class="wrapper">
+	<div class="profile-content section">
+		<div class="container">
+			<div class="row">
+				<div class="profile-picture" style="
+                margin-left: 500px "
+            >
+					<div class="fileinput fileinput-new" data-provides="fileinput">
+						<div class="fileinput-new img-no-padding" >{% if author_profile.profile_picture %}
+                            
+                            <img alt ="..." src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="align-vertical circle-image" style="
+                            height:200px ; weight:400px;margin-top:-50px;">
+                        {% endif %}</div>
+						<div class="name">
+							<h4 class="title text-center" style="font-family: 'Montserrat', Helvetica, Arial, sans-serif; 
+                                     font-size: 1.8em; 
+                                     line-height: 1.3em; 
+                                     font-weight: bold; 
+                                     color: #333; 
+                                     margin: 10px 0;">
+    {{ author_profile.user.username }} <br />
+                            <small style="display: block; 
+                            -webkit-font-smoothing: antialiased;
+                                        font-size: 1em; 
+                                        font-weight: normal; 
+                                        color: #9a9a9a; 
+                                        margin-top: 5px;">
+                                {{ author_profile.metier }}
+                            </small>
+                            
+                            </h4>
+                            {% if author_profile.website %}
+                            <a href="{{ author_profile.website }}" target="_blank">{{ author_profile.website }}</a>
+                            {% endif %}
+						</div>
+					</div>
+                    <div   style="  -webkit-font-smoothing: antialiased;
+                    font-family: Montserrat, Helvetica, Arial, sans-serif;
+                    font-weight: 300;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;color: #66615b;-webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}">
+					{% if author_profile.bio %}
+                    <p>{{ author_profile.bio }}</p>
+                    {% endif %}
+                </div>
+					<br />
+					
+				</div>
+				</div>
+			</div>
+			
+				
+			
+			<br />
+			
+			
+		</div>
+	</div>
+</div>
+
+{% endblock %}

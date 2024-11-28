@@ -1,0 +1,14 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Créer un profil auteur</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Créer le profil</button>
+    </form>
+</div>
+{% endblock %}

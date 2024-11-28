@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Post,Comment,Contact
+from .models import Post,Comment,Contact , AuthorProfile
 from ckeditor.widgets import CKEditorWidget
 
 from .models import CKPost , SubCategory , Category
@@ -35,7 +35,7 @@ admin.site.register(Comment)
 admin.site.register(Contact)
 admin.site.register(Category)
 admin.site.register(SubCategory)
-
+admin.site.register(AuthorProfile)
 
 admin.site.site_header = 'BLOGSPOT | ADMIN PANEL'
 admin.site.site_title = 'BLOGSPOT | BLOGGING WEBSITE'

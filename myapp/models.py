@@ -22,10 +22,8 @@ class Post(models.Model):
         return str( self.postname)
 
 
-#@Islem implement the model + update the form in forms.py + @Walid upadte the form in html
-from django.db import models
-from django.contrib.auth.models import User
-from ckeditor.fields import RichTextField
+
+
 
 class Category(models.Model):
     name = models.CharField(max_length=600, blank=True, null=True)
@@ -50,6 +48,7 @@ class CKPost(models.Model):
     likes = models.IntegerField(null=True, blank=True, default=0)
     user = models.ForeignKey(User, on_delete=models.CASCADE , blank=True, null=True)
     time = models.DateTimeField(auto_now_add=True, blank=True)  
+    
     def __str__(self):
         return self.title
       
@@ -69,13 +68,17 @@ class CKPost(models.Model):
         super().save(*args, **kwargs)
 
 
+
 class Comment(models.Model):
     content = models.CharField(max_length=200)
-    time = models.CharField(default=time,max_length=100, blank=True)
-    post = models.ForeignKey(Post,on_delete=models.CASCADE)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now_add=True, blank=True)
+    post = models.ForeignKey(CKPost, related_name="comments", on_delete=models.CASCADE)
+    user = models.CharField(max_length=100)
+    to_field="slug",
+
     def __str__(self):
-        return  f"{self.id}.{self.content[:20]}..."
+        return f"{self.id}.{self.content[:20]}..."
+
     
     
 
@@ -84,3 +87,18 @@ class Contact(models.Model):
     email = models.EmailField(max_length=600)
     subject = models.CharField(max_length=1000)
     message = models.CharField(max_length=10000, blank=True)
+    
+class AuthorProfile(models.Model):
+    user = models.OneToOneField(
+        User, 
+        on_delete=models.CASCADE,
+        limit_choices_to={'is_staff': True}  # Limite aux utilisateurs administrateurs
+    )
+    bio = models.TextField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='author_pictures/', blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    metier= models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Author Profile: {self.user.username}"
+    

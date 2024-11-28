@@ -329,11 +329,14 @@ def edit_post(request, slug):
 def post_detail(request, slug):
     post = get_object_or_404(CKPost, slug=slug)
     related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
-
+    author_profile = None
+    if post.user.is_staff and hasattr(post.user, 'authorprofile'):
+        author_profile = post.user.authorprofile
     context = {
         'post': post,
         'related_posts': related_posts,
         'media_url': settings.MEDIA_URL,
+        'author_profile': author_profile,
     }
     return render(request, 'blog/post-detail.html', context)
 
@@ -350,3 +353,60 @@ def get_subcategories(request):
         'subcategories': [{'id': sub.id, 'name': sub.name} for sub in subcategories]
     })
     
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+
+def add_comment(request):
+    model = Comment
+    fields = ["content"]
+    template_name = "post_detail.html"
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user.profile
+        form.instance.article = CKPost.objects.filter(
+            slug=self.kwargs.get("slug")
+        ).first()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse(
+            "post_detail", kwargs={"slug": self.object.post.slug}
+        )
+
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
+from .models import AuthorProfile
+
+def author_profile(request, username):
+    user = get_object_or_404(User, username=username, is_staff=True)  # Vérifie que c'est un administrateur
+    profile = get_object_or_404(AuthorProfile, user=user)
+
+    return render(request, 'blog/auteur.html', {'author_profile': profile})
+
+
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.views.generic.edit import CreateView
+from django.shortcuts import redirect
+from .models import AuthorProfile
+
+class AuthorProfileCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = AuthorProfile
+    fields = ['bio', 'profile_picture', 'website', 'metier']
+    template_name = 'blog/author_profile_form.html'
+    success_url = '/success/'  # Redirection après la création
+
+    def test_func(self):
+        # Vérifie que l'utilisateur connecté est un administrateur
+        return self.request.user.is_staff
+
+    def form_valid(self, form):
+        # Vérifie si un profil existe déjà pour l'utilisateur
+        if AuthorProfile.objects.filter(user=self.request.user).exists():
+            # Retourne une erreur si un profil existe déjà
+            form.add_error(None, "Vous avez déjà créé un profil auteur.")
+            return self.form_invalid(form)
+        
+        # Associe automatiquement le profil à l'utilisateur connecté
+        form.instance.user = self.request.user
+        return super().form_valid(form)

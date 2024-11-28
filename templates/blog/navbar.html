@@ -39,6 +39,9 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create' %}">Create</a>
                 </li>
+                {% if user.is_staff %}
+                <li><a href="{% url 'create-author-profile' %}">Créer un profil auteur</a></li>
+                {% endif %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'profile' user.id %}">Profile</a>
                 </li>
@@ -52,6 +55,8 @@
                         Login
                     </a>
                 </li>
+                
+
                 {% endif %}
       
             </ul>

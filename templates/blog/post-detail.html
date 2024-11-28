@@ -44,13 +44,108 @@
               <h4>{{ post.content | safe }}</h4>
             </div>
           </div>
+          
+          
         </div>
         
         
       </div>
       <hr>
       <br>
+      
+      <div class="row " style ="margin-left: 100px;
+    margin-right: 100px;">
+        <div class="media">
+          <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
+            <div class ="avatar big-avatar">
+            {% if author_profile.profile_picture %}
+                <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
+            {% endif %}
+            </div>
+          </a>
+          <div class="media-body">
+            <h4 class="media-heading" style="    color: #403d39;
+    display: inline-block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    margin-top: 5px;">
+              <a href="{% url 'author_profile' author_profile.user.username %}">
+                  {{ author_profile.user.username }}
+              </a>
+            </h4>
+            
+            {% if author_profile.bio %}
+                <p>{{ author_profile.bio }}</p>
+            {% endif %}
+            
+          </div>
+        </div>
+      </div>
+      <hr>
+      
       <br>
+      
+      
+      
+        <div class="row">
+          <div class="comments media-area">
+            <h3 class="text-center">Comments</h3>
+            {%if not post.comments.all%}
+              no comments yet ... <a href="#">
+                Add one </a>
+            {%else%}
+            <div id="comment-section">
+              <!-- Liste des commentaires -->
+              <div id="comments-container">
+                  {% for comment in comments %}
+                  <div class="comment">
+                      <p><strong>{{ comment.username }}</strong>: {{ comment.content }}</p>
+                  </div>
+                  {% endfor %}
+              </div>
+          
+              <!-- Formulaire pour ajouter un commentaire -->
+              <form hx-post="{% url 'add_comment' %}" 
+                    hx-target="#comments-container" 
+                    hx-swap="beforeend"
+                    id="comment-form">
+                  <input type="text" name="username" placeholder="Your name" required>
+                  <textarea name="content" placeholder="Your comment" required></textarea>
+                  <input type="hidden" name="post_id" value="{{ post.id }}">
+                  <button type="submit">Add Comment</button>
+              </form>
+              <div id="comments-container">
+                  {% for comment in comments %}
+                  <div class="comment">
+                      <p><strong>{{ comment.user }}</strong>: {{ comment.content }}</p>
+                  </div>
+                  {% endfor %}
+              </div>
+
+          </div>
+          
+            {%for comment in post.comments.all%}
+              
+            
+            
+              <div class="media">
+                <a class="pull-left" href="#pablo">
+                  <div class="avatar"><img alt="..." src="/paper-kit-pro-react/static/media/clem-onojeghuo-3.e8e42349.jpg" class="media-object" /></div>
+                </a>
+                <div class="media-body">
+                  <h5 class="media-heading">{{comment.user}}</h5>
+                  <div class="pull-right">
+                    <h6 class="text-muted">{{comment.time}}</h6>
+                    <a href="#pablo" class="btn-link pull-right btn btn-info"><i class="fa fa-reply mr-1"></i>Reply</a>
+                  </div>
+                  <p>{{comment.content}}</p>
+            {%endfor%}
+            {%endif%}
+            
+          </div>
+        </div>
+      </div>
+      
       <div class="related-articles">
         <h1 class="col-md-12 text-center" style ="margin-bottom: 50px;">Related Articles</h1>
         <legend></legend>
