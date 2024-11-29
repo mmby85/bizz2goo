@@ -17,15 +17,15 @@
       </div>
 
       <!-- Blog Content -->
-      <div class="row justify-content-center mt-4 ml-auto mr-auto ">
+      <div class="row justify-content-center mt-4 ml-auto mr-auto">
         <div class="col-md-20 text-center">
-          
-          <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+          <div class="category text-info" style="margin-bottom: 20px;">
+            <span class="main-tag badge badge-primary">{{ post.category.name }}</span>
+          </div>
           <h6 class="title-uppercase text-muted">{{ post.time | date:"F d, Y" }}</h6>
         </div>
 
         <div class="col-md-12 text-center">
-          
           <div 
             data-radius="none" 
             class="card" 
@@ -36,169 +36,127 @@
               background-size: contain; 
               background-repeat: no-repeat; 
               background-position: center;
-              "
+            "
           ></div>
-          <div class="col-md-10 ml-10 mr-10 " style ="margin-left:100px ; margin-right:100px">
-            
+          <div class="col-md-10 ml-10 mr-10" style="margin-left:100px; margin-right:100px">
             <div class="article-content text-justify">
               <h4>{{ post.content | safe }}</h4>
             </div>
           </div>
-          
-          
         </div>
-        
-        
       </div>
-      <hr>
-      <br>
-      
-      <div class="row " style ="margin-left: 100px;
-    margin-right: 100px;">
+
+      <hr><br>
+
+      <!-- Author Profile -->
+      <div class="row" style="margin-left: 100px; margin-right: 100px;">
         <div class="media">
           <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
-            <div class ="avatar big-avatar">
-            {% if author_profile.profile_picture %}
+            <div class="avatar big-avatar">
+              {% if author_profile.profile_picture %}
                 <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
-            {% endif %}
+              {% endif %}
             </div>
           </a>
           <div class="media-body">
-            <h4 class="media-heading" style="    color: #403d39;
-    display: inline-block;
-    font-weight: 600;
-    margin-bottom: 10px;
-    margin-top: 5px;">
+            <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
               <a href="{% url 'author_profile' author_profile.user.username %}">
-                  {{ author_profile.user.username }}
+                {{ author_profile.user.username }}
               </a>
             </h4>
-            
             {% if author_profile.bio %}
-                <p>{{ author_profile.bio }}</p>
+              <p>{{ author_profile.bio }}</p>
             {% endif %}
-            
           </div>
         </div>
       </div>
-      <hr>
-      
-      <br>
-      
-      
-      
-        <div class="row">
-          <div class="comments media-area">
-            <h3 class="text-center">Comments</h3>
-            {%if not post.comments.all%}
-              no comments yet ... <a href="#">
-                Add one </a>
-            {%else%}
-            <div id="comment-section">
-              <!-- Liste des commentaires -->
-              <div id="comments-container">
-                  {% for comment in comments %}
-                  <div class="comment">
-                      <p><strong>{{ comment.username }}</strong>: {{ comment.content }}</p>
-                  </div>
-                  {% endfor %}
-              </div>
-          
-              <!-- Formulaire pour ajouter un commentaire -->
-              <form hx-post="{% url 'add_comment' %}" 
-                    hx-target="#comments-container" 
-                    hx-swap="beforeend"
-                    id="comment-form">
-                  <input type="text" name="username" placeholder="Your name" required>
-                  <textarea name="content" placeholder="Your comment" required></textarea>
-                  <input type="hidden" name="post_id" value="{{ post.id }}">
-                  <button type="submit">Add Comment</button>
-              </form>
-              <div id="comments-container">
-                  {% for comment in comments %}
-                  <div class="comment">
-                      <p><strong>{{ comment.user }}</strong>: {{ comment.content }}</p>
-                  </div>
-                  {% endfor %}
-              </div>
 
-          </div>
-          
-            {%for comment in post.comments.all%}
-              
-            
-            
-              <div class="media">
-                <a class="pull-left" href="#pablo">
-                  <div class="avatar"><img alt="..." src="/paper-kit-pro-react/static/media/clem-onojeghuo-3.e8e42349.jpg" class="media-object" /></div>
-                </a>
-                <div class="media-body">
-                  <h5 class="media-heading">{{comment.user}}</h5>
-                  <div class="pull-right">
-                    <h6 class="text-muted">{{comment.time}}</h6>
-                    <a href="#pablo" class="btn-link pull-right btn btn-info"><i class="fa fa-reply mr-1"></i>Reply</a>
+      <hr><br>
+
+     <!-- Comments Section -->
+<div class="row">
+  <div class="comments media-area">
+      <h3 class="text-center">Comments</h3>
+      {% if not post.comments.all %}
+          <p>No comments yet ... <a href="#">Add one</a></p>
+      {% else %}
+          <div id="comments-container">
+              <!-- Display all comments -->
+              {% for comment in post.comments.all %}
+                  <div class="media p-3 border rounded mb-3 bg-white shadow-sm">
+                      <a class="pull-left" href="#">
+                          <div class="avatar">
+                              <img src="/path/to/avatar.jpg" alt="{{ comment.user }}" class="media-object" />
+                          </div>
+                      </a>
+                      <div class="media-body">
+                          <h5 class="media-heading">{{ comment.user }}</h5>
+                          <h6 class="text-muted">{{ comment.time }}</h6>
+                          <p>{{ comment.content }}</p>
+                          <a href="#" class="btn-link pull-right btn btn-info">
+                              <i class="fa fa-reply mr-1"></i> Reply
+                          </a>
+                      </div>
                   </div>
-                  <p>{{comment.content}}</p>
-            {%endfor%}
-            {%endif%}
-            
+              {% endfor %}
+              <!-- Placeholder for new comments -->
+              <div class="fake-comment-placeholder"></div>
           </div>
-        </div>
-      </div>
-      
+      {% endif %}
+
+      <!-- Add a New Comment Form -->
+      <form 
+          method="POST" 
+          action="{% url 'add_comment' %}" 
+          hx-post="{% url 'add_comment' %}" 
+          hx-target=".fake-comment-placeholder" 
+          hx-swap="beforeend" 
+          class="border p-4 rounded shadow-sm bg-light mt-4" 
+          id="comment-form"
+      >
+          {% csrf_token %}
+          <div class="form-group mb-3">
+              <label for="username" class="form-label fw-bold">Your Name</label>
+              <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
+          </div>
+          <div class="form-group mb-3">
+              <label for="content" class="form-label fw-bold">Your Comment</label>
+              <textarea id="content" name="content" placeholder="Write your comment here..." required class="form-control"></textarea>
+          </div>
+          <input type="hidden" name="post_id" value="{{ post.id }}">
+          <button type="submit" class="btn btn-primary w-100">Add Comment</button>
+      </form>
+  </div>
+</div>
+
+      <!-- Related Articles -->
       <div class="related-articles">
-        <h1 class="col-md-12 text-center" style ="margin-bottom: 50px;">Related Articles</h1>
+        <h1 class="col-md-12 text-center" style="margin-bottom: 50px;">Related Articles</h1>
         <legend></legend>
         <div class="container">
           <div class="row" style="margin-bottom: 100px;">
             {% for related_post in related_posts %}
               <div class="col-md-4">
                 <div 
-            data-radius="none" 
-            class="card" 
-            style="
-              background-image: url('{{media_url}}{{related_post.image}}'); 
-              width: 100%; 
-              height: 200px; 
-              background-size: contain; 
-              background-repeat: no-repeat; 
-              background-position: center;
-              "
+                  data-radius="none" 
+                  class="card" 
+                  style="
+                    background-image: url('{{media_url}}{{related_post.image}}'); 
+                    width: 100%; 
+                    height: 200px; 
+                    background-size: contain; 
+                    background-repeat: no-repeat; 
+                    background-position: center;
+                  "
                 ></div>
                 <p class="blog-title">{{ related_post.title }}</p>
-                <a href="{% url 'post_detail' related_post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
+                <a href="{% url 'post_detail' related_post.slug %}" class="btn-round btn btn-danger btn-sm">Read more</a>
               </div>
-              
             {% endfor %}
           </div>
         </div>
       </div>
-      
-      </div>
-      
 
-      <!-- Comments Section -->
-      {% comment %} <div class="row justify-content-center mt-5">
-        <div class="col-md-10">
-          <div class="comments media-area">
-            <h3 class="text-center">Comments</h3>
-            {% for comment in post.comments %}
-            <div class="media mt-4">
-              <div class="avatar mr-3">
-                <img src="{{ comment.avatar_url }}" alt="Avatar" class="rounded-circle" style="width: 50px; height: 50px;">
-              </div>
-              <div class="media-body">
-                <h5 class="media-heading">{{ comment.author }}</h5>
-                <p>{{ comment.content }}</p>
-                <small class="text-muted">{{ comment.timestamp }}</small>
-              </div>
-            </div>
-            {% empty %}
-            <p class="text-center text-muted">No comments yet. Be the first to comment!</p>
-            {% endfor %}
-          </div>
-        </div>
-      </div> {% endcomment %}
     </div>
   </section>
 </div>

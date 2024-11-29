@@ -1,71 +1,160 @@
 {% extends "blog/base.html" %}
 {% load static %}
 
-
-
 {% block body %}
 {% include "blog/heroSection.html" %}
 
-<div class="main main-raised" style="min-height: 100vh; display: flex; flex-direction: column; justify-content: center;">
-  <section class="blog-posts grid-system" style="flex-grow: 1;">
-    <div class="container py-5">
-      <!-- Form Header -->
-      <div class="row justify-content-center">
-        <div class="col-md-10 text-center">
-          <h2 class="text-primary">Créer un Nouveau Post</h2>
-        </div>
-      </div>
+<style>
+    /* Custom CSS for Enhanced Styling */
+    body {
+        background-color: #f8f9fa; /* Light gray background */
+    }
 
-      <!-- Form Section -->
-      <div class="row justify-content-center mt-4">
-        <div class="col-md-8">
-          <!-- Affichage des erreurs de formulaire -->
-          {% if form.non_field_errors %}
-            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
-          {% endif %}
+    .main {
+        background: white;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Subtle shadow for the card */
+        border-radius: 15px;
+        margin-top: 20px;
+        padding: 30px;
+        display: contents;
+    }
 
-          <!-- Formulaire de création de post -->
-          <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.media }}
-            
-            <div class="form-group">
-              {{ form.title.label }}
-              {{ form.title }}
-            </div>
+    .form-group label {
+        font-weight: bold;
+        color: #333;
+        font-size: 1.1em;
+    }
 
-            <div class="form-group">
-              {{ form.category.label }}
-              {{ form.category }}
-            </div>
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        box-shadow: none;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
 
-            <div class="form-group">
-              {{ form.sub_category.label }}
-              {{ form.sub_category }}
-            </div>
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
 
-            <div class="form-group">
-              {{ form.content.label }}
-              {{ form.content }}
-            </div>
+    .dropdown-toggle::after {
+        display: none; /* Remove default dropdown arrow */
+    }
 
-            <div class="form-group">
-              {{ form.image.label }}
-              {{ form.image }}
-            </div>
+    .btn-block {
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+        transition: background-color 0.3s ease;
+    }
 
-            <div class="form-group">
-              {{ form.slug.label }}
-              {{ form.slug }}
-            </div>
+    .btn-block:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
 
-            <p><input type="submit" class="btn btn-primary btn-block" value="Publier"></p>
-          </form>
-        </div>
-      </div>
+    .select2-container--default .select2-selection--single {
+        border-radius: 10px;
+        border-color: #ced4da;
+        box-shadow: none;
+    }
+
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    h2 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+    }
+
+    
+
+    .form-group {
+        margin-bottom: 25px; /* Increased spacing between groups */
+    }
+
+    /* Additional styling for the alert messages */
+    .alert {
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container py-5">
+  <div class="main">
+    <!-- Page Header -->
+    <div class="text-center">
+      <h2 class="text-primary mb-4">Créer un Nouveau Post</h2>
+      <p class="text-muted">Partagez vos idées et vos projets avec la communauté.</p>
     </div>
-  </section>
+
+    <!-- Form Section -->
+    <div class="row justify-content-center mt-4">
+      <div class="col-md-8">
+        <!-- Display Form Errors -->
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <!-- Post Creation Form -->
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.media }}
+          
+         <!-- Title Field -->
+<div class="form-group">
+  {{ form.title.label }}
+  <input type="text" class="form-control" id="title" name="title" placeholder="Enter title" value="{{ form.title.value|default:'' }}" required>
 </div>
 
+<!-- Category Dropdown -->
+<div class="form-group">
+  {{ form.category.label }}
+  <select class="form-control" id="category" name="category" required>
+      <option value="">Select a category</option>
+      {% for category in form.category.field.queryset %}
+          <option value="{{ category.id }}" {% if category.id == form.category.value %}selected{% endif %}>{{ category.name }}</option>
+      {% endfor %}
+  </select>
+</div>
+
+<!-- Sub-category Dropdown -->
+<div class="form-group">
+  {{ form.sub_category.label }}
+  <select class="form-control" id="sub_category" name="sub_category" required>
+      <option value="">Select a sub-category</option>
+      {% for sub_category in form.sub_category.field.queryset %}
+          <option value="{{ sub_category.id }}" {% if sub_category.id == form.sub_category.value %}selected{% endif %}>{{ sub_category.name }}</option>
+      {% endfor %}
+  </select>
+</div>
+          <!-- Content Field -->
+          <div class="form-group">
+            {{ form.content.label }}
+            {{ form.content }}
+          </div>
+
+          <!-- Image Upload Field -->
+          <div class="form-group">
+            {{ form.image.label }}
+            {{ form.image }}
+          </div>
+
+          <!-- Slug Field -->
+          <div class="form-group">
+            {{ form.slug.label }}
+            {{ form.slug }}
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary btn-block">
+            Publier
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 {% endblock %}
