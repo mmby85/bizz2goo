@@ -10,7 +10,7 @@ from . import forms
 from django.urls import reverse
 from django.views import generic
 from django.http import JsonResponse
-
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Comment,Post
 
@@ -356,23 +356,61 @@ def get_subcategories(request):
 from django.template.loader import render_to_string
 from django.http import HttpResponse
 
+
+
+@csrf_exempt
 def add_comment(request):
-    model = Comment
-    fields = ["content"]
-    template_name = "post_detail.html"
+    if request.method == "POST":
+        # Extract data from the request
+        username = request.POST.get("username")
+        content = request.POST.get("content")
+        post_id = request.POST.get("post_id")
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user.profile
-        form.instance.article = CKPost.objects.filter(
-            slug=self.kwargs.get("slug")
-        ).first()
-        return super().form_valid(form)
+        # Validate that required fields are provided
+        if not all([username, content, post_id]):
+            return JsonResponse({"error": "Missing fields in the form."}, status=400)
 
-    def get_success_url(self):
-        return reverse(
-            "post_detail", kwargs={"slug": self.object.post.slug}
+        # Find the related post
+        post = get_object_or_404(CKPost, id=post_id)
+
+        # Create and save the comment
+        comment = Comment.objects.create(
+            user=username,
+            content=content,
+            post=post
         )
 
+        # Create the comment HTML (No escaping)
+        comment_html = f"""
+        <div class="media p-3 border rounded mb-3 bg-white shadow-sm">
+          <a class="pull-left" href="#">
+            <div class="avatar">
+              <img src="/path/to/avatar.jpg" alt="{comment.user}" class="media-object" />
+            </div>
+          </a>
+          <div class="media-body">
+            <h5 class="media-heading">{comment.user}</h5>
+            <h6 class="text-muted">{comment.time.strftime('%B %d, %Y %I:%M %p')}</h6>
+            <p>{comment.content}</p>
+            <a href="#" class="btn-link pull-right btn btn-info">
+              <i class="fa fa-reply mr-1"></i> Reply
+            </a>
+          </div>
+        </div>
+        """
+
+        return HttpResponse(comment_html, content_type="text/html")
+    else:
+        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+
+
+# def load_more_comments(request, post_id):
+#     post = Post.objects.get(id=post_id)
+#     comments = post.comments.all()[3:]  # Skip first 3 comments
+
+#     # Render new comments to send back to the front-end
+#     return render(request, 'blog/comment_list.html', {'comments': comments})
 
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import User
