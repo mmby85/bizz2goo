@@ -358,50 +358,60 @@ from django.http import HttpResponse
 
 
 
+from django.shortcuts import get_object_or_404
+
 @csrf_exempt
 def add_comment(request):
     if request.method == "POST":
-        # Extract data from the request
+        # Extraire les données
+        slug = request.POST.get("slug")
         username = request.POST.get("username")
         content = request.POST.get("content")
-        post_id = request.POST.get("post_id")
-
-        # Validate that required fields are provided
-        if not all([username, content, post_id]):
+        parent_id = request.POST.get("parent_id")  # ID du commentaire parent (s'il existe)
+        
+        # Vérification des champs requis
+        if not all([slug, username, content]):
             return JsonResponse({"error": "Missing fields in the form."}, status=400)
+        
+        # Vérifier l'existence du post
+        post = get_object_or_404(CKPost, slug=slug)
 
-        # Find the related post
-        post = get_object_or_404(CKPost, id=post_id)
+        # Récupérer le commentaire parent s'il existe
+        parent_comment = None
+        if parent_id:
+            parent_comment = get_object_or_404(Comment, id=parent_id)
 
-        # Create and save the comment
+        # Créer le commentaire
         comment = Comment.objects.create(
             user=username,
             content=content,
-            post=post
+            post=post,
+            
         )
 
-        # Create the comment HTML (No escaping)
+        # Générer le HTML du commentaire (ou de la réponse)
         comment_html = f"""
         <div class="media p-3 border rounded mb-3 bg-white shadow-sm">
           <a class="pull-left" href="#">
             <div class="avatar">
-              <img src="/path/to/avatar.jpg" alt="{comment.user}" class="media-object" />
+              <img src="/static/assets/images/user.png" alt="{comment.user}" class="media-object" />
             </div>
           </a>
           <div class="media-body">
             <h5 class="media-heading">{comment.user}</h5>
             <h6 class="text-muted">{comment.time.strftime('%B %d, %Y %I:%M %p')}</h6>
             <p>{comment.content}</p>
-            <a href="#" class="btn-link pull-right btn btn-info">
+            <a href="#" class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{comment.id}">
               <i class="fa fa-reply mr-1"></i> Reply
             </a>
           </div>
         </div>
         """
-
         return HttpResponse(comment_html, content_type="text/html")
-    else:
-        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+
+
 
 
 

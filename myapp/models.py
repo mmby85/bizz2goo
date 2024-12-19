@@ -74,7 +74,8 @@ class Comment(models.Model):
     time = models.DateTimeField(auto_now_add=True, blank=True)
     post = models.ForeignKey(CKPost, related_name="comments", on_delete=models.CASCADE)
     user = models.CharField(max_length=100)
-    to_field="slug",
+    
+    
 
     def __str__(self):
         return f"{self.id}.{self.content[:20]}..."
