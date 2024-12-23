@@ -35,7 +35,7 @@
                     </ul>
                 </li>
 
-                {% if user.is_authenticated %}
+                {% if user.is_staff %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create' %}">Create</a>
                 </li>
@@ -43,7 +43,8 @@
                 <li><a href="{% url 'create-author-profile' %}">Créer un profil auteur</a></li>
                 {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'profile' user.id %}">Profile</a>
+                  <a class="nav-link" href="{% url 'author_profile' user.username %}">{{ user.first_name|add:" "|add:user.last_name }}
+                </a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link text-primary" href="{% url 'logout' %}">Logout</a>

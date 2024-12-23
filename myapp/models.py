@@ -8,7 +8,6 @@ now =  datetime.now()
 time = now.strftime("%d %B %Y")
 # Create your models here.
 
-
 class Post(models.Model):
     postname = models.CharField(max_length=600)
     category = models.CharField(max_length=600)

@@ -166,13 +166,13 @@ def posts_by_category(request, id):
     return render(request, 'blog/articlesSWAP_HTMX.html', {'ckposts': ckposts})
 
 
-def profile(request,id):
-    
-    return render(request,'profile.html',{
-        'user':User.objects.get(id=id),
-        'posts':Post.objects.all(),
-        'media_url':settings.MEDIA_URL,
+def profile(request, id):
+    return render(request, 'blog/profile.html', {
+        'user_profile': AuthorProfile.objects.get(user__id=id),
+        'posts': CKPost.objects.all(),
+        'media_url': settings.MEDIA_URL,
     })
+
     
 
 def profileedit(request,id):
