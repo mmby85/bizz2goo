@@ -70,14 +70,16 @@ class CKPost(models.Model):
 
 
 class Comment(models.Model):
-    content = models.CharField(max_length=200)
-    time = models.DateTimeField(auto_now_add=True, blank=True)
-    post = models.ForeignKey(CKPost, related_name="comments", on_delete=models.CASCADE)
     user = models.CharField(max_length=100)
-    to_field="slug",
+    content = models.TextField()
+    post = models.ForeignKey(CKPost, related_name="comments", on_delete=models.CASCADE)
+    parent = models.ForeignKey(
+        'self', null=True, blank=True, related_name="children", on_delete=models.CASCADE
+    )
+    time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.id}.{self.content[:20]}..."
+        return f"Comment by {self.user} on {self.post.title}"
 
     
     

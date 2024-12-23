@@ -358,50 +358,75 @@ from django.http import HttpResponse
 
 
 
+from django.shortcuts import get_object_or_404
+
 @csrf_exempt
 def add_comment(request):
     if request.method == "POST":
-        # Extract data from the request
+        # Extract form data
+        slug = request.POST.get("slug")
         username = request.POST.get("username")
         content = request.POST.get("content")
-        post_id = request.POST.get("post_id")
+        parent_id = request.POST.get("parent_id")  # Parent comment ID (if it's a reply)
 
-        # Validate that required fields are provided
-        if not all([username, content, post_id]):
+        # Ensure required fields are present
+        if not all([slug, username, content]):
             return JsonResponse({"error": "Missing fields in the form."}, status=400)
 
-        # Find the related post
-        post = get_object_or_404(CKPost, id=post_id)
+        # Get the related post
+        post = get_object_or_404(CKPost, slug=slug)
 
-        # Create and save the comment
+        # Handle parent comment if it's a reply
+        parent_comment = None
+        if parent_id:
+            parent_comment = get_object_or_404(Comment, id=parent_id)
+
+        # Create the comment
         comment = Comment.objects.create(
             user=username,
             content=content,
-            post=post
+            post=post,
+            parent=parent_comment
         )
 
-        # Create the comment HTML (No escaping)
-        comment_html = f"""
-        <div class="media p-3 border rounded mb-3 bg-white shadow-sm">
-          <a class="pull-left" href="#">
-            <div class="avatar">
-              <img src="/path/to/avatar.jpg" alt="{comment.user}" class="media-object" />
+        # Helper function to render nested comments
+        def render_comment(comment):
+            nested_replies = ''.join(render_comment(reply) for reply in comment.children.all())
+            return f"""
+            <div class="media p-3 border rounded mb-3 bg-white shadow-sm" id="comment-{comment.id}">
+              <a class="pull-left" href="#">
+                <div class="avatar">
+                  <img src="/static/assets/images/user.png" alt="{comment.user}" class="media-object" />
+                </div>
+              </a>
+              <div class="media-body">
+                <h5 class="media-heading">{comment.user}</h5>
+                <h6 class="text-muted">{comment.time.strftime('%B %d, %Y %I:%M %p')}</h6>
+                <p>{comment.content}</p>
+                <a href="#" class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{comment.id}">
+                  <i class="fa fa-reply mr-1"></i> Reply
+                </a>
+                <div class="replies mt-3 ml-5">
+                  {nested_replies}
+                </div>
+              </div>
             </div>
-          </a>
-          <div class="media-body">
-            <h5 class="media-heading">{comment.user}</h5>
-            <h6 class="text-muted">{comment.time.strftime('%B %d, %Y %I:%M %p')}</h6>
-            <p>{comment.content}</p>
-            <a href="#" class="btn-link pull-right btn btn-info">
-              <i class="fa fa-reply mr-1"></i> Reply
-            </a>
-          </div>
-        </div>
-        """
+            """
+
+        # Generate HTML for the current comment
+        comment_html = render_comment(comment)
+
+        # Determine the target for the response
+        if parent_id:
+            target = f"#comment-{parent_id} .replies"
+        else:
+            target = ".fake-comment-placeholder"
 
         return HttpResponse(comment_html, content_type="text/html")
-    else:
-        return JsonResponse({"error": "Invalid request method."}, status=405)
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+
+
 
 
 
