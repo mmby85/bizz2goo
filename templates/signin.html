@@ -1,8 +1,7 @@
-{% extends "blog/base.html" %}
+{% extends "blog/base1.html" %}
 {% load static %}
-
 {% block body %}
-{% include "blog/heroSection.html" %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -65,12 +64,16 @@
    
     
     <div class="container">
-        <div class="d-flex justify-content-center align-items-center " style="height: 100vh;">
-
-            
-            <form action="{% url 'signin' %}" method="post" class="p-5 shadow">
+        <div class="ml-auto mr-auto col-sm-6 col-md-6 col-lg-4 " style="height: 100vh;
+    
+    margin-left: 400px;
+    margin-top: 120px;
+ ">
+          <div class="card-register card">
+            <h3>WELCOME</h3>
+              <form class ="register-form" action="{% url 'signin' %}" method="post" class="p-5 shadow">
                 {% csrf_token %}
-                <h3>LOGIN</h3>
+                
                 <br>
                 {% for message in messages %}
                 <p class="text-danger text-center">{{message}}</p>
