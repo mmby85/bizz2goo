@@ -91,6 +91,21 @@
 					{% if author_profile.bio %}
                     <p>{{ author_profile.bio }}</p>
                     {% endif %}
+                    {% if author_profile.facebook %}
+                        <a href="{{ author_profile.facebook }}" target="_blank">
+                            <i class="fab fa-facebook" style="font-size: 20px; color: #3b5998;"></i> Facebook
+                        </a>
+                    {% endif %}
+                    {% if author_profile.twitter %}
+                        <a href="{{ author_profile.twitter }}" target="_blank">
+                            <i class="fab fa-twitter" style="font-size: 20px; color: #1da1f2;"></i> Twitter
+                        </a>
+                    {% endif %}
+                    {% if author_profile.gmail %}
+                        <a href="mailto:{{ author_profile.gmail }}">
+                            <i class="fas fa-envelope" style="font-size: 20px; color: #d44638;"></i> Gmail
+                        </a>
+                    {% endif %}
                 </div>
 					<br />
 					

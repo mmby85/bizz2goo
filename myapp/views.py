@@ -166,9 +166,9 @@ def posts_by_category(request, id):
     return render(request, 'blog/articlesSWAP_HTMX.html', {'ckposts': ckposts})
 
 
-def profile(request, id):
+def profile(request, username):
     return render(request, 'blog/profile.html', {
-        'user_profile': AuthorProfile.objects.get(user__id=id),
+        'user_profile': get_object_or_404(User, username=username),
         'posts': CKPost.objects.all(),
         'media_url': settings.MEDIA_URL,
     })
@@ -453,23 +453,20 @@ from django.views.generic.edit import CreateView
 from django.shortcuts import redirect
 from .models import AuthorProfile
 
+
 class AuthorProfileCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = AuthorProfile
-    fields = ['bio', 'profile_picture', 'website', 'metier']
+    fields = ['bio', 'profile_picture', 'website', 'metier', 'facebook', 'gmail', 'twitter']
     template_name = 'blog/author_profile_form.html'
     success_url = '/success/'  # Redirection après la création
 
     def test_func(self):
-        # Vérifie que l'utilisateur connecté est un administrateur
         return self.request.user.is_staff
 
     def form_valid(self, form):
-        # Vérifie si un profil existe déjà pour l'utilisateur
         if AuthorProfile.objects.filter(user=self.request.user).exists():
-            # Retourne une erreur si un profil existe déjà
             form.add_error(None, "Vous avez déjà créé un profil auteur.")
             return self.form_invalid(form)
-        
-        # Associe automatiquement le profil à l'utilisateur connecté
+
         form.instance.user = self.request.user
         return super().form_valid(form)

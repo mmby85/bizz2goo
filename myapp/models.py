@@ -88,18 +88,22 @@ class Contact(models.Model):
     email = models.EmailField(max_length=600)
     subject = models.CharField(max_length=1000)
     message = models.CharField(max_length=10000, blank=True)
-    
+from django.core.validators import URLValidator  
 class AuthorProfile(models.Model):
     user = models.OneToOneField(
-        User, 
+        User,
         on_delete=models.CASCADE,
         limit_choices_to={'is_staff': True}  # Limite aux utilisateurs administrateurs
     )
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='author_pictures/', blank=True, null=True)
     website = models.URLField(blank=True, null=True)
-    metier= models.TextField(blank=True, null=True)
-
+    metier = models.TextField(blank=True, null=True)
+    facebook = models.URLField(validators=[URLValidator()], blank=True, null=True)
+    twitter = models.URLField(validators=[URLValidator()], blank=True, null=True)
+    gmail = models.EmailField(blank=True, null=True)
+    
     def __str__(self):
         return f"Author Profile: {self.user.username}"
+
     
