@@ -1,0 +1,47 @@
+{% load static %}
+<div class="media p-3 border rounded mb-3 bg-white shadow-sm" id="comment-{{ comment.id }}">
+  <a class="pull-left" href="#">
+    <div class="avatar">
+      <img src="/static/assets/images/user.png" alt="{{ comment.user }}" class="media-object" />
+    </div>
+  </a>
+  <div class="media-body">
+    <h5 class="media-heading">{{ comment.user }}</h5>
+    <h6 style="color: #6c757d;">{{ comment.time }}</h6>
+    <p>{{ comment.content }}</p>
+    <button  class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{{ comment.id }}" onclick="toggleReplyForm(event, {{ comment.id }})">
+      <i class="fa fa-reply mr-1"></i> Reply
+    </button>
+    
+    <!-- Reply Form (Hidden Initially) -->
+    <div class="reply-form-container hidden" id="reply-form-{{ comment.id }}">
+      <form 
+        method="POST" 
+        action="{% url 'add_comment' %}" 
+        hx-post="{% url 'add_comment' %}" 
+        hx-target="#comment-{{ comment.id }} .replies" 
+        hx-swap="beforeend"
+        class="border p-4 rounded shadow-sm bg-light mt-4"
+        >
+          {% csrf_token %}
+          <input type="hidden" name="parent_id" value="{{ comment.id }}">
+          <input type="hidden" name="slug" value="{{ post.slug }}">
+          <div class="form-group mb-3">
+            <label for="username" class="form-label fw-bold"></label>
+            <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
+          </div>
+          <div class="form-group mb-3">
+            <label for="content" class="form-label fw-bold"></label>
+            <textarea id="content" name="content" placeholder="Write your reply here..." required class="form-control"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary">Reply</button>
+      </form>
+    </div>
+    <!-- Nested Replies -->
+    <div class="replies mt-3 ml-5">
+      {% for reply in comment.children.all %}
+        {% include 'blog/reply.html' with comment=reply %}
+      {% endfor %}
+    </div>
+  </div>
+</div>

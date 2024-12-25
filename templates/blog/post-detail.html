@@ -76,7 +76,7 @@
           <h3 class="text-center">Comments</h3>
           
           <div id="comments-container">
-            {% for comment in post.comments.all %}
+            {% for comment in top_level_comments %}
             <div class="media p-3 border rounded mb-3 bg-white shadow-sm" id="comment-{{ comment.id }}">
               <a class="pull-left" href="#">
                 <div class="avatar">
@@ -87,81 +87,80 @@
                 <h5 class="media-heading">{{ comment.user }}</h5>
                 <h6 style="color: #6c757d;">{{ comment.time }}</h6>
                 <p>{{ comment.content }}</p>
-                <a href="#" class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{{ comment.id }}" onclick="toggleReplyForm({{ comment.id }})">
+                <button class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{{ comment.id }}" onclick="toggleReplyForm(event, {{ comment.id }})">
                   <i class="fa fa-reply mr-1"></i> Reply
-                </a>
+                </button>
                 
               <!-- Reply Form (Hidden Initially) -->
-<div class="reply-form-container hidden" id="reply-form-{{ comment.id }}">
-  <form 
-    method="POST" 
-    action="{% url 'add_comment' %}" 
-    hx-post="{% url 'add_comment' %}" 
-    hx-target="#comment-{{ comment.id }} .replies" 
-    hx-swap="beforeend" 
-    class="border p-4 rounded shadow-sm bg-light mt-4"
-  >
-    {% csrf_token %}
-    <input type="hidden" name="parent_id" value="{{ comment.id }}">
-    <input type="hidden" name="slug" value="{{ post.slug }}">
-    <div class="form-group mb-3">
-      <label for="username" class="form-label fw-bold">Your Name</label>
-      <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
-    </div>
-    <div class="form-group mb-3">
-      <label for="content" class="form-label fw-bold">Your Reply</label>
-      <textarea id="content" name="content" placeholder="Write your reply here..." required class="form-control"></textarea>
-    </div>
-    <button type="submit" class="btn btn-primary">Reply</button>
-  </form>
-</div>
+                <div class="reply-form-container hidden" id="reply-form-{{ comment.id }}">
+                  <form 
+                      method="POST" 
+                      action="{% url 'add_comment' %}" 
+                      hx-post="{% url 'add_comment' %}" 
+                      hx-target="#comment-{{ comment.id }} .replies" 
+                      hx-swap="beforeend" 
+                      class="border p-4 rounded shadow-sm bg-light mt-4"
+                    >
+                      {% csrf_token %}
+                      <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                      <input type="hidden" name="slug" value="{{ post.slug }}">
+                      <div class="form-group mb-3">
+                        <label for="username" class="form-label fw-bold"></label>
+                        <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
+                      </div>
+                      <div class="form-group mb-3">
+                        <label for="content" class="form-label fw-bold"></label>
+                        <textarea id="content" name="content" placeholder="Write your reply here..." required class="form-control"></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-primary">Reply</button>
+                  </form>
+                </div>
 
                 <!-- Nested Replies -->
                 <div class="replies mt-3 ml-5">
                   {% for reply in comment.children.all %}
-                  <div class="media p-3 border rounded mb-3 bg-light">
-                    <a class="pull-left" href="#">
-                      <div class="avatar">
-                        <img src="/static/assets/images/user.png" alt="{{ reply.user }}" class="media-object" />
+                    <div class="media p-3 border rounded mb-3 bg-light">
+                      <a class="pull-left" href="#">
+                        <div class="avatar">
+                          <img src="/static/assets/images/user.png" alt="{{ reply.user }}" class="media-object" />
+                        </div>
+                      </a>
+                      <div class="media-body">
+                        <h5 class="media-heading">{{ reply.user }}</h5>
+                        <h6 style="color: #6c757d;">{{ reply.time }}</h6>
+                        <p>{{ reply.content }}</p>
                       </div>
-                    </a>
-                    <div class="media-body">
-                      <h5 class="media-heading">{{ reply.user }}</h5>
-                      <h6 style="color: #6c757d;">{{ reply.time }}</h6>
-                      <p>{{ reply.content }}</p>
                     </div>
-                  </div>
                   {% endfor %}
                 </div>
               </div>
             </div>
             {% endfor %}
-            <div class="fake-comment-placeholder"></div>
           </div>
 
           <!-- Add a New Comment Form -->
           <!-- New Comment Form -->
-<form 
-method="POST" 
-action="{% url 'add_comment' %}" 
-hx-post="{% url 'add_comment' %}" 
-hx-target=".fake-comment-placeholder" 
-hx-swap="beforeend" 
-class="border p-4 rounded shadow-sm bg-light mt-4" 
-id="comment-form"
->
-{% csrf_token %}
-<div class="form-group mb-3">
-  <label for="username" class="form-label fw-bold">Your Name</label>
-  <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
-</div>
-<div class="form-group mb-3">
-  <label for="content" class="form-label fw-bold">Your Comment</label>
-  <textarea id="content" name="content" placeholder="Write your comment here..." required class="form-control"></textarea>
-</div>
-<input type="hidden" name="slug" value="{{ post.slug }}">
-<button type="submit" class="btn btn-primary w-100">Add Comment</button>
-</form>
+            <form 
+            method="POST" 
+            action="{% url 'add_comment' %}" 
+            hx-post="{% url 'add_comment' %}" 
+            hx-target="#comments-container" 
+            hx-swap="beforeend" 
+            class="border p-4 rounded shadow-sm bg-light mt-4" 
+            id="comment-form"
+            >
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="username" class="form-label fw-bold"></label>
+                    <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="content" class="form-label fw-bold"></label>
+                    <textarea id="content" name="content" placeholder="Write your comment here..." required class="form-control"></textarea>
+                </div>
+                <input type="hidden" name="slug" value="{{ post.slug }}">
+                <button type="submit" class="btn btn-primary w-100">Add Comment</button>
+            </form>
         </div>
       </div>
 
@@ -193,13 +192,22 @@ id="comment-form"
       </div>
     </div>
   </section>
-
-  <script>
-    function toggleReplyForm(commentId) {
-      const replyForm = document.getElementById(`reply-form-${commentId}`);
-      replyForm.classList.toggle('hidden');
-    }
-  </script>
 </div>
 
+<script>
+    function toggleReplyForm(event, commentId) {
+        event.preventDefault();
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        replyForm.classList.toggle('hidden');
+    }
+</script>
+<style>
+
+.form-group {
+    margin: 2px 0 0;
+}
+.reply-btn{
+  z-index: 10;
+}
+</style>
 {% endblock %}

@@ -353,12 +353,12 @@ def get_subcategories(request):
         'subcategories': [{'id': sub.id, 'name': sub.name} for sub in subcategories]
     })
     
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 from django.template.loader import render_to_string
-from django.http import HttpResponse
+from .models import CKPost, Comment, AuthorProfile
 
-
-
-from django.shortcuts import get_object_or_404
 
 @csrf_exempt
 def add_comment(request):
@@ -389,46 +389,45 @@ def add_comment(request):
             parent=parent_comment
         )
 
-        # Helper function to render nested comments
-        def render_comment(comment):
-            nested_replies = ''.join(render_comment(reply) for reply in comment.children.all())
-            return f"""
-            <div class="media p-3 border rounded mb-3 bg-white shadow-sm" id="comment-{comment.id}">
-              <a class="pull-left" href="#">
-                <div class="avatar">
-                  <img src="/static/assets/images/user.png" alt="{comment.user}" class="media-object" />
-                </div>
-              </a>
-              <div class="media-body">
-                <h5 class="media-heading">{comment.user}</h5>
-                <h6 class="text-muted">{comment.time.strftime('%B %d, %Y %I:%M %p')}</h6>
-                <p>{comment.content}</p>
-                <a href="#" class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{comment.id}">
-                  <i class="fa fa-reply mr-1"></i> Reply
-                </a>
-                <div class="replies mt-3 ml-5">
-                  {nested_replies}
-                </div>
-              </div>
-            </div>
-            """
+        # Helper function to render a single comment or reply
+        def render_comment(comment, is_reply=False):
+            if is_reply:
+                return render_to_string('blog/reply.html', {'comment': comment, 'request': request})
+            else:
+                return render_to_string('blog/comment.html', {'comment': comment, 'post': post, 'request': request})
 
-        # Generate HTML for the current comment
-        comment_html = render_comment(comment)
+
+        #Render only the new comment/reply
+        comment_html = render_comment(comment, is_reply=bool(parent_id))
+
 
         # Determine the target for the response
         if parent_id:
             target = f"#comment-{parent_id} .replies"
         else:
-            target = ".fake-comment-placeholder"
+            target = "#comments-container"
 
-        return HttpResponse(comment_html, content_type="text/html")
+        # Return the HTML of all comments for the targeted container
+        return HttpResponse(comment_html, content_type="text/html", headers={"HX-Target": target, "HX-Reswap": "beforeend"})
+      
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
-
-
-
+def post_detail(request, slug):
+    post = get_object_or_404(CKPost, slug=slug)
+    author_profile = get_object_or_404(AuthorProfile, user=post.user)
+    related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
+    top_level_comments = post.comments.filter(parent__isnull=True)
+    media_url = "/media/"
+    
+    context = {
+        "post": post,
+        "author_profile": author_profile,
+        "related_posts": related_posts,
+        "media_url":media_url,
+        "top_level_comments": top_level_comments,  
+    }
+    return render(request, "blog/post-detail.html", context)
 
 # def load_more_comments(request, post_id):
 #     post = Post.objects.get(id=post_id)
