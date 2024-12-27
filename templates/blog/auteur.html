@@ -91,6 +91,14 @@
 					{% if author_profile.bio %}
                     <p>{{ author_profile.bio }}</p>
                     {% endif %}
+                    <div>
+                        {% if request.user == author_profile.user %}
+                            <a href="{% url 'profileedit' username=author_profile.user.username %}" class="btn-round btn btn-outline-default">
+                                <i class="fa fa-cog mr-1"></i>Settings
+                            </a>
+                        {% endif %}
+                    </div>
+                    
                     {% if author_profile.facebook %}
                         <a href="{{ author_profile.facebook }}" target="_blank">
                             <i class="fab fa-facebook" style="font-size: 20px; color: #3b5998;"></i> Facebook
@@ -106,6 +114,7 @@
                             <i class="fas fa-envelope" style="font-size: 20px; color: #d44638;"></i> Gmail
                         </a>
                     {% endif %}
+                    
                 </div>
 					<br />
 					
