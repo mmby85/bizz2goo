@@ -44,14 +44,17 @@ def index(request):
         'form' : form
     })
 
-
+from django.db.models import Sum
 def new_index(request):
     posts = CKPost.objects.order_by("-time")
     top_posts = CKPost.objects.all().order_by("-likes")[:3]
     recent_posts = CKPost.objects.all().order_by("-time")[:3]
     categories = Category.objects.all()
     all_posts = CKPost.objects.all()
-    
+    top_authors = (
+        AuthorProfile.objects.annotate(total_likes=Sum('user__ckpost__likes'))
+        .order_by('-total_likes')[:2]
+    )
     context = {
         'posts': posts,
         'top_posts': top_posts,
@@ -60,6 +63,7 @@ def new_index(request):
         'user': request.user,
         'media_url': settings.MEDIA_URL,
         'all_posts': all_posts,
+        'top_authors': top_authors,
         
     }
 
@@ -127,7 +131,10 @@ def create(request):
             form = forms.CKPostForm(request.POST)
             if form.is_valid():
                 form.save()
-                return redirect('post_list')  # Assuming you have a URL for listing posts
+                print("Post saved successfully")  # Debugging
+                return redirect('post_list')
+            else:
+                print("Form is not valid:", form.errors)  
         except:
             print("Error")
         return redirect('index')
@@ -167,30 +174,57 @@ def posts_by_category(request, id):
     return render(request, 'blog/articlesSWAP_HTMX.html', {'ckposts': ckposts})
 
 
-def profile(request, id):
+def profile(request, username):
     return render(request, 'blog/profile.html', {
-        'user_profile': AuthorProfile.objects.get(user__id=id),
+        'user_profile': get_object_or_404(User, username=username),
         'posts': CKPost.objects.all(),
         'media_url': settings.MEDIA_URL,
     })
 
     
 
-def profileedit(request,id):
-    if request.method == 'POST':
-        firstname = request.POST['firstname']
-        lastname = request.POST['lastname']
-        email = request.POST['email']
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
+from .models import AuthorProfile
+
+def profileedit(request, username):
+    # Récupérer le profil de l'auteur en fonction du nom d'utilisateur
+    author_profile = get_object_or_404(AuthorProfile, user__username=username)
     
-        user = User.objects.get(id=id)
+    if request.method == 'POST':
+        # Récupérer les données du formulaire
+        firstname = request.POST.get('firstname')
+        lastname = request.POST.get('lastname')
+        email = request.POST.get('email')
+        bio = request.POST.get('bio')
+        facebook = request.POST.get('facebook')
+        twitter = request.POST.get('twitter')
+        gmail = request.POST.get('gmail')
+
+        # Mettre à jour les informations de l'utilisateur
+        user = author_profile.user
         user.first_name = firstname
-        user.email = email
         user.last_name = lastname
+        
         user.save()
-        return profile(request,id)
-    return render(request,"profileedit.html",{
-        'user':User.objects.get(id=id),
+
+        # Mettre à jour les informations du profil
+        author_profile.bio = bio
+        author_profile.facebook = facebook
+        author_profile.twitter = twitter
+        author_profile.gmail = gmail
+        author_profile.save()
+
+        # Rediriger vers la vue de profil (ou un autre endroit)
+        return render(request, "blog/auteur.html", {
+            'author_profile': author_profile
+        })
+
+    # Si la méthode est GET, afficher le formulaire de modification
+    return render(request, "blog/profileedit.html", {
+        'author_profile': author_profile
     })
+
     
 def increaselikes(request,id):
     if request.method == 'POST':
@@ -453,23 +487,20 @@ from django.views.generic.edit import CreateView
 from django.shortcuts import redirect
 from .models import AuthorProfile
 
+
 class AuthorProfileCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = AuthorProfile
-    fields = ['bio', 'profile_picture', 'website', 'metier']
+    fields = ['bio', 'profile_picture', 'website', 'metier', 'facebook', 'gmail', 'twitter']
     template_name = 'blog/author_profile_form.html'
     success_url = '/success/'  # Redirection après la création
 
     def test_func(self):
-        # Vérifie que l'utilisateur connecté est un administrateur
         return self.request.user.is_staff
 
     def form_valid(self, form):
-        # Vérifie si un profil existe déjà pour l'utilisateur
         if AuthorProfile.objects.filter(user=self.request.user).exists():
-            # Retourne une erreur si un profil existe déjà
             form.add_error(None, "Vous avez déjà créé un profil auteur.")
             return self.form_invalid(form)
-        
-        # Associe automatiquement le profil à l'utilisateur connecté
+
         form.instance.user = self.request.user
         return super().form_valid(form)
