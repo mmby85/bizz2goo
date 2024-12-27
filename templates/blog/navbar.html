@@ -1,8 +1,16 @@
+
+{% load static %}
 <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
     <div class="container">
         <div class="navbar-header">
-           <h3>Bizz2Go</h3> 
+           <img
+            src = '{% static 'blog/assets/img/logo test.png' %}'>
+            
+           </img>
+           
         </div>
+        
+
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li>
@@ -11,11 +19,11 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#ml">
+                    <a href="{% url 'post_list' %}">
                        Articles
                     </a>
                 </li>                    
-                <li class="dropdown">
+                {% comment %} <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <i class="material-icons">view_day</i> Sections
                         <b class="caret"></b>
@@ -28,14 +36,18 @@
                         </li>
                         <li>
                     </ul>
-                </li>
+                </li> {% endcomment %}
 
-                {% if user.is_authenticated %}
+                {% if user.is_staff %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create' %}">Create</a>
                 </li>
+                {% if user.is_staff %}
+                <li><a href="{% url 'create-author-profile' %}">Créer un profil auteur</a></li>
+                {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'profile' user.id %}">Profile</a>
+                  <a class="nav-link" href="{% url 'author_profile' user.username %}">{{ user.first_name|add:" "|add:user.last_name }}
+                </a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link text-primary" href="{% url 'logout' %}">Logout</a>
@@ -47,9 +59,63 @@
                         Login
                     </a>
                 </li>
+                
+
                 {% endif %}
       
             </ul>
+           
+            <ul class="nav navbar-nav navbar-left">
+                <ul class="pull-center">
+                    <li>
+                        <a href="#pablo">
+                            Blog
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#pablo">
+                            Presentation
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#pablo">
+                            Discover
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#pablo">
+                            Payment
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#pablo">
+                            Contact Us
+                        </a>
+                    </li>
+                </ul>
+                <ul class="social-buttons pull-right">
+                    <li>
+                        <a href="https://twitter.com/CreativeTim" target="_blank"
+                            class="btn btn-just-icon btn-twitter btn-simple">
+                            <i class="fa fa-twitter"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.facebook.com/CreativeTim" target="_blank"
+                            class="btn btn-just-icon btn-facebook btn-simple">
+                            <i class="fa fa-facebook-square"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/CreativeTimOfficial" target="_blank"
+                            class="btn btn-just-icon btn-google btn-simple">
+                            <i class="fa fa-google"></i>
+                        </a>
+                    </li>
+                </ul>
+            </ul>
+            
         </div>
+        
     </div>
 </nav>

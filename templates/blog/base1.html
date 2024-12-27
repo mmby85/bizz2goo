@@ -1,0 +1,244 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/apple-icon.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
+
+    <link href="{% static 'blog/assets/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'blog/assets/css/material-kit.css' %}" rel="stylesheet">
+
+    <title>
+        {% block title %}{% endblock %}
+    </title>
+
+
+
+    <!--     Fonts and icons     -->
+    <link rel="stylesheet" type="text/css"
+        href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+
+    <!-- Nucleo Icons -->
+    <link href="{% static 'blog/assets/css/nucleo-icons.css' %}" rel="stylesheet" />
+    <link href="{% static 'blog/assets/css/nucleo-svg.css' %}" rel="stylesheet" />
+
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
+
+    <!-- Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+
+    <style>
+        /* Sections générales */
+        .section {
+            padding: 50px 0;
+        }
+
+        .categories-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Ensure items have the same width */
+    gap: 15px; /* Consistent gap between items */
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 800px; /* Limit overall width */
+}
+
+.category-link {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #05012e;
+    border-radius: 32px;
+    box-shadow: 0px 4px 6px #1260CC;
+    transition: all 0.3s ease;
+}
+
+.category-link:hover {
+    background-color: #1260CC;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+        /* Articles */
+        .card {
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .card-text {
+            color: #666;
+        }
+
+        /* Articles populaires */
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Responsivité : Réduire la largeur de la carte en fonction de l'écran */
+        @media (max-width: 768px) {
+            .categories-list {
+                grid-template-columns: repeat(2, 1fr); /* Sur mobile, 2 colonnes */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .categories-list {
+                grid-template-columns: 1fr; /* Sur petits écrans, 1 seule colonne */
+            }
+        }
+        .btn:focus {
+            
+            background-color: #1260CC;
+
+        }
+        
+    </style>
+
+</head>
+
+<body class="blog-posts">
+  <div  style='background-image: url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});'>
+
+     {% include "blog/navbar.html" %}
+
+
+     {% block body %}
+     <div class="container">
+        <div class="row">
+            <div class="ml-auto mr-auto col-sm-6 col-md-6 col-lg-4">
+                <div class="card-register card">
+                    <h3 class="card-title">Welcome</h3>
+                    <form class="register-form">
+                        <label>Email</label><input placeholder="Email" type="email" class="no-border form-control" /><label>Password</label><input placeholder="Password" type="password" class="no-border form-control" />
+                        <button class="btn-round btn btn-danger btn-block">Register</button>
+                    </form>
+                    <div class="forgot"><a href="#pablo" class="btn-link btn btn-danger">Forgot password?</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="demo-footer text-center">
+            <h6>© 2024, made with <i class="fa fa-heart heart"></i> by Creative Tim</h6>
+        </div>
+    </div>
+    
+     {% endblock %}
+
+  </div>
+    <footer class="footer">
+        <div class="container">
+            <a class="footer-brand" href="#pablo">Bizz2Go</a>
+            <ul class="pull-center">
+                <li>
+                    <a href="#pablo">
+                        Blog
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Presentation
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Discover
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Payment
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Contact Us
+                    </a>
+                </li>
+            </ul>
+            <ul class="social-buttons pull-right">
+                <li>
+                    <a href="https://twitter.com/CreativeTim" target="_blank"
+                        class="btn btn-just-icon btn-twitter btn-simple">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.facebook.com/CreativeTim" target="_blank"
+                        class="btn btn-just-icon btn-facebook btn-simple">
+                        <i class="fa fa-facebook-square"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.instagram.com/CreativeTimOfficial" target="_blank"
+                        class="btn btn-just-icon btn-google btn-simple">
+                        <i class="fa fa-google"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+
+
+    <script defer src="{% static 'blog/assets/js/beacon.min.js' %}"></script>
+
+</body>
+
+<!--   Core JS Files   -->
+<script src="{% static 'vendor/jquery/jquery.min.js' %}" ></script>
+<script src="{% static 'blog/assets/js/core/bootstrap.min.js' %}" ></script>
+<script src="{% static 'blog/assets/js/material.min.js' %}" ></script>
+
+<script src="{% static 'blog/assets/js/core/popper.min.js' %}" ></script>
+
+<!--  Plugin for TypedJS, full documentation here: https://github.com/inorganik/CountUp.js -->
+<script src="{% static 'blog/assets/js/plugins/countup.min.js' %}"></script>
+
+<script src="{% static 'blog/assets/js/plugins/prism.min.js' %}"></script>
+<script src="{% static 'blog/assets/js/plugins/highlight.min.js' %}"></script>
+
+<!--  Plugin for Parallax, full documentation here: https://github.com/dixonandmoe/rellax -->
+<script src="{% static 'blog/assets/js/plugins/rellax.min.js' %}"></script>
+<!--  Plugin for TiltJS, full documentation here: https://gijsroge.github.io/tilt.js/ -->
+<script src="{% static 'blog/assets/js/plugins/tilt.min.js' %}"></script>
+<!--  Plugin for Selectpicker - ChoicesJS, full documentation here: https://github.com/jshjohnson/Choices -->
+<script src="{% static 'blog/assets/js/plugins/choices.min.js' %}"></script>
+
+<!--    Plugin for Date Time Picker and Full Calendar Plugin   -->
+<script src="{% static 'blog/assets/js/moment.min.js' %}" ></script>
+
+<!--	Plugin for the Sliders, full documentation here: https://refreshless.com/nouislider/   -->
+<script src="{% static 'blog/assets/js/nouislider.min.js' %}" ></script>
+
+<!--	Plugin for the Datepicker, full documentation here: https://github.com/Eonasdan/bootstrap-datetimepicker   -->
+<script src="{% static 'blog/assets/js/bootstrap-datetimepicker.js' %}" ></script>
+
+<!--	Plugin for Select, full documentation here: https://silviomoreto.github.io/bootstrap-select   -->
+<script src="{% static 'blog/assets/js/bootstrap-selectpicker.js' %}" ></script>
+
+<!--	Plugin for Tags, full documentation here: https://xoxco.com/projects/code/tagsinput/   -->
+<script src="{% static 'blog/assets/js/bootstrap-tagsinput.js' %}" ></script>
+
+<!--	Plugin for Fileupload, full documentation here: https://www.jasny.net/bootstrap/javascript/#fileinput   -->
+<script src="{% static 'blog/assets/js/jasny-bootstrap.min.js' %}" ></script>
+
+<script src="{% static 'blog/assets/js/material-kit.min.js' %}" ></script>
+<script src="https://unpkg.com/htmx.org@1.9.3"></script> <!-- HTMX CDN -->

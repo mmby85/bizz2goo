@@ -8,6 +8,8 @@ https://demos.creative-tim.com/nextjs-tailwind-blog-posts-page/?_ga=2.127420553.
 
 https://demos.creative-tim.com/material-kit/index.html?_ga=2.72870167.582448555.1730303848-180642451.1724699074
 
+For Articles :
+https://demos.creative-tim.com/paper-kit-pro-react/#/blog-post
 
 #Django
 

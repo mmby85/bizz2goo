@@ -1,0 +1,165 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block body %}
+{% include "blog/heroSection.html" %}
+
+<style>
+    /* Enhanced Styling */
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Roboto', sans-serif; /* Consistent font for better readability */
+    }
+
+    .main {
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .btn-block {
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 1.1em;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .btn-block:hover {
+        background-color: #0056b3;
+        transform: scale(1.02); /* Slight zoom effect */
+    }
+
+    h2 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: #007bff;
+    }
+
+    .alert {
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .select2-container--default .select2-selection--single {
+        border-radius: 10px;
+        border-color: #ced4da;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .select2-container--default .select2-selection--single:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 768px) {
+        h2 {
+            font-size: 1.8rem;
+        }
+
+        .btn-block {
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="main">
+        <!-- Page Header -->
+        <div class="text-center">
+            <h2 class="mb-4">Créer un Nouveau Post</h2>
+            <p class="text-muted">Partagez vos idées et vos projets avec la communauté.</p>
+        </div>
+
+        <!-- Form Section -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-12">
+                <!-- Display Form Errors -->
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <!-- Post Creation Form -->
+                <form method="post"  enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form.media }}
+
+                    <!-- Title Field -->
+                    <div class="form-group">
+                        {{ form.title.label_tag }}
+                        <input type="text" class="form-control" id="title" name="title" placeholder="Entrez le titre" value="{{ form.title.value|default:'' }}" required>
+                    </div>
+
+                    <!-- Category Dropdown -->
+                    <div class="form-group">
+                        {{ form.category.label_tag }}
+                        <select class="form-control" id="category" name="category" required>
+                            <option value="">Sélectionnez une catégorie</option>
+                            {% for category in form.category.field.queryset %}
+                            <option value="{{ category.id }}" {% if category.id == form.category.value %}selected{% endif %}>{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Sub-category Dropdown -->
+                    <div class="form-group">
+                        {{ form.sub_category.label_tag }}
+                        <select class="form-control" id="sub_category" name="sub_category">
+                            <option value="">Sélectionnez une sous-catégorie</option>
+                            {% for sub_category in form.sub_category.field.queryset %}
+                            <option value="{{ sub_category.id }}" {% if sub_category.id == form.sub_category.value %}selected{% endif %}>{{ sub_category.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Content Field -->
+                    <div class="form-group">
+                        {{ form.content.label_tag }}
+                        {{ form.content }}
+                    </div>
+
+                    <!-- Image Upload Field -->
+                    <div class="form-group">
+                        {{ form.image.label_tag }}
+                        {{ form.image }}
+                    </div>
+
+                    <!-- Slug Field -->
+                    <div class="form-group">
+                        {{ form.slug.label_tag }}
+                        {{ form.slug }}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Publier
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

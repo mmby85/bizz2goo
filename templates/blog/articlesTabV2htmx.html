@@ -1,144 +1,127 @@
-{% load static %}
+<!-- Section des Catégories -->
+{% load custom_filters %}
 
-<div class="section">
-    <h3 class="title text-center">You may also be interested in</h3>
-    <br />
+<head>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3 text-center">
-            <ul class="nav nav-pills nav-pills-primary">
-                <li class="active"><a href="#all" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'all' %}" hx-target="#article-content" hx-swap="innerHTML">Tous les articles</a></li>
-                <li><a href="#pill1" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'creation' %}" hx-target="#article-content" hx-swap="innerHTML">Création d’entreprise</a></li>
-                <li><a href="#pill2" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'management' %}" hx-target="#article-content" hx-swap="innerHTML">Management et Stratégie</a></li>
-                <li><a href="#pill3" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'digitalisation' %}" hx-target="#article-content" hx-swap="innerHTML">Digitalisation & IA</a></li>
-                <li><a href="#pill4" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'startups' %}" hx-target="#article-content" hx-swap="innerHTML">Startups</a></li>
-                <li><a href="#pill5" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'financement' %}" hx-target="#article-content" hx-swap="innerHTML">Financement et investissement</a></li>
-                <li><a href="#pill6" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'competences' %}" hx-target="#article-content" hx-swap="innerHTML">Compétences</a></li>
-                <li><a href="#pill7" data-toggle="tab" class="tab-link" hx-get="{% url 'articles_list' 'events' %}" hx-target="#article-content" hx-swap="innerHTML">Events</a></li>
-            </ul>
-    
-            <div class="tab-content tab-space" id="article-content">
-                <div class="tab-pane active" id="all">
-                    <!-- Content for All Articles -->
-                    {% for article in articles %}
-                        <div class="col-md-4">
-                            <div class="card card-plain card-blog">
-                                <div class="card-image">
-                                    <a href="#pablo">
-                                        <img class="img img-raised" src="{{ article.image_url }}" />
-                                    </a>
-                                </div>
-                                <div class="card-content">
-                                    <h6 class="category text-info">{{ article.category }}</h6>
-                                    <h4 class="card-title">
-                                        <a href="#pablo">{{ article.title }}</a>
-                                    </h4>
-                                    <p class="card-description">
-                                        {{ article.description }} <a href="#pablo"> Read More </a>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                </div>
-                <!-- Other tab panes will be loaded dynamically -->
+</head>
+<section id="categories" class="section">
+    <div class="container">
+        <h3 class="title text-center" style="margin-bottom: 50px; font-family: 'IBM Plex Sans', sans-serif; font-size: 40px;">
+            You may also be interested in
+        </h3>
+
+        <div class="row gy-3"> <!-- Use gy-* to control vertical spacing -->
+            <!-- First Item -->
+            <div class="col-md-3 col-sm-6">
+                <a href="#" 
+                   hx-get="{% url 'posts_by_category' 'all' %}" 
+                   hx-target="#posts-container" 
+                   hx-trigger="click"
+                   class="category-link btn btn-outline-secondary text-center w-100"
+                   style="color: #fff;  border-color: #1260CC; box-shadow: 0px 4px 6px #1260CC;">
+                   Tous les articles
+                </a>
             </div>
+
+            <!-- Dynamic Items -->
+            {% for category in categories %}
+            <div class="col-md-3 col-sm-6">
+                <a href="#" 
+                   hx-get="{% url 'posts_by_category' category.id %}" 
+                   hx-target="#posts-container" 
+                   hx-trigger="click"
+                   class="category-link btn btn-outline-secondary text-center w-100"
+                   style="color: #fff;  border-color: #05012e; box-shadow: 0px 4px 6px #1260CC;">
+                   {{ category.name }}
+                </a>
+            </div>
+            {% endfor %}
         </div>
     </div>
+</section>
 
-    <div class="tab-content tab-space">
-        <div class="tab-pane active" id="pill1">
+
+<!-- Section des Articles -->
+<section id="posts" class="section">
+    <div class="container">
         
-
-            <div class="row">
-                <div class="col-md-4">
-
-                    <div class="card card-plain card-blog">
-                        <div class="card-image">
-                            <a href="#pablo">
-                                <img class="img img-raised" src="{% static 'blog/assets/img/bg5.jpg' %}" />
-                            </a>
-                        </div>
-                        <div class="card-content">
-                            <h6 class="category text-info">Enterprise</h6>
-                            <h4 class="card-title">
-                                <a href="#pablo">Autodesk looks to future of 3D printing with Project Escher</a>
-                            </h4>
-                            <p class="card-description">
-                                Like so many organizations these days, Autodesk is a company in transition. It was
-                                until recently a traditional boxed software company selling licenses.<a
-                                    href="#pablo"> Read More </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+        <h3 class="title text-center"style="margin-bottom: 50px" >Articles</h3>
+        <div id="posts-container" class="row">
+            {% for post in recent_posts %}
                 <div class="col-md-4">
                     <div class="card card-plain card-blog">
+                        <a href="{% url 'post_detail' post.slug %}">
                         <div class="card-image">
-                            <a href="#pablo">
-                                <img class="img img-raised" src="{% static 'blog/assets/img/blog5.jpg' %}" />
-                            </a>
-                        </div>
-                        <div class="card-content">
-                            <h6 class="category text-success">
-                                Startups
-                            </h6>
-                            <h4 class="card-title">
-                                <a href="#pablo">Lyft launching cross-platform service this week</a>
-                            </h4>
-                            <p class="card-description">
-                                Like so many organizations these days, Autodesk is a company in transition. It was
-                                until recently a traditional boxed software company selling licenses.<a
-                                    href="#pablo"> Read More </a>
+                            <div 
+            data-radius="none" 
+            class="card" 
+            style="
+              background-image: url('{{media_url}}{{post.image}}'); 
+              width: 100%; 
+              height: 200px; 
+              background-size: contain; 
+              background-repeat: no-repeat; 
+              background-position: center;
+              "
+                            ></div>
+                            
+                            <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+                            <h4 class="card-text">{{ post.title|safe }}</h4>
+                            <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                            <p class="text-muted">
+                                <small>{{ post.time|date:"d/m/Y H:i" }}</small>
                             </p>
+                            <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
+                            
                         </div>
+                    </a>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card card-plain card-blog">
-                        <div class="card-image">
-                            <a href="#pablo">
-                                <img class="img img-raised" src="{% static 'blog/assets/img/bg5.jpg' %}" />
-                            </a>
-                        </div>
-                        <div class="card-content">
-                            <h6 class="category text-danger">
-                                <i class="material-icons">trending_up</i> Enterprise
-                            </h6>
-                            <h4 class="card-title">
-                                <a href="#pablo">6 insights into the French Fashion landscape</a>
-                            </h4>
-                            <p class="card-description">
-                                Like so many organizations these days, Autodesk is a company in transition. It was
-                                until recently a traditional boxed software company selling licenses.<a
-                                    href="#pablo"> Read More </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+            {% endfor %}
         </div>
-</div>
+    </div>
+</section>
 
-</div>
-</div>
-
-<script>
-    document.querySelectorAll('.tab-link').forEach(link => {
-        link.addEventListener('click', function(event) {
-            event.preventDefault();
-            const target = this.getAttribute('href');
-
-            // Remove active class from all tabs and hide all content
-            document.querySelectorAll('.nav-pills li').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-pane').forEach(content => {
-                content.classList.remove('active');
-            });
-
-            // Add active class to the clicked tab and show the corresponding content
-            this.parentElement.classList.add('active');
-            document.querySelector(target).classList.add('active');
-        });
-    });
-</script>
+<!-- Section des Articles Populaires -->
+<section id="top-posts" class="section bg-light">
+    <div class="container">
+        <h2 class="text-center section-title">Articles Populaires</h2>
+        <div id="top-posts-container" class="row">
+            {% for post in top_posts %}
+                <div class="col-md-4">
+                    <div class="card card-plain card-blog">
+                        <a href="{% url 'post_detail' post.slug %}">
+                        <div class="card-image">
+                            <div 
+            data-radius="none" 
+            class="card" 
+            style="
+              background-image: url('{{media_url}}{{post.image}}'); 
+              width: 100%; 
+              height: 200px; 
+              background-size: contain; 
+              background-repeat: no-repeat; 
+              background-position: center;
+              "
+                            ></div>
+                            
+                            <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+                            <h4 class="card-text">{{ post.title|safe }}</h4>
+                            <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                            <p class="text-muted">
+                                <small>{{ post.time|date:"d/m/Y H:i" }}</small>
+                            </p>
+                            <p class="text-muted">
+                                <small>{{ post.likes }} likes</small>
+                            </p>
+                            <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
+                            
+                        </div>
+                    </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

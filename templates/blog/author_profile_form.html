@@ -1,0 +1,227 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+
+<style>
+/* General Styles */
+body {
+    background-color: #f0f4f8;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+}
+
+.containerr {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+.card img {
+    width: 20%;
+    height: auto;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.form-control {
+    border-radius: 0.5rem;
+    border: 1px solid #ddd;
+    padding: 6px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #aaa;
+    transition: opacity 0.3s ease;
+}
+
+.form-control:focus::placeholder {
+    color: #007bff;
+    opacity: 0.8;
+}
+
+.card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    margin-top: 30px;
+}
+
+.card h2 {
+    color: #007bff;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    border-radius: 0.375rem;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.alert {
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Thumbnail Styles */
+.thumbnail-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.thumbnail {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    margin-right: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+    position: relative;
+}
+
+/* Hide the default file input */
+input[type="file"] {
+    display: none;
+}
+
+.file-label {
+    background-color: #f0f4f8;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+/* Box separator */
+.field-box {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .card {
+        padding: 20px;
+    }
+
+    .btn-success {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+</style>
+
+<div class="containerr mt-5">
+    <div class="card shadow-lg">
+        <h2>Créer un profil auteur</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="field-box">
+                <label for="id_bio" class="form-label">Biographie</label>
+                <textarea name="bio" class="form-control" id="id_bio" rows="4" placeholder="{{ form.bio.value }}" required></textarea>
+                <small class="form-text text-muted">Parlez-nous de vous en quelques phrases.</small>
+                {% for error in form.bio.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field-box">
+                <label for="id_profile_picture" class="form-label">Photo de profil</label>
+                <div class="thumbnail-container">
+                    <img id="profile-thumbnail" src="{% static 'blog\assets\img\examples\blog-9-4.jpg' %}" alt="Thumbnail" class="thumbnail" width="8" height="8">                    
+                    <input type="file" name="profile_picture" class="form-control" id="id_profile_picture" accept="image/*" required onchange="previewImage(event)">
+                    <label for="id_profile_picture" class="file-label">Choisir une image</label>
+                </div>
+                <small class="form-text text-muted">Formats acceptés: JPG, PNG.</small>
+            </div>
+
+            <div class="field-box">
+                <label for="id_website" class="form-label">Site Web</label>
+                <input type="url" name="website" class="form-control" id="id_website" placeholder="https://example.com" required>
+                <small class="form-text text-muted">Entrez l'URL de votre site web.</small>
+                {% for error in form.website.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+                
+            <div class="field-box">
+                <label for="id_metier" class="form-label">Métier</label>
+                <input type="text" name="metier" class="form-control" id="id_metier" placeholder="{{ form.metier.value }}" required>
+                <small class="form-text text-muted">Quel est votre métier ?</small>
+                {% for error in form.metier.errors %}
+                    <div class="alert alert-danger">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="field-box">
+            <label for="id_facebook">Lien Facebook</label>
+                {{ form.facebook }}
+            </div>
+            <div class="field-box">
+            <label for="id_gmail">Adresse Gmail</label>
+                {{ form.gmail }}
+            </div>
+            <div class="field-box">
+            <label for="id_twitter">Lien Twitter</label>
+                {{ form.twitter }}
+            </div>
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success btn-lg">Créer le profil</button>
+            </div>
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger mt-3">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('profile-thumbnail').src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+
+{% endblock %}

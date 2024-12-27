@@ -1,0 +1,45 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+
+  <!-- Page Content -->
+
+<div class="container">
+    <div class="d-flex justify-content-center align-items-center " style="height: 100vh;">
+
+      <form method="post">
+        {% csrf_token %}
+        <label for="firstname">Prénom :</label>
+        <input type="text" id="firstname" name="firstname" value="{{ author_profile.user.first_name }}" required>
+    
+        <label for="lastname">Nom :</label>
+        <input type="text" id="lastname" name="lastname" value="{{ author_profile.user.last_name }}" required>
+    
+   
+    
+        <label for="bio">Bio :</label>
+        <textarea id="bio" name="bio">{{ author_profile.bio }}</textarea>
+    
+        <label for="facebook">Lien Facebook :</label>
+        <input type="url" id="facebook" name="facebook" value="{{ author_profile.facebook }}">
+    
+        <label for="twitter">Lien Twitter :</label>
+        <input type="url" id="twitter" name="twitter" value="{{ author_profile.twitter }}">
+    
+        <label for="gmail">Adresse Gmail :</label>
+        <input type="email" id="gmail" name="gmail" value="{{ author_profile.gmail }}">
+    
+        <button type="submit" class="btn btn-primary">Mettre à jour</button>
+    </form>
+    
+
+    </div>
+  </div>
+
+  
+
+</body>
+
+</html>
+{% endblock %}

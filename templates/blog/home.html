@@ -12,76 +12,56 @@
 
     <div class="container">
 
-        {% include "blog/articlesTabV2.html" %}
+        {% include "blog/articlesTabV2htmx.html" %}
 
     </div>
     <div class="team-5 section-image" 
-    style="background-image: url({% static 'blog/assets/img/bg10.jpg' %});">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card card-profile card-plain">
-                        <div class="col-md-5">
-                            <div class="card-image">
-                                <a href="#pablo">
-                                    <img class="img" src="{% static 'blog/assets/img/card-profile1-square.jpg' %}" />
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="card-content">
-                                <h4 class="card-title">Alec Thompson</h4>
-                                <h6 class="category text-muted">Author of the Month</h6>
-                                <p class="card-description">
-                                    Don't be scared of the truth because we need to restart the human foundation in
-                                    truth...
-                                </p>
-                                <div class="footer">
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-twitter"></i></a>
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-facebook-square"></i></a>
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-google"></i></a>
-                                </div>
-                            </div>
+    style="background-image: url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});">
+    <div class="container">
+        <div class="row">
+            {% for author in top_authors %}
+            <div class="col-md-6">
+                <div class="card card-profile card-plain">
+                    <div class="col-md-5">
+                        <div class="card-image">
+                            <a href="{% url 'author_profile' author.user.username %}">
+                                <img class="img" src="{{ author.profile_picture.url }}" alt="{{ author.user.username }}" />
+                            </a>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card card-profile card-plain">
-                        <div class="col-md-5">
-                            <div class="card-image">
-                                <a href="#pablo">
-                                    <img class="img" src="{% static 'blog/assets/img/card-profile1-square.jpg' %}" />
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-7">
-                            <div class="card-content">
-                                <h4 class="card-title">Kendall Andrew</h4>
-                                <h6 class="category text-muted">Author of the Week</h6>
-                                <p class="card-description">
-                                    Don't be scared of the truth because we need to restart the human foundation in
-                                    truth...
-                                </p>
-                                <div class="footer">
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-linkedin"></i></a>
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-facebook-square"></i></a>
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-dribbble"></i></a>
-                                    <a href="#pablo" class="btn btn-just-icon btn-simple btn-white"><i
-                                            class="fa fa-google"></i></a>
-                                </div>
+                    <div class="col-md-7">
+                        <div class="card-content">
+                            <h4 class="card-title">{{ author.user.username }}</h4>
+                            <h6 class="category text-muted">Auteur de mois</h6>
+                            <p class="card-description">
+                                {{ author.bio|truncatewords:20 }}
+                            </p>
+                            <div class="footer">
+                                {% if author.twitter %}
+                                    <a href="{{ author.twitter }}" class="btn btn-just-icon btn-simple btn-white">
+                                        <i class="fa fa-twitter"></i>
+                                    </a>
+                                {% endif %}
+                                {% if author.facebook %}
+                                    <a href="{{ author.facebook }}" class="btn btn-just-icon btn-simple btn-white">
+                                        <i class="fa fa-facebook-square"></i>
+                                    </a>
+                                {% endif %}
+                                {% if author.gmail %}
+                                    <a href="mailto:{{ author.gmail }}" class="btn btn-just-icon btn-simple btn-white">
+                                        <i class="fa fa-google"></i>
+                                    </a>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
+</div>
+
     <div class="subscribe-line">
         <div class="container">
             <div class="row">

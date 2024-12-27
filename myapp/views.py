@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect , get_object_or_404
 from django.contrib.auth.models import User,auth
 from django.contrib.auth import authenticate
 from django.contrib import messages
@@ -9,9 +9,21 @@ from . import forms
 
 from django.urls import reverse
 from django.views import generic
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from .models import Comment,Post
+
+convert_category = {
+'creation-dentreprise': 'Création d’entreprise',
+'management-and-strategie': 'Management & Stratégie',
+'technologies': 'Technologies',
+'financement-et-startups': 'Financement et Startups',
+'gestion-et-conformite': 'Gestion et Conformité',
+'competences': 'Compétences',
+'events': 'Events',
+}
+
 
 # Create your views here.
 def index(request):
@@ -32,25 +44,31 @@ def index(request):
         'form' : form
     })
 
-
+from django.db.models import Sum
 def new_index(request):
-    if request.method == 'POST':
-        form = forms.CKPostForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('post_list')  # Assuming you have a URL for listing posts
-    else:
-        form = forms.CKPostForm()
+    posts = CKPost.objects.order_by("-time")
+    top_posts = CKPost.objects.all().order_by("-likes")[:3]
+    recent_posts = CKPost.objects.all().order_by("-time")[:3]
+    categories = Category.objects.all()
+    all_posts = CKPost.objects.all()
+    top_authors = (
+        AuthorProfile.objects.annotate(total_likes=Sum('user__ckpost__likes'))
+        .order_by('-total_likes')[:2]
+    )
+    context = {
+        'posts': posts,
+        'top_posts': top_posts,
+        'recent_posts': recent_posts,
+        'categories': categories,
+        'user': request.user,
+        'media_url': settings.MEDIA_URL,
+        'all_posts': all_posts,
+        'top_authors': top_authors,
+        
+    }
 
-    return render(request,"blog/home.html",{
-        'posts':Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
-        'top_posts':Post.objects.all().order_by("-likes"),
-        'recent_posts':Post.objects.all().order_by("-id"),
-        'user':request.user,
-        'media_url':settings.MEDIA_URL,
-        'form' : form,
+    return render(request, "blog/home.html", context)
 
-    })
 
 def signup(request):
     if request.method == 'POST':
@@ -113,13 +131,16 @@ def create(request):
             form = forms.CKPostForm(request.POST)
             if form.is_valid():
                 form.save()
-                return redirect('post_list')  # Assuming you have a URL for listing posts
+                print("Post saved successfully")  # Debugging
+                return redirect('post_list')
+            else:
+                print("Form is not valid:", form.errors)  
         except:
             print("Error")
         return redirect('index')
     else:
         form = forms.CKPostForm()
-        return render(request,"create.html" , context={"form" : form})
+        return render(request,"blog/create_post.html" , context={"form" : form})
     
 def create_old(request):
     if request.method == 'POST':
@@ -140,31 +161,69 @@ def create_old(request):
         form = forms.CKPostForm()
         return render(request,"create_old.html" , context={"form" : form})
 
+
+def posts_by_category(request, id):
     
-def profile(request,id):
-    
-    return render(request,'profile.html',{
-        'user':User.objects.get(id=id),
-        'posts':Post.objects.all(),
-        'media_url':settings.MEDIA_URL,
+    if id == 'all':
+        ckposts = CKPost.objects.all()  # Fetch all CKPosts
+    else:
+        # id_category = convert_category[category]        
+        ckposts = CKPost.objects.filter(category__id=int(id))  # Fetch CKPosts by category
+        
+    return render(request, 'blog/articlesSWAP_HTMX.html', {'ckposts': ckposts})
+
+
+def profile(request, username):
+    return render(request, 'blog/profile.html', {
+        'user_profile': get_object_or_404(User, username=username),
+        'posts': CKPost.objects.all(),
+        'media_url': settings.MEDIA_URL,
     })
+
     
 
-def profileedit(request,id):
-    if request.method == 'POST':
-        firstname = request.POST['firstname']
-        lastname = request.POST['lastname']
-        email = request.POST['email']
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
+from .models import AuthorProfile
+
+def profileedit(request, username):
+    # Récupérer le profil de l'auteur en fonction du nom d'utilisateur
+    author_profile = get_object_or_404(AuthorProfile, user__username=username)
     
-        user = User.objects.get(id=id)
+    if request.method == 'POST':
+        # Récupérer les données du formulaire
+        firstname = request.POST.get('firstname')
+        lastname = request.POST.get('lastname')
+        email = request.POST.get('email')
+        bio = request.POST.get('bio')
+        facebook = request.POST.get('facebook')
+        twitter = request.POST.get('twitter')
+        gmail = request.POST.get('gmail')
+
+        # Mettre à jour les informations de l'utilisateur
+        user = author_profile.user
         user.first_name = firstname
-        user.email = email
         user.last_name = lastname
+        
         user.save()
-        return profile(request,id)
-    return render(request,"profileedit.html",{
-        'user':User.objects.get(id=id),
+
+        # Mettre à jour les informations du profil
+        author_profile.bio = bio
+        author_profile.facebook = facebook
+        author_profile.twitter = twitter
+        author_profile.gmail = gmail
+        author_profile.save()
+
+        # Rediriger vers la vue de profil (ou un autre endroit)
+        return render(request, "blog/auteur.html", {
+            'author_profile': author_profile
+        })
+
+    # Si la méthode est GET, afficher le formulaire de modification
+    return render(request, "blog/profileedit.html", {
+        'author_profile': author_profile
     })
+
     
 def increaselikes(request,id):
     if request.method == 'POST':
@@ -179,10 +238,10 @@ def removepost(request,id):
         post.delete()
     return redirect("index")
 
-def post(request,id):
+def post(request,id):             ### BECH TETBADEL CKPOST
     post = Post.objects.get(id=id)
     
-    return render(request,"post-details.html",{
+    return render(request,"post-detail.html",{
         "user":request.user,
         'post':Post.objects.get(id=id),
         'recent_posts':Post.objects.all().order_by("-id"),
@@ -190,7 +249,7 @@ def post(request,id):
         'comments':Comment.objects.filter(post_id = post.id),
         'total_comments': len(Comment.objects.filter(post_id = post.id))
     })
-    
+
 def savecomment(request,id):
     post = Post.objects.get(id=id)
     if request.method == 'POST':
@@ -261,39 +320,186 @@ class CkEditorMultiWidgetFormView(generic.FormView):
 
 def create_post(request):
     if request.method == 'POST':
-        form = forms.CKPostForm(request.POST)
+        form = forms.CKPostForm(request.POST, request.FILES)  # Inclure les fichiers pour l'image
         if form.is_valid():
-            form.save()
-            return redirect('post_list')  # Assuming you have a URL for listing posts
+            post = form.save(commit=False)
+            post.user = request.user
+            post.save()
+            messages.success(request, "Post created successfully!")
+            return redirect('post_detail', slug=post.slug)
     else:
         form = forms.CKPostForm()
-    return render(request, 'ckeditor.html', {'form': form})
 
-def post_list(request):
-    posts = CKPost.objects.all()
-    print(vars(posts[0]))
-    return render(request, 'post_list.html', {'posts': posts})
+    categories = Category.objects.all()
+    return render(request, 'blog/create_post.html', {'form': form, 'categories': categories})
 
-def edit_post(request, post_id):
-    post = CKPost.objects.get(id=post_id)
+def post_list(request):  
+    posts = CKPost.objects.all().order_by('-time')  
+
+    return render(request, 'blog/post_list.html', {
+        'posts': posts,  
+    })
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import CKPost
+from . import forms
+
+def edit_post(request, slug):
+    post = get_object_or_404(CKPost, slug=slug)
+
     if request.method == 'POST':
-        form = forms.CKPostForm(request.POST, instance=post)
+        form = forms.CKPostForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
             form.save()
-            return redirect('post_list')  # Replace with your detail view
+            messages.success(request, "Post updated successfully!")
+            return redirect('post_detail', slug=post.slug)
     else:
         form = forms.CKPostForm(instance=post)
-    return render(request, 'create.html', {'form': form})
+
+    return render(request, 'blog/edit_post.html', {'form': form, 'post': post})
 
 
-# @Walid to do post_detail.html
-# create view post_detail path('post/<int:post_id>/', views.post_detail, name='post_detail'),
-# def post_detail(request, post_id):
-#     post = CKPost.objects.get(id=post_id)
-#     return render(request, 'post_detail.html', {'post': post})
+
+def post_detail(request, slug):
+    post = get_object_or_404(CKPost, slug=slug)
+    related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
+    author_profile = None
+    if post.user.is_staff and hasattr(post.user, 'authorprofile'):
+        author_profile = post.user.authorprofile
+    context = {
+        'post': post,
+        'related_posts': related_posts,
+        'media_url': settings.MEDIA_URL,
+        'author_profile': author_profile,
+    }
+    return render(request, 'blog/post-detail.html', context)
 
 def home_new(request):
     return render(request, 'blog/base.html')
 
 ckeditor_form_view = CkEditorFormView.as_view()
 # ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()
+
+def get_subcategories(request):
+    category_id = request.GET.get('category_id')
+    subcategories = SubCategory.objects.filter(category_id=category_id)
+    return JsonResponse({
+        'subcategories': [{'id': sub.id, 'name': sub.name} for sub in subcategories]
+    })
+    
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from .models import CKPost, Comment, AuthorProfile
+
+
+@csrf_exempt
+def add_comment(request):
+    if request.method == "POST":
+        # Extract form data
+        slug = request.POST.get("slug")
+        username = request.POST.get("username")
+        content = request.POST.get("content")
+        parent_id = request.POST.get("parent_id")  # Parent comment ID (if it's a reply)
+
+        # Ensure required fields are present
+        if not all([slug, username, content]):
+            return JsonResponse({"error": "Missing fields in the form."}, status=400)
+
+        # Get the related post
+        post = get_object_or_404(CKPost, slug=slug)
+
+        # Handle parent comment if it's a reply
+        parent_comment = None
+        if parent_id:
+            parent_comment = get_object_or_404(Comment, id=parent_id)
+
+        # Create the comment
+        comment = Comment.objects.create(
+            user=username,
+            content=content,
+            post=post,
+            parent=parent_comment
+        )
+
+        # Helper function to render a single comment or reply
+        def render_comment(comment, is_reply=False):
+            if is_reply:
+                return render_to_string('blog/reply.html', {'comment': comment, 'request': request})
+            else:
+                return render_to_string('blog/comment.html', {'comment': comment, 'post': post, 'request': request})
+
+
+        #Render only the new comment/reply
+        comment_html = render_comment(comment, is_reply=bool(parent_id))
+
+
+        # Determine the target for the response
+        if parent_id:
+            target = f"#comment-{parent_id} .replies"
+        else:
+            target = "#comments-container"
+
+        # Return the HTML of all comments for the targeted container
+        return HttpResponse(comment_html, content_type="text/html", headers={"HX-Target": target, "HX-Reswap": "beforeend"})
+      
+
+    return JsonResponse({"error": "Invalid request method."}, status=405)
+
+def post_detail(request, slug):
+    post = get_object_or_404(CKPost, slug=slug)
+    author_profile = get_object_or_404(AuthorProfile, user=post.user)
+    related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
+    top_level_comments = post.comments.filter(parent__isnull=True)
+    media_url = "/media/"
+    
+    context = {
+        "post": post,
+        "author_profile": author_profile,
+        "related_posts": related_posts,
+        "media_url":media_url,
+        "top_level_comments": top_level_comments,  
+    }
+    return render(request, "blog/post-detail.html", context)
+
+# def load_more_comments(request, post_id):
+#     post = Post.objects.get(id=post_id)
+#     comments = post.comments.all()[3:]  # Skip first 3 comments
+
+#     # Render new comments to send back to the front-end
+#     return render(request, 'blog/comment_list.html', {'comments': comments})
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.models import User
+from .models import AuthorProfile
+
+def author_profile(request, username):
+    user = get_object_or_404(User, username=username, is_staff=True)  # Vérifie que c'est un administrateur
+    profile = get_object_or_404(AuthorProfile, user=user)
+
+    return render(request, 'blog/auteur.html', {'author_profile': profile})
+
+
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.views.generic.edit import CreateView
+from django.shortcuts import redirect
+from .models import AuthorProfile
+
+
+class AuthorProfileCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
+    model = AuthorProfile
+    fields = ['bio', 'profile_picture', 'website', 'metier', 'facebook', 'gmail', 'twitter']
+    template_name = 'blog/author_profile_form.html'
+    success_url = '/success/'  # Redirection après la création
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def form_valid(self, form):
+        if AuthorProfile.objects.filter(user=self.request.user).exists():
+            form.add_error(None, "Vous avez déjà créé un profil auteur.")
+            return self.form_invalid(form)
+
+        form.instance.user = self.request.user
+        return super().form_valid(form)

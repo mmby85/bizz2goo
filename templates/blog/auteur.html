@@ -1,0 +1,134 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+<style>
+    .align-vertical {
+        vertical-align: middle; /* Exemple : middle, top, bottom */
+        display: inline-block; /* Assure que l'image respecte l'alignement */
+    }
+    .circle-image {
+        width: 150px; /* Set the width of the image */
+  height: 150px; /* Set the height of the image */
+  border-radius: 50%; /* Make the image circular */
+  border: 4px solid white; /* Add a white border */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2); /* Add shadow for better visibility */
+  position: absolute;
+  top: 20%; /* Position the image halfway in its parent container */
+  left: 50%; /* Horizontally center the image */
+  transform: translate(-50%, -100%); /* Adjust the position for proper centering */
+  object-fit:cover;
+  
+    }
+    .wrapper {
+        transition: all 0.5s cubic-bezier(0.685, 0.0473, 0.346, 1);
+        left: 0;
+        background-color: #fff;
+        position: relative;
+        z-index: 1;
+    }
+
+    .name {
+    display: flex; /* Enable flexbox */
+    flex-direction: column; /* Stack content vertically */
+    align-items: center; /* Horizontally center items */
+    justify-content: center; /* Vertically center items */
+    padding-top: 16px;
+    text-align: center; /* Center text within the container */
+}
+
+    
+
+</style>
+<div class="wrapper">
+	<div class="profile-content section">
+		<div class="container">
+			<div class="name">
+				<div class="profile-picture name" style="
+                display: contents;
+                align-content: center;
+                "
+            >
+					<div class="fileinput fileinput-new" data-provides="fileinput">
+						<div class="fileinput-new img-no-padding" >{% if author_profile.profile_picture %}
+                            
+                            <img alt ="..." src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="align-vertical circle-image" style="">
+                        {% endif %}</div>
+						<div class="name">
+							<h4 class="title text-center" style="font-family: 'Montserrat', Helvetica, Arial, sans-serif; 
+                                     font-size: 1.8em; 
+                                     line-height: 1.3em; 
+                                     font-weight: bold; 
+                                     color: #333; 
+                                     margin: 10px 0;">
+    {{ author_profile.user.username }} <br />
+                            <small style="display: block; 
+                            -webkit-font-smoothing: antialiased;
+                                        font-size: 1em; 
+                                        font-weight: normal; 
+                                        color: #9a9a9a; 
+                                        margin-top: 5px;">
+                                {{ author_profile.metier }}
+                            </small>
+                            
+                            </h4>
+                            {% if author_profile.website %}
+                            <a href="{{ author_profile.website }}" target="_blank">{{ author_profile.website }}</a>
+                            {% endif %}
+						</div>
+					</div>
+                    <div   style="  -webkit-font-smoothing: antialiased;
+                    font-family: Montserrat, Helvetica, Arial, sans-serif;
+                    font-weight: 300;
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;color: #66615b;-webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+">
+					{% if author_profile.bio %}
+                    <p>{{ author_profile.bio }}</p>
+                    {% endif %}
+                    <div>
+                        {% if request.user == author_profile.user %}
+                            <a href="{% url 'profileedit' username=author_profile.user.username %}" class="btn-round btn btn-outline-default">
+                                <i class="fa fa-cog mr-1"></i>Settings
+                            </a>
+                        {% endif %}
+                    </div>
+                    
+                    {% if author_profile.facebook %}
+                        <a href="{{ author_profile.facebook }}" target="_blank">
+                            <i class="fab fa-facebook" style="font-size: 20px; color: #3b5998;"></i> Facebook
+                        </a>
+                    {% endif %}
+                    {% if author_profile.twitter %}
+                        <a href="{{ author_profile.twitter }}" target="_blank">
+                            <i class="fab fa-twitter" style="font-size: 20px; color: #1da1f2;"></i> Twitter
+                        </a>
+                    {% endif %}
+                    {% if author_profile.gmail %}
+                        <a href="mailto:{{ author_profile.gmail }}">
+                            <i class="fas fa-envelope" style="font-size: 20px; color: #d44638;"></i> Gmail
+                        </a>
+                    {% endif %}
+                    
+                </div>
+					<br />
+					
+				</div>
+				</div>
+			</div>
+			
+				
+			
+			<br />
+			
+			
+		</div>
+	</div>
+</div>
+
+{% endblock %}
