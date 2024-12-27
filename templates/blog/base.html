@@ -35,6 +35,85 @@
     <!-- Material Icons -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 
+    <style>
+        /* Sections générales */
+        .section {
+            padding: 50px 0;
+        }
+
+        .categories-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Ensure items have the same width */
+    gap: 15px; /* Consistent gap between items */
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 800px; /* Limit overall width */
+}
+
+.category-link {
+    display: block;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #05012e;
+    border-radius: 32px;
+    box-shadow: 0px 4px 6px #1260CC;
+    transition: all 0.3s ease;
+}
+
+.category-link:hover {
+    background-color: #1260CC;
+    color: #fff;
+    text-decoration: none;
+}
+
+
+        /* Articles */
+        .card {
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .card-text {
+            color: #666;
+        }
+
+        /* Articles populaires */
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        /* Responsivité : Réduire la largeur de la carte en fonction de l'écran */
+        @media (max-width: 768px) {
+            .categories-list {
+                grid-template-columns: repeat(2, 1fr); /* Sur mobile, 2 colonnes */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .categories-list {
+                grid-template-columns: 1fr; /* Sur petits écrans, 1 seule colonne */
+            }
+        }
+        .btn:focus {
+            
+            background-color: #1260CC;
+
+        }
+        
+    </style>
+
 </head>
 
 <body class="blog-posts">
@@ -142,3 +221,4 @@
 <script src="{% static 'blog/assets/js/jasny-bootstrap.min.js' %}" ></script>
 
 <script src="{% static 'blog/assets/js/material-kit.min.js' %}" ></script>
+<script src="https://unpkg.com/htmx.org@1.9.3"></script> <!-- HTMX CDN -->

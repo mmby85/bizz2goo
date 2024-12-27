@@ -1,7 +1,12 @@
+
+{% load static %}
 <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
     <div class="container">
         <div class="navbar-header">
-           <h3>Bizz2Go</h3> 
+           <img
+            src = '{% static 'blog/assets/img/logo test.png' %}'>
+                
+           </img>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -11,7 +16,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#ml">
+                    <a href="{% url 'post_list' %}">
                        Articles
                     </a>
                 </li>                    
@@ -30,12 +35,16 @@
                     </ul>
                 </li>
 
-                {% if user.is_authenticated %}
+                {% if user.is_staff %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'create' %}">Create</a>
                 </li>
+                {% if user.is_staff %}
+                <li><a href="{% url 'create-author-profile' %}">Créer un profil auteur</a></li>
+                {% endif %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'profile' user.id %}">Profile</a>
+                  <a class="nav-link" href="{% url 'author_profile' user.username %}">{{ user.first_name|add:" "|add:user.last_name }}
+                </a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link text-primary" href="{% url 'logout' %}">Logout</a>
@@ -47,6 +56,8 @@
                         Login
                     </a>
                 </li>
+                
+
                 {% endif %}
       
             </ul>

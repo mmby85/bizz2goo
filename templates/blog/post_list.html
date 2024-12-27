@@ -1,0 +1,175 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block body %}
+{% include "blog/heroSection.html" %}
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Roboto', sans-serif;
+        color: #333;
+        background-color: #f9f9f9;
+    }
+
+    .main {
+        padding: 2rem 0;
+    }
+
+    /* Section Header */
+    .blog-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .blog-header h3 {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2c3e50;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-header h3 span {
+        color: #d9534f;
+    }
+
+    /* Blog Posts */
+    .blog-post {
+        margin: 0 auto 4rem;
+        text-align: center;
+        width: 100%;
+        max-width: 800px;
+    }
+
+    .blog-post-image {
+        margin: 0 auto 1.5rem;
+        width: 100%;
+        max-width: 700px;
+        height: 400px;
+        background-size: contain; 
+        background-repeat: no-repeat; 
+        background-position: center;
+        border-radius: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .blog-post-image:hover {
+        transform: scale(1.05);
+        box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .blog-post-category {
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: #fff;
+        background-color: #d9534f;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+
+    .blog-post-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+
+    .blog-post-title:hover {
+        color: #d9534f;
+    }
+
+    .blog-post-date {
+        font-size: 0.9rem;
+        color: #888;
+        margin-bottom: 1rem;
+    }
+
+    .blog-post-description {
+        font-size: 1rem;
+        color: #666;
+        margin-bottom: 1.5rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .read-more-btn {
+        padding: 10px 25px;
+        border-radius: 30px;
+        font-weight: bold;
+        background: #d9534f;
+        color: #fff;
+        border: none;
+        transition: background 0.3s ease;
+        text-decoration: none;
+    }
+
+    .read-more-btn:hover {
+        background: #c9302c;
+    }
+
+    /* Separator Line */
+    .separator {
+        height: 1px;
+        background: rgba(0, 0, 0, 0.1);
+        margin: 3rem auto;
+        width: 80%;
+    }
+
+    @media (max-width: 768px) {
+        .blog-header h3 {
+            font-size: 2.5rem;
+        }
+
+        .blog-post-image {
+            height: 300px;
+        }
+
+        .blog-post-title {
+            font-size: 1.5rem;
+        }
+
+        .blog-post-description {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="main">
+    <!-- Header Section -->
+    <div class="blog-header">
+        <h3>
+            Discover the <span>Latest Insights</span> and Articles from Our Blog
+        </h3>
+    </div>
+
+    <!-- Blog Posts Section -->
+    <div class="card-blog card-plain text-center card ">
+        {% for post in posts %}
+        <div class="blog-post">
+            <div 
+                class="blog-post-image"
+                style="background-image: url('{{ post.image.url }}');">
+            </div>
+            <div class="card-category"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+            <a href="javascrip: void(0);"><h3 class="card-title">{{ post.title}}</h3></a>
+            <p class="text-muted"><em>{{ post.time|date:"F d, Y" }}</em></p>
+            <div class="card-description">
+                <p>
+                    {{ post.content|first_words:50|safe }}
+                </p>
+                
+            </div>
+            <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">
+                Read more
+            </a>
+        </div>
+        <div class="separator"></div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

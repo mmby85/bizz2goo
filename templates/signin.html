@@ -1,147 +1,141 @@
+{% extends "blog/base.html" %}
 {% load static %}
+
+{% block body %}
 
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link
-        href="https://fonts.googleapis.com/css?family=Roboto:100,100i,300,300i,400,400i,500,500i,700,700i,900,900i&display=swap"
-        rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
-
-    <!-- Bootstrap core CSS -->
-    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-
-    <!-- Additional CSS Files -->
-    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'assets/css/templatemo-stand-blog.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
-    <link rel="stylesheet" href="{% static 'assets/css/styles.css' %}">
-
-    <title>Login</title>
-
     <style>
-        form {
-            width: 50%;
+        body {
+            background: url("{% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %}") no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
 
         h3 {
-            color: rgb(237, 63, 63);
+            font-size: 2rem;
+            font-weight: 600;
+            color: #05012e;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-size: 1rem;
             font-weight: 500;
-            font-size: 30px;
-            margin-bottom: 20px;
+            color: #555;
+            text-align: left;
+            display: block;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 0.75rem;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: rgb(236, 88, 88);
+            box-shadow: 0 0 5px rgba(236, 88, 88, 0.5);
         }
 
         .btn {
-            margin-top: 30px;
-            background: rgb(236, 88, 88);
-            width: 100%;
+            background: #05012e;
             color: #fff;
-            font-size: 20px;
-            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            padding: 0.75rem;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
         }
 
         .btn:hover {
             background: transparent;
-            color: rgb(237, 63, 63);
-            border: 1px solid rgb(237, 63, 63);
+            color: #05012e;
+            border: 2px solid #05012e;
         }
 
         .para {
-            padding: 20px;
-            text-align: center;
-            font-size: 18px;
-            color: #555;
+            font-size: 0.9rem;
+            color: #888;
+            margin-top: 1rem;
         }
 
         a {
+            color: #05012e;
+            font-weight: 600;
             text-decoration: none;
-            color: #386cbb;
+            transition: all 0.3s;
         }
 
         a:hover {
-            color: rgb(237, 63, 63);
-            letter-spacing: 1px;
+            color: #000;
         }
 
-        @media screen and (max-width:600px) {
-            form {
-                width: 100%;
+        @media (max-width: 600px) {
+            .login-card {
+                width: 90%;
             }
         }
     </style>
 </head>
 
 <body>
-
-    {%include 'header.html'%}
-
-    <div class="container">
-        <div class="d-flex justify-content-center align-items-center " style="height: 100vh;">
-
-            <form action="{% url 'signin' %}" method="post" class="p-5 shadow">
+    <div class="overlay"></div>
+    <div class="login-container">
+        <div class="login-card">
+            <h3>Login</h3>
+            <form action="{% url 'signin' %}" method="post">
                 {% csrf_token %}
-                <h3>LOGIN</h3>
-                <br>
                 {% for message in messages %}
-                <p class="text-danger text-center">{{message}}</p>
+                <p class="text-danger text-center">{{ message }}</p>
                 {% endfor %}
-                <label for="" class="form-label">Username</label>
-                <div class="input-group mt-1">
-                    <span class="input-group-text">@</span>
-                    <input type="text" class="form-control" name="username" required>
-                </div>
-                <label for="" class="form-label mt-3">Password</label>
-                <div class="input-group mt-1">
-                    <input type="password" class="form-control" name="password" required>
-                </div>
-                <button class="btn">Login</button>
-                <p class="para">Don't have an account ?<a href="{% url 'signup' %}"> Sign up</a></p>
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" name="username" required>
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" class="form-control" name="password" required>
+                <button type="submit" class="btn">Login</button>
+                <p class="para">Don't have an account? <a href="{% url 'signup' %}">Sign up</a></p>
             </form>
         </div>
     </div>
-
-    {% include 'footer.html' %}
-
-
-    <!-- Bootstrap core JavaScript -->
-    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
-    <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.min.js"
-        integrity="sha384-Rx+T1VzGupg4BHQYs2gCW9It+akI2MM/mndMCy36UVfodzcJcF0GGLxZIzObiEfa"
-        crossorigin="anonymous"></script>
-
-    <!-- Additional Scripts -->
-    <script src="{% static 'assets/js/custom.js' %}"></script>
-    <script src="{% static 'assets/js/owl.js' %}"></script>
-    <script src="{% static 'assets/js/slick.js' %}"></script>
-    <script src="{% static 'assets/js/isotope.js' %}"></script>
-    <script src="{% static 'assets/js/accordions.js' %}"></script>
-
-
-    <script language="text/Javascript">
-        cleared[0] = cleared[1] = cleared[2] = 0; //set a cleared flag for each field
-        function clearField(t) {                   //declaring the array outside of the
-            if (!cleared[t.id]) {                      // function makes it static and global
-                cleared[t.id] = 1;  // you could use true and false, but that's more typing
-                t.value = '';         // with more chance of typos
-                t.style.color = '#fff';
-            }
-        }
-
-    </script>
-
 </body>
 
 </html>
+{% endblock %}

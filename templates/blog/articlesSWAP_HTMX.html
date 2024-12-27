@@ -1,0 +1,38 @@
+{% load custom_filters %}
+{% for post in ckposts %}
+    <div class="post">
+        <div class="col-md-4">
+            <div class="card card-plain card-blog">
+                <div class="card-image">
+                    
+                    <div  class="card-image">
+                        <div href="{% url 'post_detail' post.slug %}"
+            data-radius="none" 
+            class="card" 
+            style="
+            background-image: url('{{post.image.url}}'); 
+            width: 100%; 
+            height: 200px; 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center;
+            "
+                        ></div>
+                    <h4 class="card-text">{{ post.title|safe }}</h4>
+                    <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                    <p class="text-muted">
+                        <small>{{ post.time|date:"d/m/Y H:i" }}</small>
+                    </p>
+                    <p class="text-muted">
+                        <small>{{ post.likes }} likes</small>
+                    </p>
+                    <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% empty %}
+    <p>Aucun article trouvé pour cette catégorie.</p>
+
+{% endfor %}

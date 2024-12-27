@@ -1,0 +1,37 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}Edit Post{% endblock %}
+
+{% block body %}
+{% include "blog/heroSection.html" %}
+
+<div class="main main-raised">
+  <section class="blog-posts grid-system">
+    <div class="container py-5">
+      <!-- Form Header -->
+      <div class="row justify-content-center">
+        <div class="col-md-10 text-center">
+          <h2 class="text-primary">Edit Post</h2>
+        </div>
+      </div>
+
+      <!-- Form Section -->
+      <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+          <form method="post">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form.as_p }} <!-- Form with paragraph style -->
+
+            <div class="form-group mt-3">
+              <input type="submit" class="btn btn-primary btn-block" value="Update Post">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+{% endblock %}

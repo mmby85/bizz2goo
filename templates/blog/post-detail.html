@@ -1,0 +1,213 @@
+{% extends "blog/base.html" %}
+{% load static %}
+{% block body %}
+{% include "blog/heroSection.html" %}
+
+<div class="main main-raised">
+  <section class="blog-posts grid-system">
+    <div class="container py-5">
+      <!-- Blog Header -->
+      <div class="row justify-content-center">
+        <div class="col-md-20 text-center">
+          <h2 class="text-primary">{{ post.title }}</h2>
+          <h3 class="title-uppercase">
+            <small>Written by {{ post.user }}</small>
+          </h3>
+        </div>
+      </div>
+
+      <!-- Blog Content -->
+      <div class="row justify-content-center mt-4 ml-auto mr-auto">
+        <div class="col-md-20 text-center">
+          <div class="category text-info" style="margin-bottom: 20px;">
+            <span class="main-tag badge badge-primary">{{ post.category.name }}</span>
+          </div>
+          <h6 class="title-uppercase text-muted">{{ post.time | date:"F d, Y" }}</h6>
+        </div>
+
+        <div class="col-md-12 text-center">
+          <div 
+            class="card" 
+            style="
+              background-image: url('{{media_url}}{{post.image}}'); 
+              width: 900px; 
+              height: 400px; 
+              background-size: contain; 
+              background-repeat: no-repeat; 
+              background-position: center;
+            "
+          ></div>
+          <div class="col-md-10 ml-10 mr-10" style="margin-left:100px; margin-right:100px">
+            <div class="article-content text-justify">
+              <h4>{{ post.content | safe }}</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Author Profile -->
+      <div class="row" style="margin-left: 100px; margin-right: 100px;">
+        <hr><br>
+        <div class="media">
+          <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
+            <div class="avatar big-avatar">
+              {% if author_profile.profile_picture %}
+                <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
+              {% endif %}
+            </div>
+          </a>
+          <div class="media-body">
+            <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
+              <a href="{% url 'author_profile' author_profile.user.username %}">
+                {{ author_profile.user.username }}
+              </a>
+            </h4>
+            {% if author_profile.bio %}
+              <p>{{ author_profile.bio }}</p>
+            {% endif %}
+          </div>
+        </div>
+        <hr><br>
+      </div>
+
+      <!-- Comments Section -->
+      <div class="row" style="margin-left: 100px; margin-right: 100px;">
+        <div class="comments media-area">
+          <h3 class="text-center">Comments</h3>
+          
+          <div id="comments-container">
+            {% for comment in top_level_comments %}
+            <div class="media p-3 border rounded mb-3 bg-white shadow-sm" id="comment-{{ comment.id }}">
+              <a class="pull-left" href="#">
+                <div class="avatar">
+                  <img src="/static/assets/images/user.png" alt="{{ comment.user }}" class="media-object" />
+                </div>
+              </a>
+              <div class="media-body">
+                <h5 class="media-heading">{{ comment.user }}</h5>
+                <h6 style="color: #6c757d;">{{ comment.time }}</h6>
+                <p>{{ comment.content }}</p>
+                <button class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{{ comment.id }}" onclick="toggleReplyForm(event, {{ comment.id }})">
+                  <i class="fa fa-reply mr-1"></i> Reply
+                </button>
+                
+              <!-- Reply Form (Hidden Initially) -->
+                <div class="reply-form-container hidden" id="reply-form-{{ comment.id }}">
+                  <form 
+                      method="POST" 
+                      action="{% url 'add_comment' %}" 
+                      hx-post="{% url 'add_comment' %}" 
+                      hx-target="#comment-{{ comment.id }} .replies" 
+                      hx-swap="beforeend" 
+                      class="border p-4 rounded shadow-sm bg-light mt-4"
+                    >
+                      {% csrf_token %}
+                      <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                      <input type="hidden" name="slug" value="{{ post.slug }}">
+                      <div class="form-group mb-3">
+                        <label for="username" class="form-label fw-bold"></label>
+                        <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
+                      </div>
+                      <div class="form-group mb-3">
+                        <label for="content" class="form-label fw-bold"></label>
+                        <textarea id="content" name="content" placeholder="Write your reply here..." required class="form-control"></textarea>
+                      </div>
+                      <button type="submit" class="btn btn-primary">Reply</button>
+                  </form>
+                </div>
+
+                <!-- Nested Replies -->
+                <div class="replies mt-3 ml-5">
+                  {% for reply in comment.children.all %}
+                    <div class="media p-3 border rounded mb-3 bg-light">
+                      <a class="pull-left" href="#">
+                        <div class="avatar">
+                          <img src="/static/assets/images/user.png" alt="{{ reply.user }}" class="media-object" />
+                        </div>
+                      </a>
+                      <div class="media-body">
+                        <h5 class="media-heading">{{ reply.user }}</h5>
+                        <h6 style="color: #6c757d;">{{ reply.time }}</h6>
+                        <p>{{ reply.content }}</p>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Add a New Comment Form -->
+          <!-- New Comment Form -->
+            <form 
+            method="POST" 
+            action="{% url 'add_comment' %}" 
+            hx-post="{% url 'add_comment' %}" 
+            hx-target="#comments-container" 
+            hx-swap="beforeend" 
+            class="border p-4 rounded shadow-sm bg-light mt-4" 
+            id="comment-form"
+            >
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="username" class="form-label fw-bold"></label>
+                    <input type="text" id="username" name="username" placeholder="Enter your name" required class="form-control">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="content" class="form-label fw-bold"></label>
+                    <textarea id="content" name="content" placeholder="Write your comment here..." required class="form-control"></textarea>
+                </div>
+                <input type="hidden" name="slug" value="{{ post.slug }}">
+                <button type="submit" class="btn btn-primary w-100">Add Comment</button>
+            </form>
+        </div>
+      </div>
+
+      <!-- Related Articles -->
+      <div class="related-articles">
+        <h1 class="col-md-12 text-center" style="margin-bottom: 50px;">Related Articles</h1>
+        <legend></legend>
+        <div class="container">
+          <div class="row" style="margin-bottom: 100px;">
+            {% for related_post in related_posts %}
+              <div class="col-md-4">
+                <div 
+                  class="card" 
+                  style="
+                    background-image: url('{{media_url}}{{related_post.image}}'); 
+                    width: 100%; 
+                    height: 200px; 
+                    background-size: contain; 
+                    background-repeat: no-repeat; 
+                    background-position: center;
+                  "
+                ></div>
+                <p class="blog-title">{{ related_post.title }}</p>
+                <a href="{% url 'post_detail' related_post.slug %}" class="btn-round btn btn-danger btn-sm">Read more</a>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+    function toggleReplyForm(event, commentId) {
+        event.preventDefault();
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        replyForm.classList.toggle('hidden');
+    }
+</script>
+<style>
+
+.form-group {
+    margin: 2px 0 0;
+}
+.reply-btn{
+  z-index: 10;
+}
+</style>
+{% endblock %}
