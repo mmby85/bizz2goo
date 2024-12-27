@@ -3,10 +3,11 @@
     <div class="post">
         <div class="col-md-4">
             <div class="card card-plain card-blog">
+                <a href="{% url 'post_detail' post.slug %}">
                 <div class="card-image">
                     
                     <div  class="card-image">
-                        <div href="{% url 'post_detail' post.slug %}"
+                        <div 
             data-radius="none" 
             class="card" 
             style="
@@ -28,6 +29,7 @@
                     </p>
                     <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
                 </div>
+            </a>
             </div>
         </div>
 

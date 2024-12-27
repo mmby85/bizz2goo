@@ -51,42 +51,31 @@
                             <div class="col-sm-4 bg-c-lite-green user-profile">
                                 <div class="card-block text-center text-white">
                                     <div class="m-b-25">
-
-                                        <img src="{% static 'assets/images/user.png' %}" class="img-radius"
-                                            alt="User-Profile-Image" style="border-radius: 50%;">
+                                            
+                                            <img src="{% static 'assets/images/user.png' %}" class="img-radius"
+                                                alt="User-Profile-Image" style="border-radius: 50%;">
 
                                     </div>
-                                    <h6 class="f-w-800 h3" style="text-transform: capitalize;">{{user.username}}
-                                    </h6>
+                                    
                                     <i class=" mdi mdi-square-edit-outline feather icon-edit m-t-10 f-16"></i>
                                 </div>
                             </div>
                             <div class="col-sm-8">
                                 <div class="card-block">
                                     <h6 class="m-b-20 p-b-5 b-b-default f-w-600"
-                                        style="font-size: 30px; padding: 20px;  color: #7461f3;">Profile <a
+                                        style="font-size: 30px; padding: 20px;  color: #7461f3;">{{user.first_name|add:" "|add:user.last_name}} <a
                                             href="{% url 'profileedit' user.id %}"
                                             class="float-right text-decoration-none text-success"
                                             style="font-size: 15px;">Edit Profile</a>
                                     </h6>
                                     <div class="row">
-                                        <div class="col-sm-6">
-                                            <p class="m-b-10 f-w-600 text-dark">Firstname :-
-                                                <span class="text-muted f-w-400">{{user.first_name}}</span>
-                                            </p>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <p class="m-b-10 f-w-600 text-dark">Lastname :-
-                                                <span class="text-muted f-w-400">{{user.last_name}}</span>
-                                            </p>
-                                        </div>
-                                        <div class="col-sm-6">
+                                        
                                             <p class="m-b-10 f-w-600 text-dark">Email :-
                                                 <span class="text-muted f-w-400">{{user.email}}</span>
                                             </p>
                                         </div>
                                     </div>
-                                    <p class="small fw-bold pt-3 text-dark">My Posts</p>
+                                    <h1 class="small fw-bold pt-3 text-dark">My Posts</h1>
                                     <hr>
 
                                     <div class="row row-cols-lg-2 row-cols-1">

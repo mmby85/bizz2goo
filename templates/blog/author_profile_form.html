@@ -162,7 +162,7 @@ input[type="file"] {
             <div class="field-box">
                 <label for="id_profile_picture" class="form-label">Photo de profil</label>
                 <div class="thumbnail-container">
-                    <img id="profile-thumbnail" src="{% static 'path/to/default-thumbnail.png' %}" alt="Thumbnail" class="thumbnail" width="8" height="8">                    
+                    <img id="profile-thumbnail" src="{% static 'blog\assets\img\examples\blog-9-4.jpg' %}" alt="Thumbnail" class="thumbnail" width="8" height="8">                    
                     <input type="file" name="profile_picture" class="form-control" id="id_profile_picture" accept="image/*" required onchange="previewImage(event)">
                     <label for="id_profile_picture" class="file-label">Choisir une image</label>
                 </div>
@@ -177,7 +177,7 @@ input[type="file"] {
                     <div class="alert alert-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-
+                
             <div class="field-box">
                 <label for="id_metier" class="form-label">Métier</label>
                 <input type="text" name="metier" class="form-control" id="id_metier" placeholder="{{ form.metier.value }}" required>
@@ -186,7 +186,18 @@ input[type="file"] {
                     <div class="alert alert-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-
+            <div class="field-box">
+            <label for="id_facebook">Lien Facebook</label>
+                {{ form.facebook }}
+            </div>
+            <div class="field-box">
+            <label for="id_gmail">Adresse Gmail</label>
+                {{ form.gmail }}
+            </div>
+            <div class="field-box">
+            <label for="id_twitter">Lien Twitter</label>
+                {{ form.twitter }}
+            </div>
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-success btn-lg">Créer le profil</button>
             </div>

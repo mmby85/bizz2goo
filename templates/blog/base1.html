@@ -117,14 +117,85 @@
 </head>
 
 <body class="blog-posts">
+  <div  style='background-image: url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});'>
 
      {% include "blog/navbar.html" %}
 
 
-     {% block body %} {% endblock %}
-
-
+     {% block body %}
+     <div class="container">
+        <div class="row">
+            <div class="ml-auto mr-auto col-sm-6 col-md-6 col-lg-4">
+                <div class="card-register card">
+                    <h3 class="card-title">Welcome</h3>
+                    <form class="register-form">
+                        <label>Email</label><input placeholder="Email" type="email" class="no-border form-control" /><label>Password</label><input placeholder="Password" type="password" class="no-border form-control" />
+                        <button class="btn-round btn btn-danger btn-block">Register</button>
+                    </form>
+                    <div class="forgot"><a href="#pablo" class="btn-link btn btn-danger">Forgot password?</a></div>
+                </div>
+            </div>
+        </div>
+        <div class="demo-footer text-center">
+            <h6>© 2024, made with <i class="fa fa-heart heart"></i> by Creative Tim</h6>
+        </div>
+    </div>
     
+     {% endblock %}
+
+  </div>
+    <footer class="footer">
+        <div class="container">
+            <a class="footer-brand" href="#pablo">Bizz2Go</a>
+            <ul class="pull-center">
+                <li>
+                    <a href="#pablo">
+                        Blog
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Presentation
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Discover
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Payment
+                    </a>
+                </li>
+                <li>
+                    <a href="#pablo">
+                        Contact Us
+                    </a>
+                </li>
+            </ul>
+            <ul class="social-buttons pull-right">
+                <li>
+                    <a href="https://twitter.com/CreativeTim" target="_blank"
+                        class="btn btn-just-icon btn-twitter btn-simple">
+                        <i class="fa fa-twitter"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.facebook.com/CreativeTim" target="_blank"
+                        class="btn btn-just-icon btn-facebook btn-simple">
+                        <i class="fa fa-facebook-square"></i>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.instagram.com/CreativeTimOfficial" target="_blank"
+                        class="btn btn-just-icon btn-google btn-simple">
+                        <i class="fa fa-google"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </footer>
 
 
     <script defer src="{% static 'blog/assets/js/beacon.min.js' %}"></script>
