@@ -8,6 +8,17 @@ now =  datetime.now()
 time = now.strftime("%d %B %Y")
 # Create your models here.
 
+choices = (
+    ('Technology', 'Technology'),
+    ('Science', 'Science'),
+    ('Business', 'Business'),
+    ('Entertainment', 'Entertainment'),
+    ('Sports', 'Sports'),
+    ('Politics', 'Politics'),
+    ('Health', 'Health'),
+)
+
+
 class Post(models.Model):
     postname = models.CharField(max_length=600)
     category = models.CharField(max_length=600)
@@ -25,7 +36,8 @@ class Post(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=600, blank=True, null=True)
+    name = models.CharField(max_length=600, blank=True, null=True, choices=choices)
+    # name = models.CharField(max_length=600, blank=True, null=True)
     
     def __str__(self):
         return self.name
@@ -39,7 +51,7 @@ class SubCategory(models.Model):
 
 class CKPost(models.Model):
     title = models.CharField(max_length=600)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True, choices=choices)
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     content = RichTextField()
     slug = models.SlugField(default="",max_length=200, unique=True, blank=True , null=False)

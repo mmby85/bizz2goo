@@ -132,8 +132,9 @@ def create(request):
             print("Error")
         return redirect('index')
     else:
+        category_form = forms.CategoryForm()
         form = forms.CKPostForm()
-        return render(request,"blog/create_post.html" , context={"form" : form})
+        return render(request,"blog/create_post.html" , context={"form" : form, category_form : category_form})
     
 def create_old(request):
     if request.method == 'POST':

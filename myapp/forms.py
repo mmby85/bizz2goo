@@ -6,6 +6,7 @@ from ckeditor_uploader.fields import RichTextUploadingFormField
 from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 from .models import CKPost , Category, SubCategory
+from .models import CKPost, Category, SubCategory
 
 
 from django.forms import MultiWidget
@@ -14,6 +15,7 @@ from django.forms import MultiWidget
 class CkEditorMultiWidget(MultiWidget):
     def decompress(self, value):
         return [value for _ in self.widgets]
+
 
 class CkEditorForm(forms.Form):
     ckeditor_standard_example = RichTextFormField()
@@ -96,3 +98,8 @@ class CKPostForm(forms.ModelForm):
 #             ],
 #         )
 
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = '__all__'
+        # You can specify fields to exclude if needed
