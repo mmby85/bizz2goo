@@ -1,45 +1,134 @@
 {% extends "blog/base.html" %}
 {% load static %}
+
 {% block body %}
 {% include "blog/heroSection.html" %}
 
-  <!-- Page Content -->
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Roboto', sans-serif;
+    }
 
-<div class="container">
-    <div class="d-flex justify-content-center align-items-center " style="height: 100vh;">
+    .main {
+        background: #fff;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 50px;
+    }
 
-      <form method="post">
-        {% csrf_token %}
-        <label for="firstname">Prénom :</label>
-        <input type="text" id="firstname" name="firstname" value="{{ author_profile.user.first_name }}" required>
-    
-        <label for="lastname">Nom :</label>
-        <input type="text" id="lastname" name="lastname" value="{{ author_profile.user.last_name }}" required>
-    
-   
-    
-        <label for="bio">Bio :</label>
-        <textarea id="bio" name="bio">{{ author_profile.bio }}</textarea>
-    
-        <label for="facebook">Lien Facebook :</label>
-        <input type="url" id="facebook" name="facebook" value="{{ author_profile.facebook }}">
-    
-        <label for="twitter">Lien Twitter :</label>
-        <input type="url" id="twitter" name="twitter" value="{{ author_profile.twitter }}">
-    
-        <label for="gmail">Adresse Gmail :</label>
-        <input type="email" id="gmail" name="gmail" value="{{ author_profile.gmail }}">
-    
-        <button type="submit" class="btn btn-primary">Mettre à jour</button>
-    </form>
-    
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+    }
 
+    .form-control {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .btn-block {
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 1.1em;
+        transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    .btn-block:hover {
+        background-color: #0056b3;
+        transform: scale(1.02);
+    }
+
+    h2 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: #007bff;
+    }
+
+    .alert {
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        h2 {
+            font-size: 1.8rem;
+        }
+
+        .btn-block {
+            font-size: 1rem;
+            padding: 0.75rem 1.5rem;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="main">
+        <div class="text-center">
+            <h2 class="mb-4">Mettre à Jour le Profil</h2>
+            <p class="text-muted">Modifiez vos informations personnelles ici.</p>
+        </div>
+
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-12">
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="firstname">Prénom :</label>
+                        <input type="text" class="form-control" id="firstname" name="firstname" 
+                               value="{{ author_profile.user.first_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastname">Nom :</label>
+                        <input type="text" class="form-control" id="lastname" name="lastname" 
+                               value="{{ author_profile.user.last_name }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bio">Bio :</label>
+                        <textarea id="bio" name="bio" class="form-control" rows="3">{{ author_profile.bio }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="facebook">Lien Facebook :</label>
+                        <input type="url" class="form-control" id="facebook" name="facebook" 
+                               value="{{ author_profile.facebook }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="twitter">Lien Twitter :</label>
+                        <input type="url" class="form-control" id="twitter" name="twitter" 
+                               value="{{ author_profile.twitter }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gmail">Adresse Gmail :</label>
+                        <input type="email" class="form-control" id="gmail" name="gmail" 
+                               value="{{ author_profile.gmail }}">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Mettre à Jour</button>
+                </form>
+            </div>
+        </div>
     </div>
-  </div>
+</div>
 
-  
-
-</body>
-
-</html>
 {% endblock %}

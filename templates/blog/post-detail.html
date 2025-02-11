@@ -45,30 +45,32 @@
         </div>
       </div>
 
-      <!-- Author Profile -->
-      <div class="row" style="margin-left: 100px; margin-right: 100px;">
-        <hr><br>
-        <div class="media">
-          <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
-            <div class="avatar big-avatar">
-              {% if author_profile.profile_picture %}
-                <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
-              {% endif %}
-            </div>
-          </a>
-          <div class="media-body">
-            <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
-              <a href="{% url 'author_profile' author_profile.user.username %}">
-                {{ author_profile.user.username }}
-              </a>
-            </h4>
-            {% if author_profile.bio %}
-              <p>{{ author_profile.bio }}</p>
-            {% endif %}
-          </div>
-        </div>
-        <hr><br>
-      </div>
+           <!-- Author Profile -->
+           {% if author_profile %}
+           <div class="row" style="margin-left: 100px; margin-right: 100px;">
+             <hr><br>
+               <div class="media">
+                 <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
+                   <div class="avatar big-avatar">
+                     {% if author_profile.profile_picture %}
+                       <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
+                     {% endif %}
+                   </div>
+                 </a>
+                 <div class="media-body">
+                   <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
+                     <a href="{% url 'author_profile' author_profile.user.username %}">
+                       {{ author_profile.user.username }}
+                     </a>
+                   </h4>
+                   {% if author_profile.bio %}
+                     <p>{{ author_profile.bio }}</p>
+                   {% endif %}
+                 </div>
+               </div>
+               <hr><br>
+           </div>
+         {% endif %}
 
       <!-- Comments Section -->
       <div class="row" style="margin-left: 100px; margin-right: 100px;">
