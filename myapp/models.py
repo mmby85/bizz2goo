@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from datetime import datetime  
+from datetime import datetime
 from ckeditor.fields import RichTextField
 from django.utils.text import slugify
+from django.core.validators import URLValidator
 
-now =  datetime.now()
+now = datetime.now()
 time = now.strftime("%d %B %Y")
-# Create your models here.
 
 choices = (
     ('Technology', 'Technology'),
@@ -22,62 +22,76 @@ choices = (
 class Post(models.Model):
     postname = models.CharField(max_length=600)
     category = models.CharField(max_length=600)
-    image = models.ImageField(upload_to='images/posts',blank=True,null=True)
+    image = models.ImageField(upload_to='images/posts', blank=True, null=True)
     content = models.CharField(max_length=100000)
-    time = models.CharField(default=time,max_length=100, blank=True)
-    likes = models.IntegerField(null=True,blank=True,default=0)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    
+    time = models.CharField(default=time, max_length=100, blank=True)
+    likes = models.IntegerField(null=True, blank=True, default=0)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     def __str__(self):
-        return str( self.postname)
-
-
-
+        return str(self.postname)
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=600, blank=True, null=True, choices=choices)
-    # name = models.CharField(max_length=600, blank=True, null=True)
-    
+    name = models.CharField(
+        max_length=600,
+        blank=True,
+        null=True,
+        choices=choices
+    )
+    slug = models.SlugField(unique=True, blank=True, null=True)  # Consider adding this
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(
+        upload_to='category_images/',
+        blank=True,
+        null=True
+    )
+
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        if not self.slug:  # Auto-generate slug on save if it's empty
+            self.slug = slugify(self.name)  # Use slugify function
+        super().save(*args, **kwargs)
+
+
 class SubCategory(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="subcategories", blank=True, null=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="subcategories", blank=True,
+                                 null=True)
     name = models.CharField(max_length=600)
 
     def __str__(self):
         return self.name
 
+
 class CKPost(models.Model):
     title = models.CharField(max_length=600)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True, choices=choices)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True,
+                                 )
     sub_category = models.ForeignKey(SubCategory, on_delete=models.CASCADE, blank=True, null=True)
     content = RichTextField()
-    slug = models.SlugField(default="",max_length=200, unique=True, blank=True , null=False)
+    slug = models.SlugField(default="", max_length=200, unique=True, blank=True, null=False)
     image = models.ImageField(upload_to='images/posts', blank=True, null=True)
     likes = models.IntegerField(null=True, blank=True, default=0)
-    user = models.ForeignKey(User, on_delete=models.CASCADE , blank=True, null=True)
-    time = models.DateTimeField(auto_now_add=True, blank=True)  
-    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    time = models.DateTimeField(auto_now_add=True, blank=True)
+
     def __str__(self):
         return self.title
-      
+
     def save(self, *args, **kwargs):
-        
         self.slug = slugify(self.title) if self.title else self.slug
-        
         original_slug = self.slug
         slug = original_slug
         counter = 1
 
-        while CKPost.objects.filter(slug=slug).exclude(pk=self.pk).exists():  
+        while CKPost.objects.filter(slug=slug).exclude(pk=self.pk).exists():
             slug = f"{original_slug}-{counter}"
             counter += 1
 
         self.slug = slug
         super().save(*args, **kwargs)
-
 
 
 class Comment(models.Model):
@@ -92,21 +106,20 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.user} on {self.post.title}"
 
-    
-    
 
 class Contact(models.Model):
     name = models.CharField(max_length=600)
     email = models.EmailField(max_length=600)
     subject = models.CharField(max_length=1000)
     message = models.CharField(max_length=10000, blank=True)
-from django.core.validators import URLValidator  
+
+
 class AuthorProfile(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'is_staff': True}  # Limite aux utilisateurs administrateurs
     )
+    is_author = models.BooleanField(default=False) # Add this field
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='author_pictures/', blank=True, null=True)
     website = models.URLField(blank=True, null=True)
@@ -114,8 +127,6 @@ class AuthorProfile(models.Model):
     facebook = models.URLField(validators=[URLValidator()], blank=True, null=True)
     twitter = models.URLField(validators=[URLValidator()], blank=True, null=True)
     gmail = models.EmailField(blank=True, null=True)
-    
+
     def __str__(self):
         return f"Author Profile: {self.user.username}"
-
-    

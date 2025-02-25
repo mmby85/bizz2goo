@@ -12,15 +12,12 @@ body {
 }
 
 .containerr {
-    max-width: 600px;
+    max-width: 1170px;
     margin: 0 auto;
     padding: 0 15px;
 }
 
-.card img {
-    width: 20%;
-    height: auto;
-}
+
 
 .form-label {
     font-weight: 600;
@@ -60,13 +57,11 @@ body {
     margin-top: 30px;
 }
 
-.card h2 {
-    color: #007bff;
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 20px;
-    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-}
+.card  h2 {
+        font-family: 'Montserrat', sans-serif;
+        font-weight: 700;
+        color: #007bff;
+    }
 
 .btn-success {
     background-color: #28a745;
@@ -96,8 +91,8 @@ body {
 }
 
 .thumbnail {
-    width: 30px;
-    height: 30px;
+    width: 120px !important;
+    height: 120px !important;
     border-radius: 50%;
     border: 2px solid #ddd;
     margin-right: 5px;
@@ -146,7 +141,9 @@ input[type="file"] {
 
 <div class="containerr mt-5">
     <div class="card shadow-lg">
+        <div class="text-center" >
         <h2>Créer un profil auteur</h2>
+    </div>
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
 

@@ -153,7 +153,8 @@
         <div class="blog-post">
             <div 
                 class="blog-post-image"
-                style="background-image: url('{{ post.image.url }}');">
+                style="background-image:url('{{media_url}}{{post.image}}');">
+                
             </div>
             <div class="card-category"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
             <a href="javascrip: void(0);"><h3 class="card-title">{{ post.title}}</h3></a>

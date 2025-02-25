@@ -1,12 +1,13 @@
-<div class="media p-3 border rounded mb-3 bg-light">
-  <a class="pull-left" href="#">
-    <div class="avatar">
-      <img src="/static/assets/images/user.png" alt="{{ comment.user }}" class="media-object" />
+{% load static %}
+<div class="media">
+    <a class="pull-left" href="#">
+        <div class="avatar">
+            <img src="{% static 'assets/images/user.png' %}" alt="{{ comment.user }}" class="media-object" />
+        </div>
+    </a>
+    <div class="media-body">
+        <h5 class="media-heading">{{ comment.user }}</h5>
+        <h6 style="color: #6c757d;">{{ comment.time }}</h6>
+        <p>{{ comment.content }}</p>
     </div>
-  </a>
-  <div class="media-body">
-    <h5 class="media-heading">{{ comment.user }}</h5>
-    <h6 style="color: #6c757d;">{{ comment.time }}</h6>
-    <p>{{ comment.content }}</p>
-  </div>
 </div>

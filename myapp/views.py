@@ -1,27 +1,35 @@
-from django.shortcuts import render,redirect , get_object_or_404
-from django.contrib.auth.models import User,auth
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User, auth
 from django.contrib.auth import authenticate
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .models import *
 from . import forms
-
 from django.urls import reverse
 from django.views import generic
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.template.loader import render_to_string
+from django.db.models import Sum
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.views.generic.edit import CreateView
+import logging
+from .permissions import IsAuthor  # Import your custom permission
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics
 
-from .models import Comment,Post
+logger = logging.getLogger(__name__)
 
 convert_category = {
-'creation-dentreprise': 'Création d’entreprise',
-'management-and-strategie': 'Management & Stratégie',
-'technologies': 'Technologies',
-'financement-et-startups': 'Financement et Startups',
-'gestion-et-conformite': 'Gestion et Conformité',
-'competences': 'Compétences',
-'events': 'Events',
+    'creation-dentreprise': 'Création d’entreprise',
+    'management-and-strategie': 'Management & Stratégie',
+    'technologies': 'Technologies',
+    'financement-et-startups': 'Financement et Startups',
+    'gestion-et-conformite': 'Gestion et Conformité',
+    'competences': 'Compétences',
+    'events': 'Events',
 }
 
 
@@ -35,16 +43,16 @@ def index(request):
     else:
         form = forms.CKPostForm()
 
-    return render(request,"index.html",{
-        'posts':Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
-        'top_posts':Post.objects.all().order_by("-likes"),
-        'recent_posts':Post.objects.all().order_by("-id"),
-        'user':request.user,
-        'media_url':settings.MEDIA_URL,
-        'form' : form
+    return render(request, "index.html", {
+        'posts': Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
+        'top_posts': Post.objects.all().order_by("-likes"),
+        'recent_posts': Post.objects.all().order_by("-id"),
+        'user': request.user,
+        'media_url': settings.MEDIA_URL,
+        'form': form
     })
 
-from django.db.models import Sum
+
 def new_index(request):
     posts = CKPost.objects.order_by("-time")
     top_posts = CKPost.objects.all().order_by("-likes")[:3]
@@ -53,8 +61,11 @@ def new_index(request):
     all_posts = CKPost.objects.all()
     top_authors = (
         AuthorProfile.objects.annotate(total_likes=Sum('user__ckpost__likes'))
-        .order_by('-total_likes')[:2]
+            .order_by('-total_likes')[:2]
     )
+    # Get the first category to use as the default for hero section
+    default_category = categories.first() if categories.exists() else None
+
     context = {
         'posts': posts,
         'top_posts': top_posts,
@@ -64,7 +75,7 @@ def new_index(request):
         'media_url': settings.MEDIA_URL,
         'all_posts': all_posts,
         'top_authors': top_authors,
-        
+        'category': default_category,  # Add the default category to the context
     }
 
     return render(request, "blog/home.html", context)
@@ -76,102 +87,129 @@ def signup(request):
         email = request.POST['email']
         password = request.POST['password']
         password2 = request.POST['password2']
-        
+
         if password == password2:
             if User.objects.filter(username=username).exists():
-                messages.info(request,"Username already Exists")
+                messages.info(request, "Username already Exists")
                 return redirect('signup')
             if User.objects.filter(email=email).exists():
-                messages.info(request,"Email already Exists")
-                return redirect('signup')
+                messages.info(request, "Email already Exists")
             else:
-                User.objects.create_user(username=username,email=email,password=password).save()
+                User.objects.create_user(username=username, email=email, password=password).save()
                 return redirect('signin')
         else:
-            messages.info(request,"Password should match")
+            messages.info(request, "Password should match")
             return redirect('signup')
-            
-    return render(request,"signup.html")
+
+    return render(request, "signup.html")
+
 
 def signin(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(request,username=username,password=password)
+        user = authenticate(request, username=username, password=password)
         if user is not None:
-            auth.login(request,user)
+            auth.login(request, user)
             return redirect("index")
         else:
-            messages.info(request,'Username or Password is incorrect')
+            messages.info(request, 'Username or Password is incorrect')
             return redirect("signin")
-            
-    return render(request,"signin.html")
+
+    return render(request, "signin.html")
+
 
 def logout(request):
     auth.logout(request)
     return redirect('index')
 
+
 def blog(request):
-    return render(request,"blog.html",{
-            'posts':Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
-            'top_posts':Post.objects.all().order_by("-likes"),
-            'recent_posts':Post.objects.all().order_by("-id"),
-            'user':request.user,
-            'media_url':settings.MEDIA_URL
-        })
-    
+    return render(request, "blog.html", {
+        'posts': Post.objects.filter(user_id=request.user.id).order_by("id").reverse(),
+        'top_posts': Post.objects.all().order_by("-likes"),
+        'recent_posts': Post.objects.all().order_by("-id"),
+        'user': request.user,
+        'media_url': settings.MEDIA_URL
+    })
+
+
 def create(request):
     if request.method == 'POST':
         try:
-            # postname = request.POST['postname']
-            # content = request.POST['content']
-            # category = request.POST['category']
-            # image = request.FILES['image']
-            # Post(postname=postname,content=content,category=category,image=image,user=request.user).save()
-            form = forms.CKPostForm(request.POST)
+            form = forms.CKPostForm(request.POST, request.FILES)
             if form.is_valid():
+                post.user = request.user  #
                 form.save()
-                print("Post saved successfully")  # Debugging
+                print(form, form.user)
+                print("Post saved successfully")
                 return redirect('post_list')
             else:
-                print("Form is not valid:", form.errors)  
+                print("Form is not valid:", form.errors)
         except:
             print("Error")
         return redirect('index')
     else:
         category_form = forms.CategoryForm()
         form = forms.CKPostForm()
-        return render(request,"blog/create_post.html" , context={"form" : form, category_form : category_form})
-    
+        return render(request, "blog/create_post.html", context={"form": form, category_form: category_form})
+
+
 def create_old(request):
     if request.method == 'POST':
         try:
-            # postname = request.POST['postname']
-            # content = request.POST['content']
-            # category = request.POST['category']
-            # image = request.FILES['image']
-            # Post(postname=postname,content=content,category=category,image=image,user=request.user).save()
             form = forms.CKPostForm(request.POST)
             if form.is_valid():
+                post.user = request.user  #
                 form.save()
-                return redirect('post_list')  # Assuming you have a URL for listing posts
+                return redirect('post_list')
         except:
             print("Error")
         return redirect('index')
     else:
         form = forms.CKPostForm()
-        return render(request,"create_old.html" , context={"form" : form})
+        return render(request, "create_old.html", context={"form": form})
 
 
 def posts_by_category(request, id):
-    
+    media_url = "/media/"
+    categories = Category.objects.all()
+    category_image = None  # Add this line
+
     if id == 'all':
-        ckposts = CKPost.objects.all()  # Fetch all CKPosts
+        ckposts = CKPost.objects.all()
+        first_category = Category.objects.first()
+        category = first_category
+        if first_category and first_category.image:  # Correctly access category image
+            category_image = first_category.image.url
+        recent_posts = CKPost.objects.all().order_by("-time")[:3]
+        top_posts = CKPost.objects.all().order_by("-likes")[:3]
     else:
-        # id_category = convert_category[category]        
-        ckposts = CKPost.objects.filter(category__id=int(id))  # Fetch CKPosts by category
-        
-    return render(request, 'blog/articlesSWAP_HTMX.html', {'ckposts': ckposts})
+        try:
+            category = get_object_or_404(Category, id=id)
+            ckposts = CKPost.objects.filter(category=category)
+            category_image = category.image.url if category.image else None  # Correct access here
+            recent_posts = CKPost.objects.filter(category=category).order_by("-time")[:3]
+            top_posts = CKPost.objects.filter(category=category).order_by("-likes")[:3]
+
+        except Category.DoesNotExist:
+            ckposts = CKPost.objects.none()
+            category = None
+            category_image = None
+            recent_posts = CKPost.objects.all().order_by("-time")[:3]
+            top_posts = CKPost.objects.all().order_by("-likes")[:3]
+
+    context = {
+        'ckposts': ckposts,
+        'media_url': media_url,
+        'category_image': category_image,
+        'categories': categories,
+        'category': category,
+        'recent_posts': recent_posts,
+        'top_posts': top_posts,
+    }
+
+    return render(request, 'blog/articlesTabV2htmx.html', context)
 
 
 def profile(request, username):
@@ -181,18 +219,11 @@ def profile(request, username):
         'media_url': settings.MEDIA_URL,
     })
 
-    
-
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
-from .models import AuthorProfile
 
 def profileedit(request, username):
-    # Récupérer le profil de l'auteur en fonction du nom d'utilisateur
     author_profile = get_object_or_404(AuthorProfile, user__username=username)
-    
+
     if request.method == 'POST':
-        # Récupérer les données du formulaire
         firstname = request.POST.get('firstname')
         lastname = request.POST.get('lastname')
         email = request.POST.get('email')
@@ -201,107 +232,109 @@ def profileedit(request, username):
         twitter = request.POST.get('twitter')
         gmail = request.POST.get('gmail')
 
-        # Mettre à jour les informations de l'utilisateur
         user = author_profile.user
         user.first_name = firstname
         user.last_name = lastname
-        
+
         user.save()
 
-        # Mettre à jour les informations du profil
         author_profile.bio = bio
         author_profile.facebook = facebook
         author_profile.twitter = twitter
         author_profile.gmail = gmail
         author_profile.save()
 
-        # Rediriger vers la vue de profil (ou un autre endroit)
         return render(request, "blog/auteur.html", {
             'author_profile': author_profile
         })
 
-    # Si la méthode est GET, afficher le formulaire de modification
     return render(request, "blog/profileedit.html", {
         'author_profile': author_profile
     })
 
-    
-def increaselikes(request,id):
+
+def increaselikes(request, id):
     if request.method == 'POST':
         post = Post.objects.get(id=id)
         post.likes += 1
-        post.save() 
+        post.save()
     return redirect("index")
 
-def removepost(request,id):
+
+def removepost(request, id):
     if request.method == 'POST':
         post = Post.objects.get(id=id)
         post.delete()
     return redirect("index")
 
-def post(request,id):             ### BECH TETBADEL CKPOST
+
+def post(request, id):  ### BECH TETBADEL CKPOST
     post = Post.objects.get(id=id)
-    
-    return render(request,"post-detail.html",{
-        "user":request.user,
-        'post':Post.objects.get(id=id),
-        'recent_posts':Post.objects.all().order_by("-id"),
-        'media_url':settings.MEDIA_URL,
-        'comments':Comment.objects.filter(post_id = post.id),
-        'total_comments': len(Comment.objects.filter(post_id = post.id))
+
+    return render(request, "post-detail.html", {
+        "user": request.user,
+        'post': Post.objects.get(id=id),
+        'recent_posts': Post.objects.all().order_by("-id"),
+        'media_url': settings.MEDIA_URL,
+        'comments': Comment.objects.filter(post_id=post.id),
+        'total_comments': len(Comment.objects.filter(post_id=post.id))
     })
 
-def savecomment(request,id):
+
+def savecomment(request, id):
     post = Post.objects.get(id=id)
     if request.method == 'POST':
         content = request.POST['message']
-        Comment(post_id = post.id,user_id = request.user.id, content = content).save()
+        Comment(post_id=post.id, user_id=request.user.id, content=content).save()
         return redirect("index")
-    
-def deletecomment(request,id):
+
+
+def deletecomment(request, id):
     comment = Comment.objects.get(id=id)
     postid = comment.post.id
     comment.delete()
-    return post(request,postid)
-    
-def editpost(request,id):
+    return post(request, postid)
+
+
+def editpost(request, id):
     post = Post.objects.get(id=id)
     if request.method == 'POST':
         try:
             postname = request.POST['postname']
             content = request.POST['content']
             category = request.POST['category']
-            
+
             post.postname = postname
             post.content = content
             post.category = category
             post.save()
         except:
             print("Error")
-        return profile(request,request.user.id)
-    
-    return render(request,"postedit.html",{
-        'post':post
+        return profile(request, request.user.id)
+
+    return render(request, "postedit.html", {
+        'post': post
     })
-    
-def deletepost(request,id):
+
+
+def deletepost(request, id):
     Post.objects.get(id=id).delete()
-    return profile(request,request.user.id)
+    return profile(request, request.user.id)
 
 
 def contact_us(request):
-    context={}
+    context = {}
     if request.method == 'POST':
-        name=request.POST.get('name')    
-        email=request.POST.get('email')  
-        subject=request.POST.get('subject')  
-        message=request.POST.get('message')  
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
 
-        obj = Contact(name=name,email=email,subject=subject,message=message)
+        obj = Contact(name=name, email=email, subject=subject, message=message)
         obj.save()
-        context['message']=f"Dear {name}, Thanks for your time!"
+        context['message'] = f"Dear {name}, Thanks for your time!"
 
-    return render(request,"contact.html")
+    return render(request, "contact.html")
 
 
 # CKEditor
@@ -312,6 +345,7 @@ class CkEditorFormView(generic.FormView):
     def get_success_url(self):
         return reverse("ckeditor-form")
 
+
 class CkEditorMultiWidgetFormView(generic.FormView):
     form_class = forms.CkEditorMultiWidgetForm
     template_name = "ckeditor.html"
@@ -319,32 +353,42 @@ class CkEditorMultiWidgetFormView(generic.FormView):
     def get_success_url(self):
         return reverse("ckeditor-multi-widget-form")
 
+
+@permission_classes([IsAuthenticated, IsAuthor])
 def create_post(request):
     if request.method == 'POST':
-        form = forms.CKPostForm(request.POST, request.FILES)  # Inclure les fichiers pour l'image
+        logger.debug(f"Request POST data: {request.POST}")
+        logger.debug(f"Request FILES data: {request.FILES}")
+        form = forms.CKPostForm(request.POST, request.FILES)
+
         if form.is_valid():
             post = form.save(commit=False)
-            post.user = request.user
+            post.user = request.user  # <--- This is important
             post.save()
             messages.success(request, "Post created successfully!")
             return redirect('post_detail', slug=post.slug)
+        else:
+            logger.error(f"Form errors: {form.errors}")
+
     else:
         form = forms.CKPostForm()
 
     categories = Category.objects.all()
     return render(request, 'blog/create_post.html', {'form': form, 'categories': categories})
 
-def post_list(request):  
-    posts = CKPost.objects.all().order_by('-time')  
+
+@permission_classes([IsAuthenticated, IsAuthor])
+def post_list(request):
+    posts = CKPost.objects.all().order_by('-time')
+    media_url = "/media/"  # Define media_url outside the if-else block
 
     return render(request, 'blog/post_list.html', {
-        'posts': posts,  
+        'posts': posts,
+        'media_url': media_url
     })
 
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import CKPost
-from . import forms
 
+@permission_classes([IsAuthenticated, IsAuthor])
 def edit_post(request, slug):
     post = get_object_or_404(CKPost, slug=slug)
 
@@ -360,26 +404,12 @@ def edit_post(request, slug):
     return render(request, 'blog/edit_post.html', {'form': form, 'post': post})
 
 
-
-def post_detail(request, slug):
-    post = get_object_or_404(CKPost, slug=slug)
-    related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
-    author_profile = None
-    if post.user.is_staff and hasattr(post.user, 'authorprofile'):
-        author_profile = post.user.authorprofile
-    context = {
-        'post': post,
-        'related_posts': related_posts,
-        'media_url': settings.MEDIA_URL,
-        'author_profile': author_profile,
-    }
-    return render(request, 'blog/post-detail.html', context)
-
 def home_new(request):
     return render(request, 'blog/base.html')
 
+
 ckeditor_form_view = CkEditorFormView.as_view()
-# ckeditor_multi_widget_form_view = CkEditorMultiWidgetFormView.as_view()
+
 
 def get_subcategories(request):
     category_id = request.GET.get('category_id')
@@ -387,12 +417,6 @@ def get_subcategories(request):
     return JsonResponse({
         'subcategories': [{'id': sub.id, 'name': sub.name} for sub in subcategories]
     })
-    
-from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.template.loader import render_to_string
-from .models import CKPost, Comment, AuthorProfile
 
 
 @csrf_exempt
@@ -431,10 +455,8 @@ def add_comment(request):
             else:
                 return render_to_string('blog/comment.html', {'comment': comment, 'post': post, 'request': request})
 
-
-        #Render only the new comment/reply
+        # Render only the new comment/reply
         comment_html = render_comment(comment, is_reply=bool(parent_id))
-
 
         # Determine the target for the response
         if parent_id:
@@ -444,63 +466,69 @@ def add_comment(request):
 
         # Return the HTML of all comments for the targeted container
         return HttpResponse(comment_html, content_type="text/html", headers={"HX-Target": target, "HX-Reswap": "beforeend"})
-      
 
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
+
 def post_detail(request, slug):
     post = get_object_or_404(CKPost, slug=slug)
-    author_profile = get_object_or_404(AuthorProfile, user=post.user)
+    author_profile = None
+
+    # Correctly access the AuthorProfile only if it exists
+    if post.user and hasattr(post.user, 'authorprofile'):
+        author_profile = post.user.authorprofile
+    else:
+        author_profile = None
+
     related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
     top_level_comments = post.comments.filter(parent__isnull=True)
     media_url = "/media/"
-    
+
     context = {
+        "user": request.user,
         "post": post,
         "author_profile": author_profile,
         "related_posts": related_posts,
-        "media_url":media_url,
-        "top_level_comments": top_level_comments,  
+        "media_url": media_url,
+        "top_level_comments": top_level_comments,
     }
     return render(request, "blog/post-detail.html", context)
 
-# def load_more_comments(request, post_id):
-#     post = Post.objects.get(id=post_id)
-#     comments = post.comments.all()[3:]  # Skip first 3 comments
 
-#     # Render new comments to send back to the front-end
-#     return render(request, 'blog/comment_list.html', {'comments': comments})
-
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
-from .models import AuthorProfile
 
 def author_profile(request, username):
-    user = get_object_or_404(User, username=username, is_staff=True)  # Vérifie que c'est un administrateur
-    profile = get_object_or_404(AuthorProfile, user=user)
+    try:
+        user = get_object_or_404(User, username=username)
+        profile = AuthorProfile.objects.get(user=user)
+    except AuthorProfile.DoesNotExist:
+        # Handle the case where the author profile does not exist
+        return render(request, 'blog/no_author_profile.html', {'user': user})  # Or display a message
 
     return render(request, 'blog/auteur.html', {'author_profile': profile})
 
+from .serializers import AuthorProfileSerializer  # Create this serializer
 
-from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
-from django.views.generic.edit import CreateView
-from django.shortcuts import redirect
-from .models import AuthorProfile
+class CreateAuthorProfileView(generics.CreateAPIView):
+    queryset = AuthorProfile.objects.all()
+    serializer_class = AuthorProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)  # automatically assigning profile to the current user
 
 
-class AuthorProfileCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
-    model = AuthorProfile
-    fields = ['bio', 'profile_picture', 'website', 'metier', 'facebook', 'gmail', 'twitter']
-    template_name = 'blog/author_profile_form.html'
-    success_url = '/success/'  # Redirection après la création
+class AuthorProfileDetailView(generics.RetrieveUpdateAPIView):
+    queryset = AuthorProfile.objects.all()
+    serializer_class = AuthorProfileSerializer
+    permission_classes = [IsAuthenticated]
+    lookup_field = 'user__username'  # Use username instead of pk
 
-    def test_func(self):
-        return self.request.user.is_staff
+    def get_object(self):
+        username = self.kwargs['username']
+        return get_object_or_404(AuthorProfile, user__username=username)
 
-    def form_valid(self, form):
-        if AuthorProfile.objects.filter(user=self.request.user).exists():
-            form.add_error(None, "Vous avez déjà créé un profil auteur.")
-            return self.form_invalid(form)
 
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+def hero_section(request, category_id):  # Added a new view for the Hero Section
+    category = get_object_or_404(Category, pk=category_id)
+    return render(request, 'blog/heroSection.html', {'category': category})
+
