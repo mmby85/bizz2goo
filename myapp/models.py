@@ -33,11 +33,27 @@ class Post(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=600, blank=True, null=True, choices=choices)
-    # name = models.CharField(max_length=600, blank=True, null=True)
+    name = models.CharField(
+        max_length=600,
+        blank=True,
+        null=True,
+        choices=choices
+    )
+    slug = models.SlugField(unique=True, blank=True, null=True)  # Consider adding this
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(
+        upload_to='category_images/',
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:  # Auto-generate slug on save if it's empty
+            self.slug = slugify(self.name)  # Use slugify function
+        super().save(*args, **kwargs)
 
 
 class SubCategory(models.Model):
@@ -102,8 +118,8 @@ class AuthorProfile(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        limit_choices_to={'is_staff': True}  # Limite aux utilisateurs administrateurs
     )
+    is_author = models.BooleanField(default=False) # Add this field
     bio = models.TextField(blank=True, null=True)
     profile_picture = models.ImageField(upload_to='author_pictures/', blank=True, null=True)
     website = models.URLField(blank=True, null=True)

@@ -9,7 +9,7 @@
     <h5 class="media-heading">{{ comment.user }}</h5>
     <h6 style="color: #6c757d;">{{ comment.time }}</h6>
     <p>{{ comment.content }}</p>
-    <button  class="btn-link pull-right btn btn-info reply-btn" data-comment-id="{{ comment.id }}" onclick="toggleReplyForm(event, {{ comment.id }})">
+    <button  class="btn-link pull-right btn btn-info reply-btn btn-comment" data-comment-id="{{ comment.id }}" onclick="toggleReplyForm(event, {{ comment.id }})">
       <i class="fa fa-reply mr-1"></i> Reply
     </button>
     
@@ -34,7 +34,7 @@
             <label for="content" class="form-label fw-bold"></label>
             <textarea id="content" name="content" placeholder="Write your reply here..." required class="form-control"></textarea>
           </div>
-          <button type="submit" class="btn btn-primary">Reply</button>
+          <button type="submit" class="btn btn-primary btn-comment">Reply</button>
       </form>
     </div>
     <!-- Nested Replies -->

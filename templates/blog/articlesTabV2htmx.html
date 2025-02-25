@@ -1,39 +1,52 @@
-<!-- Section des Catégories -->
+<!-- articlesTabV2htmx.html -->
+{% load static %}
 {% load custom_filters %}
-
 <head>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
+
+
+
+
+
+    <div id="content-container">
+<!-- Section des Catégories -->
+<div id="hero">
+    {% include "blog/heroSection.html" with category=category %}
+</div>
 <section id="categories" class="section">
     <div class="container">
-        <h3 class="title text-center" style="margin-bottom: 50px; font-family: 'IBM Plex Sans', sans-serif; font-size: 40px;">
+        <h3 class="title text-center"
+            style="margin-bottom: 50px; font-family: 'IBM Plex Sans', sans-serif; font-size: 40px;">
             You may also be interested in
         </h3>
 
-        <div class="row gy-3"> <!-- Use gy-* to control vertical spacing -->
+        <div class="row gy-3">
             <!-- First Item -->
             <div class="col-md-3 col-sm-6">
-                <a href="#" 
-                   hx-get="{% url 'posts_by_category' 'all' %}" 
-                   hx-target="#posts-container" 
+                <a href="#"
+                   hx-get="{% url 'posts_by_category' 'all' %}"
+                   hx-target="#content-container"
                    hx-trigger="click"
+                   hx-swap="innerHTML"
                    class="category-link btn btn-outline-secondary text-center w-100"
                    style="color: #fff;  border-color: #1260CC; box-shadow: 0px 4px 6px #1260CC;">
-                   Tous les articles
+                    Tous les articles
                 </a>
             </div>
 
             <!-- Dynamic Items -->
             {% for category in categories %}
             <div class="col-md-3 col-sm-6">
-                <a href="#" 
-                   hx-get="{% url 'posts_by_category' category.id %}" 
-                   hx-target="#posts-container" 
+                <a href="#"
+                   hx-get="{% url 'posts_by_category' category.id %}"
+                   hx-target="#content-container"
                    hx-trigger="click"
+                   hx-swap="innerHTML"
                    class="category-link btn btn-outline-secondary text-center w-100"
+
                    style="color: #fff;  border-color: #05012e; box-shadow: 0px 4px 6px #1260CC;">
-                   {{ category.name }}
+                    {{ category.name }}
                 </a>
             </div>
             {% endfor %}
@@ -41,43 +54,50 @@
     </div>
 </section>
 
+<!-- Category Description -->
+<section id="category-description" class="section">
+    <div class="container">
+        {% if category %}
+        <h2 class="text-center section-title">About {{ category.name }}</h2>
+        <p class="text-center">{{ category.description }}</p>
+        {% endif %}
+    </div>
+</section>
 
 <!-- Section des Articles -->
 <section id="posts" class="section">
     <div class="container">
-        
-        <h3 class="title text-center"style="margin-bottom: 50px" >Articles</h3>
+
+        <h3 class="title text-center" style="margin-bottom: 50px">Articles</h3>
         <div id="posts-container" class="row">
-            {% for post in recent_posts %}
-                <div class="col-md-4">
-                    <div class="card card-plain card-blog">
-                        <a href="{% url 'post_detail' post.slug %}">
+            {% for post in ckposts %}
+            <div class="col-md-4">
+                <div class="card card-plain card-blog">
+                    <a href="{% url 'post_detail' post.slug %}">
                         <div class="card-image">
-                            <div 
-            data-radius="none" 
-            class="card" 
-            style="
-              background-image: url('{{media_url}}{{post.image}}'); 
-              width: 100%; 
-              height: 200px; 
-              background-size: contain; 
-              background-repeat: no-repeat; 
+                            <div data-radius="none" class="card" style="
+              background-image: url('{{ media_url }}{{ post.image }}');
+              width: 100%;
+              height: 200px;
+              background-size: contain;
+              background-repeat: no-repeat;
               background-position: center;
-              "
-                            ></div>
-                            
-                            <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+              "></div>
+
+                            <div class="category text-info" style="margin-bottom: 20px;"><span
+                                    class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
                             <h4 class="card-text">{{ post.title|safe }}</h4>
                             <p class="card-text">{{ post.content|first_words:20|safe }}</p>
                             <p class="text-muted">
                                 <small>{{ post.time|date:"d/m/Y H:i" }}</small>
                             </p>
-                            <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
-                            
+                            <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
+                                more</a>
+
                         </div>
                     </a>
-                    </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
     </div>
@@ -89,24 +109,21 @@
         <h2 class="text-center section-title">Articles Populaires</h2>
         <div id="top-posts-container" class="row">
             {% for post in top_posts %}
-                <div class="col-md-4">
-                    <div class="card card-plain card-blog">
-                        <a href="{% url 'post_detail' post.slug %}">
+            <div class="col-md-4">
+                <div class="card card-plain card-blog">
+                    <a href="{% url 'post_detail' post.slug %}">
                         <div class="card-image">
-                            <div 
-            data-radius="none" 
-            class="card" 
-            style="
-              background-image: url('{{media_url}}{{post.image}}'); 
-              width: 100%; 
-              height: 200px; 
-              background-size: contain; 
-              background-repeat: no-repeat; 
+                            <div data-radius="none" class="card" style="
+              background-image: url('{{ media_url }}{{ post.image }}');
+              width: 100%;
+              height: 200px;
+              background-size: contain;
+              background-repeat: no-repeat;
               background-position: center;
-              "
-                            ></div>
-                            
-                            <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
+              "></div>
+
+                            <div class="category text-info" style="margin-bottom: 20px;"><span
+                                    class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
                             <h4 class="card-text">{{ post.title|safe }}</h4>
                             <p class="card-text">{{ post.content|first_words:20|safe }}</p>
                             <p class="text-muted">
@@ -115,12 +132,13 @@
                             <p class="text-muted">
                                 <small>{{ post.likes }} likes</small>
                             </p>
-                            <a href="{% url 'post_detail' post.slug %}"  class="btn-round btn btn-danger btn-sm">Read more</a>
-                            
+                            <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
+                                more</a>
+
                         </div>
                     </a>
-                    </div>
                 </div>
+            </div>
             {% endfor %}
         </div>
     </div>
