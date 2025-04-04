@@ -16,6 +16,7 @@
         border-radius: 15px;
         padding: 30px;
         margin-top: 50px;
+        
     }
 
     .form-group label {
@@ -61,6 +62,51 @@
         margin-bottom: 20px;
     }
 
+    /* Profile Image Styles */
+    .profile-image-section {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-picture {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #007bff;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-upload-label {
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 25px;
+        transition: background-color 0.3s ease;
+    }
+
+    .image-upload-label:hover {
+        background-color: #0056b3;
+    }
+
+    #id_profile_picture {
+        display: none;
+    }
+
+    .image-preview {
+        display: none;
+        max-width: 200px;
+        margin: 15px auto;
+        border-radius: 10px;
+    }
+
+    .default-profile-icon {
+        font-size: 4rem;
+        color: #6c757d;
+    }
+
     @media (max-width: 768px) {
         h2 {
             font-size: 1.8rem;
@@ -69,6 +115,11 @@
         .btn-block {
             font-size: 1rem;
             padding: 0.75rem 1.5rem;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
         }
     }
 </style>
@@ -86,42 +137,107 @@
                 <div class="alert alert-danger">{{ form.non_field_errors }}</div>
                 {% endif %}
 
-                <form method="post">
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
+                    <!-- Profile Image Section -->
+                    <div class="profile-image-section">
+                        {% if author_profile.profile_picture %}
+                            <img src="{{ author_profile.profile_picture.url }}" 
+                                 class="profile-picture" 
+                                 alt="Current profile picture"
+                                 id="current-image">
+                        {% else %}
+                            <div class="profile-picture bg-light d-flex align-items-center justify-content-center">
+                                <i class="fas fa-user default-profile-icon"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <label for="id_profile_picture" class="image-upload-label">
+                            <i class="fas fa-camera mr-2"></i>Changer la photo
+                        </label>
+                        <input type="file" 
+                               name="profile_picture" 
+                               accept="image/*" 
+                               id="id_profile_picture">
+                        
+                        <img id="image-preview" class="image-preview" alt="New profile picture preview">
+                        <p class="text-muted small mt-2">Formats supportés: JPG, PNG, JPEG. Taille max: 5MB</p>
+                    </div>
+
+                    <!-- Personal Information -->
                     <div class="form-group">
                         <label for="firstname">Prénom :</label>
-                        <input type="text" class="form-control" id="firstname" name="firstname" 
-                               value="{{ author_profile.user.first_name }}" required>
+                        <input type="text" 
+                               class="form-control" 
+                               id="firstname" 
+                               name="firstname" 
+                               value="{{ author_profile.user.first_name }}" 
+                               required>
                     </div>
 
                     <div class="form-group">
                         <label for="lastname">Nom :</label>
-                        <input type="text" class="form-control" id="lastname" name="lastname" 
-                               value="{{ author_profile.user.last_name }}" required>
+                        <input type="text" 
+                               class="form-control" 
+                               id="lastname" 
+                               name="lastname" 
+                               value="{{ author_profile.user.last_name }}" 
+                               required>
                     </div>
 
+                    <div class="form-group">
+                        <label for="email">Email :</label>
+                        <input type="email" 
+                               class="form-control" 
+                               id="email" 
+                               name="email" 
+                               value="{{ author_profile.user.email }}" 
+                               required>
+                    </div>
+
+                    <!-- Bio -->
                     <div class="form-group">
                         <label for="bio">Bio :</label>
-                        <textarea id="bio" name="bio" class="form-control" rows="3">{{ author_profile.bio }}</textarea>
+                        <textarea id="bio" 
+                                  name="bio" 
+                                  class="form-control" 
+                                  rows="3">{{ author_profile.bio }}</textarea>
                     </div>
 
+                    <!-- Social Links -->
                     <div class="form-group">
                         <label for="facebook">Lien Facebook :</label>
-                        <input type="url" class="form-control" id="facebook" name="facebook" 
-                               value="{{ author_profile.facebook }}">
+                        <input type="url" 
+                               class="form-control" 
+                               id="facebook" 
+                               name="facebook" 
+                               value="{{ author_profile.facebook }}"
+                               placeholder="https://facebook.com/your-profile">
                     </div>
 
                     <div class="form-group">
                         <label for="twitter">Lien Twitter :</label>
-                        <input type="url" class="form-control" id="twitter" name="twitter" 
-                               value="{{ author_profile.twitter }}">
+                        <input type="url" 
+                               class="form-control" 
+                               id="twitter" 
+                               name="twitter" 
+                               value="{{ author_profile.twitter }}"
+                               placeholder="https://twitter.com/your-profile">
                     </div>
 
                     <div class="form-group">
                         <label for="gmail">Adresse Gmail :</label>
-                        <input type="email" class="form-control" id="gmail" name="gmail" 
-                               value="{{ author_profile.gmail }}">
+                        <input type="email" 
+                               class="form-control" 
+                               id="gmail" 
+                               name="gmail" 
+                               value="{{ author_profile.gmail }}"
+                               placeholder="votre@gmail.com">
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-block">Mettre à Jour</button>
@@ -130,5 +246,39 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Image Preview Functionality
+    document.getElementById('id_profile_picture').addEventListener('change', function(e) {
+        const [file] = e.target.files;
+        const preview = document.getElementById('image-preview');
+        const currentImage = document.getElementById('current-image');
+
+        if (file) {
+            preview.src = URL.createObjectURL(file);
+            preview.style.display = 'block';
+            
+            if (currentImage) {
+                currentImage.style.display = 'none';
+            }
+        } else {
+            preview.style.display = 'none';
+            if (currentImage) {
+                currentImage.style.display = 'block';
+            }
+        }
+    });
+
+    // Reset preview if user cancels
+    document.getElementById('id_profile_picture').addEventListener('click', function(e) {
+        if (this.value) {
+            this.value = '';
+            document.getElementById('image-preview').style.display = 'none';
+            if (document.getElementById('current-image')) {
+                document.getElementById('current-image').style.display = 'block';
+            }
+        }
+    });
+</script>
 
 {% endblock %}

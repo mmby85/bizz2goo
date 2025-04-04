@@ -218,35 +218,61 @@ def profile(request, username):
         'posts': CKPost.objects.all(),
         'media_url': settings.MEDIA_URL,
     })
+from django.shortcuts import render, get_object_or_404
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from .models import AuthorProfile, User
 
 
 def profileedit(request, username):
     author_profile = get_object_or_404(AuthorProfile, user__username=username)
-
+    
     if request.method == 'POST':
-        firstname = request.POST.get('firstname')
-        lastname = request.POST.get('lastname')
-        email = request.POST.get('email')
-        bio = request.POST.get('bio')
-        facebook = request.POST.get('facebook')
-        twitter = request.POST.get('twitter')
-        gmail = request.POST.get('gmail')
+        try:
+            # Get form data
+            firstname = request.POST.get('firstname')
+            lastname = request.POST.get('lastname')
+            email = request.POST.get('email')
+            bio = request.POST.get('bio')
+            facebook = request.POST.get('facebook')
+            twitter = request.POST.get('twitter')
+            gmail = request.POST.get('gmail')
+            
+            # Handle User model updates
+            user = author_profile.user
+            user.first_name = firstname
+            user.last_name = lastname
+            user.email = email  # Added email update
+            user.save()
 
-        user = author_profile.user
-        user.first_name = firstname
-        user.last_name = lastname
+            # Handle AuthorProfile updates
+            author_profile.bio = bio
+            author_profile.facebook = facebook
+            author_profile.twitter = twitter
+            author_profile.gmail = gmail
+            
+            # Handle profile picture upload
+            if 'profile_picture' in request.FILES:
+                profile_picture = request.FILES['profile_picture']
+                # Validate file type
+                FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png'])(profile_picture)
+                # Optional: Validate file size (5MB limit)
+                if profile_picture.size > 5 * 1024 * 1024:
+                    raise ValidationError("File size too large (max 5MB)")
+                author_profile.profile_picture = profile_picture
+            
+            author_profile.save()
+            
+            return render(request, "blog/auteur.html", {
+                'author_profile': author_profile
+            })
 
-        user.save()
-
-        author_profile.bio = bio
-        author_profile.facebook = facebook
-        author_profile.twitter = twitter
-        author_profile.gmail = gmail
-        author_profile.save()
-
-        return render(request, "blog/auteur.html", {
-            'author_profile': author_profile
-        })
+        except ValidationError as e:
+            # Handle validation errors
+            return render(request, "blog/profileedit.html", {
+                'author_profile': author_profile,
+                'error': e.message
+            })
 
     return render(request, "blog/profileedit.html", {
         'author_profile': author_profile
@@ -473,24 +499,27 @@ def add_comment(request):
 def post_detail(request, slug):
     post = get_object_or_404(CKPost, slug=slug)
     author_profile = None
+    can_edit = False
 
-    # Correctly access the AuthorProfile only if it exists
+    # Check if user is authenticated and is the author
+    if request.user.is_authenticated and request.user == post.user:
+        can_edit = True
+
+    # Get author profile if exists
     if post.user and hasattr(post.user, 'authorprofile'):
         author_profile = post.user.authorprofile
-    else:
-        author_profile = None
 
     related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
     top_level_comments = post.comments.filter(parent__isnull=True)
     media_url = "/media/"
 
     context = {
-        "user": request.user,
         "post": post,
         "author_profile": author_profile,
         "related_posts": related_posts,
         "media_url": media_url,
         "top_level_comments": top_level_comments,
+        "can_edit": can_edit,
     }
     return render(request, "blog/post-detail.html", context)
 

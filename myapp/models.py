@@ -33,13 +33,12 @@ class Post(models.Model):
 
 
 class Category(models.Model):
-    name = models.CharField(
+    name = models.CharField(  # Removed 'choices' parameter
         max_length=600,
         blank=True,
-        null=True,
-        choices=choices
+        null=True
     )
-    slug = models.SlugField(unique=True, blank=True, null=True)  # Consider adding this
+    slug = models.SlugField(unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(
         upload_to='category_images/',
@@ -51,8 +50,8 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug:  # Auto-generate slug on save if it's empty
-            self.slug = slugify(self.name)  # Use slugify function
+        if not self.slug:
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
 

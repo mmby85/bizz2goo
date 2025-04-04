@@ -1,15 +1,20 @@
 {% extends "blog/base.html" %}
 {% load static %}
 {% block body %}
-{% include "blog/heroSection.html" with category=post.category %}  <!-- Pass the category -->
+{% include "blog/heroSection.html" with category=post.category %}
 
 <div class="main main-raised">
   <section class="blog-posts grid-system">
-    <div class="container py-5">
+    <div class="container py-8">
       <!-- Blog Header -->
       <div class="row justify-content-center">
         <div class="col-md-20 text-center">
           <h2 class="text-primary">{{ post.title }}</h2>
+          {% if can_edit %}
+          <a href="{% url 'edit_post' slug=post.slug %}" class="btn btn-warning btn-sm mt-2">
+            <i class="fas fa-edit"></i> Edit Post
+          </a>
+          {% endif %}
           <h3 class="title-uppercase">
             <small>Written by {{ post.user}}</small>
           </h3>
@@ -26,177 +31,218 @@
         </div>
 
         <div class="col-md-12 text-center">
-          <div
-            class="card"
-            style="
-              background-image: url('{{media_url}}{{post.image}}');
-              width: 900px;
-              height: 400px;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-position: center;
-            "
-          ></div>
-          <div class="col-md-10 ml-10 mr-10" style="margin-left:100px; margin-right:100px">
+          <div class="card post-image" 
+               style="background-image: url('{{ media_url }}{{ post.image }}')">
+          </div>
+          <div class="col-md-12 mx-auto post-content-wrapper">
             <div class="article-content text-justify">
-              <h4>{{ post.content | safe }}</h4>
+              {{ post.content | safe }}
             </div>
           </div>
         </div>
       </div>
 
-           <!-- Author Profile -->
-           {% if author_profile %}
-           <div class="row" style="margin-left: 100px; margin-right: 100px;">
-             <hr><br>
-               <div class="media">
-                 <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
-                   <div class="avatar big-avatar">
-                     {% if author_profile.profile_picture %}
-                       <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
-                     {% endif %}
-                   </div>
-                 </a>
-                 <div class="media-body">
-                   <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
-                     <a href="{% url 'author_profile' author_profile.user.username %}">
-                       {{ author_profile.user.username }}
-                     </a>
-                   </h4>
-                   {% if author_profile.bio %}
-                     <p>{{ author_profile.bio }}</p>
-                   {% endif %}
-                 </div>
-               </div>
-               <hr><br>
-           </div>
-         {% endif %}
+      <!-- Author Profile -->
+      {% if author_profile %}
+      <div class="row" style="margin-left: 100px; margin-right: 100px;">
+        <hr><br>
+          <div class="media">
+            <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
+              <div class="avatar big-avatar">
+                {% if author_profile.profile_picture %}
+                  <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
+                {% endif %}
+              </div>
+            </a>
+            <div class="media-body">
+              <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
+                <a href="{% url 'author_profile' author_profile.user.username %}">
+                  {{ author_profile.user.username }}
+                </a>
+              </h4>
+              {% if author_profile.bio %}
+                <p>{{ author_profile.bio }}</p>
+              {% endif %}
+            </div>
+          </div>
+          <hr><br>
+      </div>
+      {% endif %}
 
-    <!-- Comments Section -->
-{% load static %}
-<div class="row" style="margin-left: 100px; margin-right: 100px;">
-  <div class="comments media-area">
-    <h3 class="text-center">Comments</h3>
+      <!-- Comments Section -->
+      <div class="row" style="margin-left: 100px; margin-right: 100px;">
+        <div class="comments media-area">
+          <h3 class="text-center">Comments</h3>
 
-    <style>
-       .btn-comment {
-        border-radius: 0.5rem; /* Rounded corners for buttons */
-        background-color: #041C3F !important;
-        border-color: #041C3F !important;
-        color: white !important; /* Ensure text is visible */
-      }
+          <style>
+            .btn-comment {
+              border-radius: 0.5rem;
+              background-color: #041C3F !important;
+              border-color: #041C3F !important;
+              color: white !important;
+            }
 
-      .comment-form-bg {
-        background-color: #E1E1E1; /* Light gray background */
-        border-radius: 1rem; /* Rounded corners for the form background */
-        padding: 30px; /* Add some padding inside the gray box */
-        margin-top: 1rem; /* Add space above the form */
-        position: relative; /* Added to allow absolute positioning of the button */
-      }
+            .comment-form-bg {
+              background-color: #E1E1E1;
+              border-radius: 1rem;
+              padding: 30px;
+              margin-top: 1rem;
+              position: relative;
+            }
 
-      .btn-custom {
-        background-color: #041C3F;
-        border-color: #041C3F;
-        color: white; /* Ensure text is visible */
-        position: relative; /* Positioned relative to the .comment-form-bg */
-        top: 10px; /* Align to the bottom of the form */
-        left: 85%; /* Align to the right of the form */
-      }
+            .btn-custom {
+              background-color: #041C3F;
+              border-color: #041C3F;
+              color: white;
+              position: relative;
+              top: 10px;
+              left: 85%;
+            }
 
-      .btn-custom:hover {
-        background-color: #031633; /* Slightly darker on hover */
-        border-color: #031633;
-      }
-    </style>
+            .btn-custom:hover {
+              background-color: #031633;
+              border-color: #031633;
+            }
+            .container{
+              padding-bottom: 32px;
+            }
+          </style>
 
-    <div id="comments-container">
-      {% for comment in top_level_comments %}
-      {% include 'blog/comment.html' with comment=comment post=post %}
-      {% endfor %}
-    </div>
+          <div id="comments-container">
+            {% for comment in top_level_comments %}
+            {% include 'blog/comment.html' with comment=comment post=post %}
+            {% endfor %}
+          </div>
 
-    <!-- New Comment Form -->
-    <div class="comment-form-bg">
-      <form
-        method="POST"
-        action="{% url 'add_comment' %}"
-        hx-post="{% url 'add_comment' %}"
-        hx-target="#comments-container"
-        hx-swap="beforeend"
-        id="comment-form"
-      >
-        {% csrf_token %}
-        <div class="form-group mb-3">
-          <label for="username" class="form-label fw-bold"></label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            placeholder="Enter your name"
-            required
-            class="form-control"
-          />
+          <!-- New Comment Form -->
+          <div class="comment-form-bg">
+            <form
+              method="POST"
+              action="{% url 'add_comment' %}"
+              hx-post="{% url 'add_comment' %}"
+              hx-target="#comments-container"
+              hx-swap="beforeend"
+              id="comment-form"
+            >
+              {% csrf_token %}
+              <div class="form-group mb-3">
+                <label for="username" class="form-label fw-bold"></label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  placeholder="Enter your name"
+                  required
+                  class="form-control"
+                />
+              </div>
+              <div class="form-group mb-3">
+                <label for="content" class="form-label fw-bold"></label>
+                <textarea
+                  id="content"
+                  name="content"
+                  placeholder="Write your comment here..."
+                  required
+                  class="form-control"
+                ></textarea>
+              </div>
+              <input type="hidden" name="slug" value="{{ post.slug }}" />
+              <button type="submit" class="btn btn-custom w-100 btn-comment">Comment</button>
+            </form>
+          </div>
         </div>
-        <div class="form-group mb-3">
-          <label for="content" class="form-label fw-bold"></label>
-          <textarea
-            id="content"
-            name="content"
-            placeholder="Write your comment here..."
-            required
-            class="form-control"
-          ></textarea>
-        </div>
-        <input type="hidden" name="slug" value="{{ post.slug }}" />
-        <button type="submit" class="btn btn-custom w-100 btn-comment">Comment</button>
-      </form>
+      </div>
     </div>
-  </div>
+  </section>
 </div>
 
 <script>
-       function toggleReplyForm(event, commentId) {
-        event.preventDefault();
-        const replyForm = document.getElementById(`reply-form-${commentId}`);
-        const replyButton = event.currentTarget;
+  function toggleReplyForm(event, commentId) {
+    event.preventDefault();
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    const replyButton = event.currentTarget;
 
-        replyForm.classList.toggle('hidden');
+    replyForm.classList.toggle('hidden');
 
-        if (replyForm.classList.contains('hidden')) {
-            replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Reply';
-        } else {
-            replyButton.innerHTML = '<i class="fa fa-times mr-1"></i> Cancel';
-        }
-    }
-
-    function resetReplyForm(event, commentId) {
-        const replyForm = document.getElementById(`reply-form-${commentId}`);
-        const replyButton = document.querySelector(`.reply-btn[data-comment-id="${commentId}"]`);
-        const usernameInput = replyForm.querySelector('#username');
-        const contentTextarea = replyForm.querySelector('#content');
-
-        // Hide the reply form
-        replyForm.classList.add('hidden');
-
-        // Reset the reply button text and icon
+    if (replyForm.classList.contains('hidden')) {
         replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Reply';
-
-        // Clear the input fields
-        usernameInput.value = '';
-        contentTextarea.value = '';
-
-        // Optional:  Focus on the reply button to improve accessibility.
-        replyButton.focus();
-
+    } else {
+        replyButton.innerHTML = '<i class="fa fa-times mr-1"></i> Cancel';
     }
-</script>
-<style>
+  }
 
-.form-group {
+  function resetReplyForm(event, commentId) {
+    const replyForm = document.getElementById(`reply-form-${commentId}`);
+    const replyButton = document.querySelector(`.reply-btn[data-comment-id="${commentId}"]`);
+    const usernameInput = replyForm.querySelector('#username');
+    const contentTextarea = replyForm.querySelector('#content');
+
+    replyForm.classList.add('hidden');
+    replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Reply';
+    usernameInput.value = '';
+    contentTextarea.value = '';
+    replyButton.focus();
+  }
+</script>
+
+<style>
+  .post-image {
+    aspect-ratio: 16/9; 
+    background-size: cover;
+    background-position: center;
+    margin: 20px 0;
+    border-radius: 8px;
+  }
+
+  .post-content-wrapper {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .article-content {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #444;
+  }
+
+  .article-content p {
+    margin-bottom: 1.5rem;
+  }
+
+  .article-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  .article-content h2,
+  .article-content h3,
+  .article-content h4 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+  }
+
+  .form-group {
     margin: 2px 0 0;
-}
-.reply-btn{
-  z-index: 10;
-}
+  }
+
+  .reply-btn {
+    z-index: 10;
+  }
+
+  @media (max-width: 768px) {
+    .post-content-wrapper {
+      padding: 0 15px;
+    }
+    
+    .article-content {
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+  }
 </style>
 {% endblock %}
