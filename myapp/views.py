@@ -55,16 +55,24 @@ def index(request):
 
 def new_index(request):
     posts = CKPost.objects.order_by("-time")
-    top_posts = CKPost.objects.all().order_by("-likes")[:3]
-    recent_posts = CKPost.objects.all().order_by("-time")[:3]
+    top_posts = CKPost.objects.order_by("-likes")[:3]
+    recent_posts = CKPost.objects.order_by("-time")[:3]
     categories = Category.objects.all()
     all_posts = CKPost.objects.all()
     top_authors = (
         AuthorProfile.objects.annotate(total_likes=Sum('user__ckpost__likes'))
             .order_by('-total_likes')[:2]
     )
-    # Get the first category to use as the default for hero section
-    default_category = categories.first() if categories.exists() else None
+
+    # --- Changed Section ---
+    # Try to get a specific category, e.g., named "Featured"
+    # Replace "Featured" with the actual name of the category you want as default.
+    try:
+        default_category = Category.objects.get(name="Featured")
+    except Category.DoesNotExist:
+        # If a category named "Featured" doesn't exist, set default_category to None
+        default_category = None
+    # --- End Changed Section ---
 
     context = {
         'posts': posts,
@@ -75,7 +83,7 @@ def new_index(request):
         'media_url': settings.MEDIA_URL,
         'all_posts': all_posts,
         'top_authors': top_authors,
-        'category': default_category,  # Add the default category to the context
+        'category': default_category, # Add the potentially None category to the context
     }
 
     return render(request, "blog/home.html", context)
@@ -179,8 +187,9 @@ def posts_by_category(request, id):
     if id == 'all':
         ckposts = CKPost.objects.all()
         first_category = Category.objects.first()
-        category = first_category
-        if first_category and first_category.image:  # Correctly access category image
+        category = first_category  # Remove this line
+        category = None  # Add this instead
+        if first_category and first_category.image:
             category_image = first_category.image.url
         recent_posts = CKPost.objects.all().order_by("-time")[:3]
         top_posts = CKPost.objects.all().order_by("-likes")[:3]

@@ -11,15 +11,14 @@
 
     <div id="content-container">
 <!-- Section des Catégories -->
+
+
 <div id="hero">
     {% include "blog/heroSection.html" with category=category %}
 </div>
 <section id="categories" class="section">
     <div class="container">
-        <h3 class="title text-center"
-            style="margin-bottom: 50px; font-family: 'IBM Plex Sans', sans-serif; font-size: 40px;">
-            You may also be interested in
-        </h3>
+        
 
         <div class="row gy-3">
             <!-- First Item -->
@@ -58,14 +57,15 @@
 <section id="category-description" class="section">
     <div class="container">
         {% if category %}
-        <h2 class="text-center section-title">About {{ category.name }}</h2>
-        <p class="text-center">{{ category.description }}</p>
+        <h2 class="text-center section-title" style="font-weight: 700;">{{ category.name }}</h2>
+        <p class="text-center" style="font-size: 24px; font-family: Roboto; text-align: justify; line-height: 1.3; font-weight: 400;">{{ category.description }}</p>
         {% endif %}
     </div>
 </section>
 
 <!-- Section des Articles -->
 <section id="posts" class="section">
+    
     <div class="container">
 
         <h3 class="title text-center" style="margin-bottom: 50px">Articles</h3>
@@ -84,15 +84,16 @@
     background-position: center;
               "></div>
 
-                            <div class="category text-info" style="margin-bottom: 20px;"><span
-                                    class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
-                            <h4 class="card-text">{{ post.title|safe }}</h4>
-                            <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                            <div class="category text-info" href="{% url 'post_detail' post.slug %}"  style="margin-bottom: 20px;"></div>
+                            <h4 class="card-text text-center" style="font-weight: 600;">{{ post.title|safe }}</h4>
+                            <p class="card-text" style="text-align: justify; line-height: 0.8;" >{{ post.content|first_words:20|safe }}</p>
                             <p class="text-muted">
                                 <small>{{ post.time|date:"d/m/Y H:i" }}</small>
                             </p>
-                            <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
-                                more</a>
+                            <span
+                                    class="main-tag badge badge-primary">{{ post.category.name }}</span>
+                            <!-- <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
+                                more</a> -->
 
                         </div>
                     </a>
@@ -100,6 +101,7 @@
             </div>
             {% endfor %}
         </div>
+        
     </div>
 </section>
 
@@ -122,18 +124,16 @@
     background-position: center;
               "></div>
 
-                            <div class="category text-info" style="margin-bottom: 20px;"><span
-                                    class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
-                            <h4 class="card-text">{{ post.title|safe }}</h4>
-                            <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                            <div class="category text-info" href="{% url 'post_detail' post.slug %}"  style="margin-bottom: 20px;"></div>
+                            <h4 class="card-text text-center" style="font-weight: 600;">{{ post.title|safe }}</h4>
+                            <p class="card-text" style="text-align: justify; line-height: 0.8;">{{ post.content|first_words:20|safe }}</p>
                             <p class="text-muted">
                                 <small>{{ post.time|date:"d/m/Y H:i" }}</small>
                             </p>
-                            <p class="text-muted">
-                                <small>{{ post.likes }} likes</small>
-                            </p>
-                            <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
-                                more</a>
+                            <span
+                                    class="main-tag badge badge-primary">{{ post.category.name }}</span>
+                            <!-- <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
+                                more</a> -->
 
                         </div>
                     </a>
@@ -142,4 +142,5 @@
             {% endfor %}
         </div>
     </div>
+    
 </section>

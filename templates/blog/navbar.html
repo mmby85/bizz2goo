@@ -19,11 +19,11 @@
                        Accueil
                     </a>
                 </li>
-                <li>
+                <!-- <li>
                     <a href="{% url 'post_list' %}">
                        Articles
                     </a>
-                </li>
+                </li> -->
 
                 {% if user.is_authenticated %}
                     {% if user.is_staff or user|has_author_profile %}

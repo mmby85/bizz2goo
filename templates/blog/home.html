@@ -4,7 +4,38 @@
 {% block title %} Bizz2go{% endblock %}
 
 {% block body %}
-
+<style>
+    .partner-section {
+        background: #f8f9fa;
+        padding: 80px 0;
+    }
+    
+    .partner-card {
+        transition: all 0.3s ease;
+        padding: 50px;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin: 15px 0;
+    }
+    
+    .partner-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+    }
+    
+    .partner-logo {
+        height: 108px;
+        width: auto;
+        object-fit: contain;
+        filter: grayscale(100%);
+        transition: all 0.3s ease;
+    }
+    
+    .partner-logo:hover {
+        filter: grayscale(0%);
+    }
+</style>
 
 <div class="">
 
@@ -13,11 +44,14 @@
 </div>
 
 <div class="main main-raised">
+    <!-- Section Nos Partenaires -->
+     <!-- Section Nos Partenaires améliorée -->
+    
 
-   
-    <div class="team-5 section-image" 
+    <div class="team-5 section-image"
     style="background-image: url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});">
     <div class="container">
+        <h2 class="text-center section-title" style="color: aliceblue;">Nos Rédacteurs</h2>
         <div class="row">
             {% for author in top_authors %}
             <div class="col-md-6">
@@ -25,17 +59,17 @@
                     <div class="col-md-5">
                         <div class="card-image">
                             <a href="{% url 'author_profile' author.user.username %}">
-                                <img class="img" src="{{ author.profile_picture.url }}" alt="{{ author.user.username }}" />
+                                <img class="img" src="{% if author.profile_picture %}{{ author.profile_picture.url }}{% endif %}" alt="{{ author.user.username }}" />
                             </a>
                         </div>
                     </div>
                     <div class="col-md-7">
                         <div class="card-content">
-                            <h4 class="card-title">{{ author.user.username }}</h4>
-                            <h6 class="category text-muted">Auteur de mois</h6>
-                            <p class="card-description">
-                                {{ author.bio|truncatewords:20 }}
-                            </p>
+                            <h4 class="card-title">{{ author.user.username }} {{ author.user.last_name }}</h4>
+                            <h6 class="category text-muted">{{ author.metier}}</h6>
+                            <!-- <p class="card-title">
+                                {{ author.Metier}}
+                            </p> -->
                             <div class="footer">
                                 {% if author.twitter %}
                                     <a href="{{ author.twitter }}" class="btn btn-just-icon btn-simple btn-white">
@@ -62,14 +96,61 @@
     </div>
 </div>
 
+<section class="partner-section">
+    <div class="container">
+        <h2 class="text-center mb-5 section-title" style="font-size: 3rem; margin-bottom: 32px; font-weight: 700;">
+            Nos Partenaires
+        </h2>
+        
+        <div class="row justify-content-center">
+            <!-- Partenaire 1 -->
+            <div class="col-lg-3 col-md-4 col-6">
+                <a href="https://curvesnsmiles.com/" class="partner-card d-block text-center">
+                    <img src= {% static 'blog/assets/img/image 6 (5).png' %} 
+                         alt="Partenaire 1"
+                         class="partner-logo img-fluid">
+                </a>
+            </div>
+
+            <!-- Partenaire 2 -->
+            <div class="col-lg-3 col-md-4 col-6">
+                <a href="https://curvesnsmiles.com/" class="partner-card d-block text-center">
+                    <img src= {% static 'blog/assets/img/image 6 (5).png' %} 
+                         alt="Partenaire 2"
+                         class="partner-logo img-fluid">
+                </a>
+            </div>
+
+            <!-- Partenaire 3 -->
+            <div class="col-lg-3 col-md-4 col-6">
+                <a href="https://curvesnsmiles.com/" class="partner-card d-block text-center">
+                    <img src= {% static 'blog/assets/img/image 6 (5).png' %} 
+                         alt="Partenaire 3"
+                         class="partner-logo img-fluid">
+                </a>
+            </div>
+
+            <!-- Partenaire 4 -->
+            <div class="col-lg-3 col-md-4 col-6">
+                <a href="https://curvesnsmiles.com/" class="partner-card d-block text-center">
+                    <img src= {% static 'blog/assets/img/image 6 (5).png' %} 
+                         alt="Partenaire 4"
+                         class="partner-logo img-fluid">
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
     <div class="subscribe-line">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h3 class="title">Get Tips & Tricks every Week!</h4>
+                    <h3 class="title">🚀 La Newsletter GOZONE</h4>
                         <p class="description">
-                            Join our newsletter and get news in your inbox every week! We hate spam too, so no
-                            worries about this.
+                            Actus, conseils, outils : tout ce qu’il vous faut pour avancer dans le business, sans bruit inutile.
+📩 Abonnez-vous à notre newsletter — on l’envoie seulement quand on a du vrai contenu à partager.
+
                         </p>
                 </div>
                 <div class="col-md-6">
@@ -82,13 +163,13 @@
                                             <span class="input-group-addon">
                                                 <i class="material-icons">mail</i>
                                             </span>
-                                            <input type="email" value placeholder="Your Email..."
+                                            <input type="email" value placeholder="Votre Email..."
                                                 class="form-control" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <button type="button"
-                                            class="btn btn-primary btn-round btn-block">Subscribe</button>
+                                            class="btn btn-primary btn-round btn-block">S’abonner</button>
                                     </div>
                                 </div>
                             </form>
@@ -98,6 +179,7 @@
             </div>
         </div>
     </div>
+    
 </div>
 
 {% endblock %}

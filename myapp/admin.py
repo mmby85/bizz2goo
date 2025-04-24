@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Post, Comment, Contact, AuthorProfile, CKPost, SubCategory, Category
+from .models import Post, Comment, Contact, AuthorProfile, CKPost, SubCategory, Category, Advertisement
 from ckeditor.widgets import CKEditorWidget
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -35,6 +35,23 @@ class AuthorProfileInline(admin.StackedInline):
     verbose_name_plural = 'Author Profile'
     fk_name = 'user'  # Explicitly specify the foreign key
 
+# blog/admin.py
+@admin.register(Advertisement)
+class AdvertisementAdmin(admin.ModelAdmin):
+    list_display = ('title', 'is_active', 'created_at', 'url')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('title', 'url')
+    list_editable = ('is_active',)
+    readonly_fields = ('created_at',)
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'image', 'url', 'is_active')
+        }),
+        ('Dates', {
+            'fields': ('created_at',),
+            'classes': ('collapse',)
+        }),
+    )
 
 # Extend the UserAdmin to include the AuthorProfile inline
 class CustomUserAdmin(UserAdmin):

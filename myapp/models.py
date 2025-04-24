@@ -31,6 +31,16 @@ class Post(models.Model):
     def __str__(self):
         return str(self.postname)
 
+# blog/models.py
+class Advertisement(models.Model):
+    title = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='ads/')
+    url = models.URLField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
 class Category(models.Model):
     name = models.CharField(  # Removed 'choices' parameter
