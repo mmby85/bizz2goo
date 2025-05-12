@@ -9,14 +9,16 @@
       <!-- Blog Header -->
       <div class="row justify-content-center">
         <div class="col-md-20 text-center">
-          <h2 class="text-primary">{{ post.title }}</h2>
+          <h2 class="text-center" style="font-family: Roboto; font-weight: 600; color: #05012e;" >{{ post.title }}</h2>
           {% if can_edit %}
           <a href="{% url 'edit_post' slug=post.slug %}" class="btn btn-warning btn-sm mt-2">
             <i class="fas fa-edit"></i> Edit Post
           </a>
           {% endif %}
           <h3 class="title-uppercase">
-            <small>Written by {{ post.user}}</small>
+            <small>Rédigé par  {{ post.user}} | </small>
+            <small class="title-uppercase text-muted">{{ post.time | date:"F d, Y" }}</small>
+
           </h3>
         </div>
       </div>
@@ -25,9 +27,9 @@
       <div class="row justify-content-center mt-4 ml-auto mr-auto">
         <div class="col-md-20 text-center">
           <div class="category text-info" style="margin-bottom: 20px;">
-            <span class="main-tag badge badge-primary">{{ post.category.name }}</span>
+            <span class="main-tag badge badge-primary" style="background-color: #000066;">{{ post.category.name }}</span>
           </div>
-          <h6 class="title-uppercase text-muted">{{ post.time | date:"F d, Y" }}</h6>
+         
         </div>
 
         <div class="col-md-12 text-center">
@@ -48,7 +50,7 @@
         <hr><br>
           <div class="media">
             <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
-              <div class="avatar big-avatar">
+              <div class="avatar big-avatar" style="width: 90px;height: 90px;">
                 {% if author_profile.profile_picture %}
                   <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
                 {% endif %}
@@ -72,7 +74,7 @@
       <!-- Comments Section -->
       <div class="row" style="margin-left: 100px; margin-right: 100px;">
         <div class="comments media-area">
-          <h3 class="text-center">Comments</h3>
+          <h3 class="text-center">Commentaires</h3>
 
           <style>
             .btn-comment {
@@ -131,7 +133,7 @@
                   type="text"
                   id="username"
                   name="username"
-                  placeholder="Enter your name"
+                  placeholder="Entrez votre nom"
                   required
                   class="form-control"
                 />
@@ -141,13 +143,13 @@
                 <textarea
                   id="content"
                   name="content"
-                  placeholder="Write your comment here..."
+                  placeholder="Écrivez votre commentaire ici..."
                   required
                   class="form-control"
                 ></textarea>
               </div>
               <input type="hidden" name="slug" value="{{ post.slug }}" />
-              <button type="submit" class="btn btn-custom w-100 btn-comment">Comment</button>
+              <button type="submit" class="btn btn-custom w-100 btn-comment">Commenter</button>
             </form>
           </div>
         </div>

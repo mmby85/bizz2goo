@@ -19,6 +19,7 @@ from .permissions import IsAuthor  # Import your custom permission
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
+from .forms import LeadGenerationForm # Import your new form
 
 logger = logging.getLogger(__name__)
 
@@ -54,40 +55,77 @@ def index(request):
 
 
 def new_index(request):
-    posts = CKPost.objects.order_by("-time")
-    top_posts = CKPost.objects.order_by("-likes")[:3]
-    recent_posts = CKPost.objects.order_by("-time")[:3]
     categories = Category.objects.all()
-    all_posts = CKPost.objects.all()
     top_authors = (
-        AuthorProfile.objects.annotate(total_likes=Sum('user__ckpost__likes'))
-            .order_by('-total_likes')[:2]
+        AuthorProfile.objects.filter(is_author=True)
+        .annotate(total_likes=Sum('user__ckpost__likes'))
+        .order_by('-total_likes')
     )
 
-    # --- Changed Section ---
-    # Try to get a specific category, e.g., named "Featured"
-    # Replace "Featured" with the actual name of the category you want as default.
+    # Initial category for hero section and potentially for initial post/ad loading
+    # Try to get "Featured", then first, then None
+    initial_hero_category = None
     try:
-        default_category = Category.objects.get(name="Featured")
+        initial_hero_category = Category.objects.get(name="Featured")
     except Category.DoesNotExist:
-        # If a category named "Featured" doesn't exist, set default_category to None
-        default_category = None
-    # --- End Changed Section ---
+        initial_hero_category = Category.objects.first()
+
+    # For the initial load of articlesTabV2htmx.html:
+    # Option 1: Show "All" posts initially
+    ckposts_initial = CKPost.objects.all().order_by("-time")
+    category_for_initial_tab_content = None # This tells articlesTab to use general titles/descriptions
+    top_posts_initial = CKPost.objects.all().order_by("-likes")[:3]
+
+    # Option 2: Show posts from initial_hero_category initially (Uncomment to use)
+    # if initial_hero_category:
+    #     ckposts_initial = CKPost.objects.filter(category=initial_hero_category).order_by("-time")
+    #     category_for_initial_tab_content = initial_hero_category
+    #     top_posts_initial = CKPost.objects.filter(category=initial_hero_category).order_by("-likes")[:3]
+    # else: # Fallback if no initial_hero_category
+    #     ckposts_initial = CKPost.objects.all().order_by("-time")
+    #     category_for_initial_tab_content = None
+    #     top_posts_initial = CKPost.objects.all().order_by("-likes")[:3]
+
+
+    # Fetch bottom banner ad for home page
+    bottom_home_ad = Advertisement.objects.filter(
+        position='bottom_banner_home',
+        is_active=True
+    ).order_by('display_order', '?').first() # '?' for random if multiple ads match
+
+    # Fetch initial sidebar ads
+    # Priority: Ads for category_for_initial_tab_content (if any), then general ads
+    sidebar_ads_initial = Advertisement.objects.none()
+    if category_for_initial_tab_content:
+        sidebar_ads_initial = Advertisement.objects.filter(
+            position='sidebar',
+            is_active=True,
+            category=category_for_initial_tab_content
+        ).order_by('display_order')
+    
+    if not sidebar_ads_initial.exists(): # Fallback to general sidebar ads
+        sidebar_ads_initial = Advertisement.objects.filter(
+            position='sidebar',
+            is_active=True,
+            category__isnull=True
+        ).order_by('display_order')
 
     context = {
-        'posts': posts,
-        'top_posts': top_posts,
-        'recent_posts': recent_posts,
-        'categories': categories,
-        'user': request.user,
+        'categories': categories,         # For category filter buttons in articlesTab
+        'top_authors': top_authors,       # For "Nos Rédacteurs" section in home.html
         'media_url': settings.MEDIA_URL,
-        'all_posts': all_posts,
-        'top_authors': top_authors,
-        'category': default_category, # Add the potentially None category to the context
+        
+        # Context for the {% include "blog/articlesTabV2htmx.html" %}
+        'ckposts': ckposts_initial,
+        'category': category_for_initial_tab_content, # For hero, description, titles within articlesTab
+        'sidebar_ads': sidebar_ads_initial,
+        'top_posts': top_posts_initial, # For "Articles Populaires" within articlesTab
+
+        # Context for home.html specific sections
+        'bottom_home_ad': bottom_home_ad,
+        'initial_hero_category': initial_hero_category, # if hero is outside articlesTab and needs its own category
     }
-
     return render(request, "blog/home.html", context)
-
 
 def signup(request):
     if request.method == 'POST':
@@ -180,46 +218,59 @@ def create_old(request):
 
 
 def posts_by_category(request, id):
-    media_url = "/media/"
-    categories = Category.objects.all()
-    category_image = None  # Add this line
+    media_url = settings.MEDIA_URL
+    all_categories_for_filters = Category.objects.all() # For the category filter buttons
+    
+    current_view_category = None # The category object for the current view (e.g., for title, description)
+    ckposts_list = CKPost.objects.all() # Base queryset
+    top_posts_list = None
 
     if id == 'all':
-        ckposts = CKPost.objects.all()
-        first_category = Category.objects.first()
-        category = first_category  # Remove this line
-        category = None  # Add this instead
-        if first_category and first_category.image:
-            category_image = first_category.image.url
-        recent_posts = CKPost.objects.all().order_by("-time")[:3]
-        top_posts = CKPost.objects.all().order_by("-likes")[:3]
+        ckposts_list = ckposts_list.order_by("-time")
+        current_view_category = None # No specific category selected
+        # For 'all', show general sidebar ads (category is Null)
+        sidebar_ads_list = Advertisement.objects.filter(
+            position='sidebar',
+            is_active=True,
+            category__isnull=True
+        ).order_by('display_order')
+        top_posts_list = CKPost.objects.all().order_by("-likes")[:3]
     else:
-        try:
-            category = get_object_or_404(Category, id=id)
-            ckposts = CKPost.objects.filter(category=category)
-            category_image = category.image.url if category.image else None  # Correct access here
-            recent_posts = CKPost.objects.filter(category=category).order_by("-time")[:3]
-            top_posts = CKPost.objects.filter(category=category).order_by("-likes")[:3]
+        current_view_category = get_object_or_404(Category, id=id)
+        ckposts_list = ckposts_list.filter(category=current_view_category).order_by("-time")
+        
+        # Fetch ads for this specific category first
+        sidebar_ads_list = Advertisement.objects.filter(
+            position='sidebar',
+            is_active=True,
+            category=current_view_category
+        ).order_by('display_order')
+        
+        # If no specific ads for this category, fetch general sidebar ads
+        if not sidebar_ads_list.exists():
+            sidebar_ads_list = Advertisement.objects.filter(
+                position='sidebar',
+                is_active=True,
+                category__isnull=True
+            ).order_by('display_order')
+        
+        top_posts_list = CKPost.objects.filter(category=current_view_category).order_by("-likes")[:3]
+        # Fallback for top posts if category has posts but no liked ones
+        if not top_posts_list.exists() and ckposts_list.exists():
+            top_posts_list = ckposts_list.order_by("-likes")[:3] 
+        elif not top_posts_list.exists(): # If no posts in category at all
+             top_posts_list = CKPost.objects.none()
 
-        except Category.DoesNotExist:
-            ckposts = CKPost.objects.none()
-            category = None
-            category_image = None
-            recent_posts = CKPost.objects.all().order_by("-time")[:3]
-            top_posts = CKPost.objects.all().order_by("-likes")[:3]
 
     context = {
-        'ckposts': ckposts,
+        'ckposts': ckposts_list,
         'media_url': media_url,
-        'category_image': category_image,
-        'categories': categories,
-        'category': category,
-        'recent_posts': recent_posts,
-        'top_posts': top_posts,
+        'categories': all_categories_for_filters, # For re-rendering category links
+        'category': current_view_category,   # For hero, description, titles
+        'sidebar_ads': sidebar_ads_list,
+        'top_posts': top_posts_list,     # For "Articles Populaires" section
     }
-
     return render(request, 'blog/articlesTabV2htmx.html', context)
-
 
 def profile(request, username):
     return render(request, 'blog/profile.html', {
@@ -569,4 +620,41 @@ class AuthorProfileDetailView(generics.RetrieveUpdateAPIView):
 def hero_section(request, category_id):  # Added a new view for the Hero Section
     category = get_object_or_404(Category, pk=category_id)
     return render(request, 'blog/heroSection.html', {'category': category})
+
+
+def lead_generation_form_view(request):
+    if request.method == 'POST':
+        form = LeadGenerationForm(request.POST)
+        if form.is_valid():
+            # Process the data (e.g., save to database, send email)
+            profil = form.cleaned_data['profil']
+            email = form.cleaned_data['email']
+            nom_prenom = form.cleaned_data['nom_prenom']
+            telephone = form.cleaned_data['telephone']
+            gouvernorat = form.cleaned_data['gouvernorat']
+            
+            # Example: Print to console (replace with actual logic)
+            print(f"New Lead: Profil={profil}, Email={email}, Nom={nom_prenom}, Tel={telephone}, Gouv={gouvernorat}")
+            
+            # Store in a model (You'll need to create a Lead model for this)
+            # Lead.objects.create(
+            #     profil=profil, email=email, nom_prenom=nom_prenom, 
+            #     telephone=telephone, gouvernorat=gouvernorat
+            # )
+
+            messages.success(request, 'Merci ! Vos informations ont été soumises avec succès.')
+            return redirect('lead_generation_form') # Redirect to the same page to show success message or to a thank you page
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    else:
+        form = LeadGenerationForm()
+        # You could pre-fill source_ad_id if passed via GET parameter from ad
+        # ad_id = request.GET.get('ad_id')
+        # if ad_id:
+        #     form.fields['source_ad_id'].initial = ad_id
+            
+    context = {
+        'form': form
+    }
+    return render(request, 'blog/lead_form.html', context)
 

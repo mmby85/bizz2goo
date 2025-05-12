@@ -38,20 +38,26 @@ class AuthorProfileInline(admin.StackedInline):
 # blog/admin.py
 @admin.register(Advertisement)
 class AdvertisementAdmin(admin.ModelAdmin):
-    list_display = ('title', 'is_active', 'created_at', 'url')
-    list_filter = ('is_active', 'created_at')
-    search_fields = ('title', 'url')
-    list_editable = ('is_active',)
-    readonly_fields = ('created_at',)
+    list_display = ('title', 'position', 'link_type', 'category', 'is_active', 'display_order', 'created_at')
+    list_filter = ('is_active', 'position', 'category', 'link_type')
+    search_fields = ('title',)
+    # Define fieldsets for better organization in admin
     fieldsets = (
         (None, {
-            'fields': ('title', 'image', 'url', 'is_active')
+            'fields': ('title', 'image', 'is_active', 'position', 'display_order')
         }),
-        ('Dates', {
-            'fields': ('created_at',),
-            'classes': ('collapse',)
+        ('Lien de l\'annonce', {
+            'fields': ('link_type', 'external_url'),
+            'description': "Si 'Formulaire Interne' est choisi, l'URL externe sera ignorée. "
+                           "Si 'Lien Externe' est choisi, l'URL externe est requise."
+        }),
+        ('Ciblage (Optionnel)', {
+            'classes': ('collapse',), # Make it collapsible
+            'fields': ('category',),
         }),
     )
+    list_editable = ('is_active', 'display_order')
+
 
 # Extend the UserAdmin to include the AuthorProfile inline
 class CustomUserAdmin(UserAdmin):

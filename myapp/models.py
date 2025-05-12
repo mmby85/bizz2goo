@@ -4,6 +4,8 @@ from datetime import datetime
 from ckeditor.fields import RichTextField
 from django.utils.text import slugify
 from django.core.validators import URLValidator
+from django.urls import reverse # Import reverse
+
 
 now = datetime.now()
 time = now.strftime("%d %B %Y")
@@ -32,15 +34,15 @@ class Post(models.Model):
         return str(self.postname)
 
 # blog/models.py
-class Advertisement(models.Model):
-    title = models.CharField(max_length=200)
-    image = models.ImageField(upload_to='ads/')
-    url = models.URLField()
-    is_active = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+# class Advertisement(models.Model):
+#     title = models.CharField(max_length=200)
+#     image = models.ImageField(upload_to='ads/')
+#     url = models.URLField()
+#     is_active = models.BooleanField(default=True)
+#     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.title
+#     def __str__(self):
+#         return self.title
 
 class Category(models.Model):
     name = models.CharField(  # Removed 'choices' parameter
@@ -73,6 +75,74 @@ class SubCategory(models.Model):
     def __str__(self):
         return self.name
 
+
+class Advertisement(models.Model):
+    LINK_TYPE_CHOICES = [
+        ('external', 'Lien Externe Personnalisé'),
+        ('internal_form', 'Formulaire Interne (Création Société)'),
+    ]
+    POSITION_CHOICES = [
+        ('sidebar', 'Sidebar Ad (Vertical)'),
+        ('bottom_banner_home', 'Bottom Banner Home (Horizontal)'),
+    ]
+
+    title = models.CharField(max_length=200, help_text="Internal title for the ad.")
+    image = models.ImageField(upload_to='ads/', help_text="Image for the advertisement.")
+    
+    link_type = models.CharField(
+        max_length=20,
+        choices=LINK_TYPE_CHOICES,
+        default='external',
+        help_text="Choisir si l'annonce redirige vers un lien externe ou le formulaire interne."
+    )
+    # Renamed 'url' to 'external_url' for clarity
+    external_url = models.URLField(
+        blank=True, null=True, 
+        help_text="URL externe (si 'Lien Externe Personnalisé' est choisi)."
+    )
+    # Removed the old 'url' field
+
+    is_active = models.BooleanField(default=True, help_text="Is this ad currently active?")
+    position = models.CharField(
+        max_length=50,
+        choices=POSITION_CHOICES,
+        default='sidebar',
+        help_text="Where this ad will be displayed."
+    )
+    category = models.ForeignKey(
+        'Category', # Use string if Category is defined later in the file or to avoid circular import
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name="advertisements",
+        help_text="Optional: Show this ad ONLY when this category is active (for sidebar ads)."
+    )
+    display_order = models.IntegerField(default=0, help_text="Order of display (lower numbers first).")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} ({self.get_position_display()})"
+
+    def get_absolute_url(self):
+        if self.link_type == 'internal_form':
+            return reverse('lead_generation_form') # Assuming your URL name is 'lead_generation_form'
+            # If you want to pass ad_id:
+            # return f"{reverse('lead_generation_form')}?ad_id={self.id}"
+        elif self.link_type == 'external' and self.external_url:
+            return self.external_url
+        return None # Or '#' or some default if no link is appropriate
+
+    class Meta:
+        ordering = ['position', 'category', 'display_order', '-created_at']
+
+    # Clean method to ensure external_url is provided if link_type is 'external'
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.link_type == 'external' and not self.external_url:
+            raise ValidationError({'external_url': "L'URL externe est requise lorsque le type de lien est 'Lien Externe Personnalisé'."})
+        if self.link_type == 'internal_form' and self.external_url:
+            # Optionally clear external_url if internal form is chosen
+            # self.external_url = None 
+            pass # Or raise a warning/error if both are set when not needed
 
 class CKPost(models.Model):
     title = models.CharField(max_length=600)

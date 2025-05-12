@@ -1,146 +1,455 @@
-<!-- articlesTabV2htmx.html -->
 {% load static %}
-{% load custom_filters %}
+{% load custom_filters %} {# Ensure this custom filter (e.g., for truncatewords_html) is correctly set up #}
+
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Styles for the layout (posts and sidebar) */
+        .posts-and-sidebar-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2.5rem;
+        }
+
+        .main-posts-content {
+            flex-grow: 4;
+            flex-shrink: 1;
+            flex-basis: 0%;
+            min-width: 0;
+        }
+
+        .sidebar-ads-column {
+            flex-grow: 1;
+            flex-shrink: 1;
+            flex-basis: 0%;
+            min-width: 220px;
+        }
+
+        .sidebar-ads-column .sidebar-sticky-content {
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-ad-item img {
+            width: 100%;
+            height: auto;
+            margin-bottom: 15px;
+            margin-left: 95px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            object-fit: cover;
+        }
+        .sidebar-ad-item a {
+            display: block;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 991px) {
+            .posts-and-sidebar-container {
+                flex-direction: column;
+                gap: 2rem;
+            }
+            .main-posts-content,
+            .sidebar-ads-column {
+                flex-grow: 1;
+                flex-basis: 100%;
+                min-width: 100%;
+            }
+            .sidebar-ads-column {
+                margin-top: 2rem;
+            }
+        }
+
+        /* Card image styling */
+        .card-img-top-custom {
+            width: 100%;
+            padding-bottom: 56.25%;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+        }
+        .card-plain.card-blog .card-body {
+            padding: 0.75rem 0.25rem;
+        }
+        .card-plain.card-blog .card-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 18px;
+            line-height: 1.1;
+            color: #05012e;
+        }
+        .card-plain.card-blog .card-text {
+            text-align:center;
+            line-height: 1.4;
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+        .card-plain.card-blog .text-muted {
+            font-size: 12px;
+        }
+        .card-plain.card-blog .text-muted .material-icons {
+            font-size: 1em;
+            vertical-align: middle;
+            margin-right: 3px;
+        }
+        .card-plain.card-blog .badge {
+            margin-bottom: 0.75rem;
+            font-size: 1.2rem;
+            font-family: Roboto;
+        }
+
+        /* Styles for category description and read-more toggle */
+        #category-description-text {
+            transition: max-height 0.35s ease-in-out;
+        }
+
+        .clamped-text {
+            overflow: hidden;
+        }
+
+        .read-more-toggle {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #1260CC;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+
 </head>
 
+<div id="content-container">
+    <!-- Hero Section -->
+    <div id="hero">
+        {% include "blog/heroSection.html" with category=category %}
+    </div>
+
+    <!-- Section des Catégories (Filters) -->
+    <section id="categories" class="section">
+        <div class="container">
+            <div class="row gy-3">
+                <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                    <a href="#"
+                       hx-get="{% url 'posts_by_category' 'all' %}"
+                       hx-target="#content-container"
+                       hx-trigger="click"
+                       hx-swap="innerHTML"
+                       class="category-link btn btn-outline-secondary text-center w-100"
+                       style="color: #fff;  border-color: #1260CC; ">
+                        Tous les articles
+                    </a>
+                </div>
+                {% for cat_item in categories %}
+                <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                    <a href="#"
+                       hx-get="{% url 'posts_by_category' cat_item.id %}"
+                       hx-target="#content-container"
+                       hx-trigger="click"
+                       hx-swap="innerHTML"
+                       class="category-link btn btn-outline-secondary text-center w-100"
+                       style="color: #fff;  border-color: #05012e;">
+                        {{ cat_item.name }}
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Category Description -->
+    <section id="category-description-section" class="section">
+        <div class="container" style="width: 55%;">
+            {% if category %}
+                <h2 class="text-center section-title" style="font-weight: 600;color: #3c4858;font-family: Roboto;">{{ category.name }}</h2>
+                {% if category.description %}
+                <div id="category-description-wrapper" class="widget">
+                    <p id="category-description-text" class="text-center " style="font-size: 20px; font-family: Roboto; text-align: justify; line-height: 1.4; font-weight: 400;" data-is-expanded="false"> {# Added data-is-expanded #}
+                        {{ category.description|safe }}
+                    </p>
+                    {# "Lire plus" link will be added by JavaScript if needed #}
+                </div>
+                {% endif %}
+            {% else %}
+                 <!-- <h2 class="text-center section-title" style="font-weight: 700;">Tous les Articles</h2>
+                 <p class="text-center" style="font-size: 1.1rem; font-family: 'IBM Plex Sans', sans-serif; text-align: justify; line-height: 1.5; font-weight: 400;">Découvrez nos dernières publications sur une variété de sujets passionnants.</p> -->
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Section des Articles & Sidebar -->
+    <section id="posts-main-area" class="section">
+        <div class="container">
+            <h3 class="title text-center" style="margin-bottom: 50px">
+                Articles
+            </h3>
+            <div class="posts-and-sidebar-container">
+                <!-- Main Posts Column -->
+                <div class="main-posts-content">
+                    <div id="posts-container" class="row">
+                        {% for post in ckposts %}
+                            {% if sidebar_ads %}
+                                <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                            {% else %}
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                            {% endif %}
+                                    <div class="card card-plain card-blog h-100">
+                                        <a href="{% url 'post_detail' post.slug %}" class="d-flex flex-column h-100">
+                                            <div class="card-image" style="margin-bottom: 15px;">
+                                                <div class="card-img-top-custom" style="
+                                                    background-image: url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'blog/assets/img/placeholder-image.jpg' %}{% endif %}');">
+                                                </div>
+                                            </div>
+                                            <div class="card-body d-flex flex-column">
+                                                <h4 class="card-title text-center">{{ post.title|safe }}</h4>
+                                                <p class="card-text text-center">
+                                                    {{ post.content|striptags|truncatewords_html:20|safe }}
+                                                </p>
+                                                <p class="text-muted mt-auto ">
+                                                    <span><i class="material-icons">access_time</i> {{ post.time|date:"d M Y" }}</span>
+                                                </p>
+                                                <span class="badge badge-primary text-center" style="background-color: #000066;">{{ post.category.name }}</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p class="text-center">Aucun article trouvé dans cette catégorie pour le moment.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Sidebar Column for Ads - Conditionally Rendered -->
+                {% if sidebar_ads %}
+                <aside class="sidebar-ads-column">
+                    <div class="sidebar-sticky-content">
+                        {% for ad in sidebar_ads %}
+                            <div class="sidebar-ad-item">
+                                {% with ad_url=ad.get_absolute_url %}
+                                    {% if ad_url %}
+                                        <a href="{{ ad_url }}" {% if ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                            <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                                        </a>
+                                    {% else %}
+                                        <img src="{{ ad.image.url }}" alt="{{ ad.title }}">
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </aside>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Section des Articles Populaires -->
+    <section id="top-posts" class="section bg-light">
+        <div class="container">
+            <h3 class="title text-center">Articles Populaires</h3>
+            <div id="top-posts-container" class="row">
+                {% for post in top_posts %}
+                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                    <div class="card card-plain card-blog h-100">
+                        <a href="{% url 'post_detail' post.slug %}" class="d-flex flex-column h-100">
+                             <div class="card-image" style="margin-bottom: 15px;">
+                                <div class="card-img-top-custom" style="
+                                    background-image: url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'blog/assets/img/placeholder-image.jpg' %}{% endif %}');">
+                                </div>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <h4 class="card-title text-center">{{ post.title|safe }}</h4>
+                                <p class="card-text text-center">
+                                    {{ post.content|striptags|truncatewords_html:20|safe }}
+                                </p>
+                                <p class="text-muted mt-auto ">
+                                    <span><i class="material-icons">access_time</i> {{ post.time|date:"d M Y" }}</span>
+                                </p>
+                                <span class="badge badge-primary text-center" style="background-color: #000066;">{{ post.category.name }}</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <p class="text-center">Aucun article populaire à afficher pour le moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initial setup for category description
+    setupCategoryDescriptionClamping(false); // false = do not preserve expanded state on initial load
+
+    // HTMX integration
+    const mainContentContainer = document.getElementById('content-container');
+    if (mainContentContainer) {
+        mainContentContainer.addEventListener('htmx:afterSwap', function(event) {
+            // Check if the category description element is present after swap
+            if (document.getElementById('category-description-wrapper')) {
+                // When HTMX swaps, we assume it's new content, so don't preserve expanded state
+                setupCategoryDescriptionClamping(false);
+            }
+        });
+    }
+
+    // Setup resize listener once
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            const currentDescriptionParagraph = document.getElementById('category-description-text');
+            if (currentDescriptionParagraph && document.getElementById('category-description-wrapper')) {
+                const wasExpanded = currentDescriptionParagraph.dataset.isExpanded === 'true';
+                setupCategoryDescriptionClamping(wasExpanded); // Preserve current state on resize
+            }
+        }, 250);
+    });
+});
+
+function setupCategoryDescriptionClamping(preserveExpandedState) {
+    const descriptionWrapper = document.getElementById('category-description-wrapper');
+    if (!descriptionWrapper) { return; }
+
+    const descriptionParagraph = document.getElementById('category-description-text');
+    if (!descriptionParagraph || descriptionParagraph.textContent.trim() === "") {
+        const oldToggleLink = descriptionWrapper.querySelector('.read-more-toggle');
+        if (oldToggleLink) oldToggleLink.remove();
+        if (descriptionParagraph) {
+            descriptionParagraph.style.maxHeight = 'none';
+            descriptionParagraph.classList.remove('clamped-text');
+            descriptionParagraph.dataset.isExpanded = 'false';
+        }
+        return;
+    }
+
+    // Remove any existing toggle link to avoid duplicates
+    const existingToggleLink = descriptionWrapper.querySelector('.read-more-toggle');
+    if (existingToggleLink) {
+        existingToggleLink.remove();
+    }
+
+    // Reset styles for accurate measurement IF NOT preserving an already expanded state.
+    // If preserving expanded, we assume it's already at 'max-height: none' or will be set so.
+    if (!preserveExpandedState) {
+        descriptionParagraph.style.maxHeight = 'none'; // Allow full scrollHeight calculation
+        descriptionParagraph.classList.remove('clamped-text');
+        descriptionParagraph.dataset.isExpanded = 'false'; // Default to not expanded
+    }
 
 
+    const MAX_LINES = 4; // <<<--- ADJUST THIS: Max lines to show initially
+    let currentIsExpanded = descriptionParagraph.dataset.isExpanded === 'true'; // Read current state
+
+    // If we are told to preserve an expanded state, ensure it's visually so.
+    if (preserveExpandedState && currentIsExpanded) {
+         descriptionParagraph.style.maxHeight = 'none';
+         descriptionParagraph.classList.remove('clamped-text');
+    }
 
 
-    <div id="content-container">
-<!-- Section des Catégories -->
+    // Check visibility for reliable measurements
+    if (descriptionParagraph.offsetParent === null) {
+        // console.warn("Description paragraph is not visible, cannot apply clamping yet.");
+        return;
+    }
+
+    const computedStyle = window.getComputedStyle(descriptionParagraph);
+    const lineHeightString = computedStyle.lineHeight;
+    let lineHeightPx;
+
+    if (lineHeightString === 'normal') {
+        const temp = document.createElement('div');
+        temp.style.font = computedStyle.font;
+        temp.style.padding = '0'; temp.style.border = '0';
+        temp.style.visibility = 'hidden'; temp.style.position = 'absolute';
+        temp.innerHTML = 'A'; // Single character on a single line
+        descriptionParagraph.appendChild(temp);
+        lineHeightPx = temp.offsetHeight;
+        descriptionParagraph.removeChild(temp);
+        if (lineHeightPx === 0 || isNaN(lineHeightPx)) { // Fallback for 'normal'
+            const fontSizePx = parseFloat(computedStyle.fontSize);
+            lineHeightPx = isNaN(fontSizePx) ? 16 * 1.2 : fontSizePx * 1.2; // Default font size fallback
+        }
+    } else {
+        lineHeightPx = parseFloat(lineHeightString); // Assumes getComputedStyle returns 'px'
+    }
+
+    if (isNaN(lineHeightPx) || lineHeightPx <= 0) {
+        // console.warn("Could not reliably determine line-height in pixels. Clamping disabled.");
+        return;
+    }
+
+    const clampedMaxHeightInPx = MAX_LINES * lineHeightPx;
+    const currentScrollHeight = descriptionParagraph.scrollHeight;
+
+    // Add a small tolerance (e.g., quarter of a line) to prevent clamping if text is just barely over
+    const scrollHeightTolerance = lineHeightPx * 0.25;
+
+    if (currentScrollHeight > clampedMaxHeightInPx + scrollHeightTolerance) {
+        // Only create a new link if one doesn't exist (it should have been removed, but as a safeguard)
+        let newToggleLink = descriptionWrapper.querySelector('.read-more-toggle');
+        if (!newToggleLink) {
+            newToggleLink = document.createElement('a');
+            newToggleLink.href = '#';
+            newToggleLink.className = 'read-more-toggle';
+            descriptionWrapper.appendChild(newToggleLink); // Append early
+        }
+
+        newToggleLink.style.display = 'block'; // Ensure it's visible
 
 
-<div id="hero">
-    {% include "blog/heroSection.html" with category=category %}
+        if (!currentIsExpanded) { // Apply clamp if not already expanded
+            descriptionParagraph.style.maxHeight = clampedMaxHeightInPx + 'px';
+            descriptionParagraph.classList.add('clamped-text');
+            newToggleLink.textContent = 'Lire plus';
+        } else { // Was already expanded (e.g. due to preserveExpandedState)
+            descriptionParagraph.style.maxHeight = 'none';
+            descriptionParagraph.classList.remove('clamped-text');
+            newToggleLink.textContent = 'Lire moins';
+        }
+
+
+        newToggleLink.onclick = function(event) { // Use onclick for simplicity in re-attachment
+            event.preventDefault();
+            currentIsExpanded = descriptionParagraph.dataset.isExpanded === 'true'; // Re-read state
+
+            if (currentIsExpanded) { // Should collapse
+                descriptionParagraph.style.maxHeight = clampedMaxHeightInPx + 'px';
+                newToggleLink.textContent = 'Lire plus';
+                descriptionParagraph.classList.add('clamped-text');
+                descriptionParagraph.dataset.isExpanded = 'false';
+            } else { // Should expand
+                descriptionParagraph.style.maxHeight = descriptionParagraph.scrollHeight + 'px';
+                newToggleLink.textContent = 'Lire moins';
+                descriptionParagraph.classList.remove('clamped-text'); // Remove immediately for visual
+                descriptionParagraph.dataset.isExpanded = 'true';
+
+                descriptionParagraph.addEventListener('transitionend', function onEnd() {
+                    // Check if it's still meant to be expanded before setting maxHeight to 'none'
+                    if (descriptionParagraph.dataset.isExpanded === 'true') {
+                        descriptionParagraph.style.maxHeight = 'none';
+                    }
+                    descriptionParagraph.removeEventListener('transitionend', onEnd);
+                }, { once: true });
+            }
+        };
+    } else {
+        // Content is not long enough to clamp, ensure it's fully visible and no toggle link
+        descriptionParagraph.style.maxHeight = 'none';
+        descriptionParagraph.classList.remove('clamped-text');
+        descriptionParagraph.dataset.isExpanded = 'false'; // Not expanded because not clamped
+        const toggleLink = descriptionWrapper.querySelector('.read-more-toggle');
+        if (toggleLink) toggleLink.style.display = 'none'; // Hide it
+    }
+}
+</script>
+
 </div>
-<section id="categories" class="section">
-    <div class="container">
-        
-
-        <div class="row gy-3">
-            <!-- First Item -->
-            <div class="col-md-3 col-sm-6">
-                <a href="#"
-                   hx-get="{% url 'posts_by_category' 'all' %}"
-                   hx-target="#content-container"
-                   hx-trigger="click"
-                   hx-swap="innerHTML"
-                   class="category-link btn btn-outline-secondary text-center w-100"
-                   style="color: #fff;  border-color: #1260CC; box-shadow: 0px 4px 6px #1260CC;">
-                    Tous les articles
-                </a>
-            </div>
-
-            <!-- Dynamic Items -->
-            {% for category in categories %}
-            <div class="col-md-3 col-sm-6">
-                <a href="#"
-                   hx-get="{% url 'posts_by_category' category.id %}"
-                   hx-target="#content-container"
-                   hx-trigger="click"
-                   hx-swap="innerHTML"
-                   class="category-link btn btn-outline-secondary text-center w-100"
-
-                   style="color: #fff;  border-color: #05012e; box-shadow: 0px 4px 6px #1260CC;">
-                    {{ category.name }}
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- Category Description -->
-<section id="category-description" class="section">
-    <div class="container">
-        {% if category %}
-        <h2 class="text-center section-title" style="font-weight: 700;">{{ category.name }}</h2>
-        <p class="text-center" style="font-size: 24px; font-family: Roboto; text-align: justify; line-height: 1.3; font-weight: 400;">{{ category.description }}</p>
-        {% endif %}
-    </div>
-</section>
-
-<!-- Section des Articles -->
-<section id="posts" class="section">
-    
-    <div class="container">
-
-        <h3 class="title text-center" style="margin-bottom: 50px">Articles</h3>
-        <div id="posts-container" class="row">
-            {% for post in ckposts %}
-            <div class="col-md-4">
-                <div class="card card-plain card-blog">
-                    <a href="{% url 'post_detail' post.slug %}">
-                        <div class="card-image">
-                            <div data-radius="none" class="card" style="
-              background-image: url('{{ media_url }}{{ post.image }}');
-              width: 100%;
-              height: 200px;
-              aspect-ratio: 16/9; 
-    background-size: cover;
-    background-position: center;
-              "></div>
-
-                            <div class="category text-info" href="{% url 'post_detail' post.slug %}"  style="margin-bottom: 20px;"></div>
-                            <h4 class="card-text text-center" style="font-weight: 600;">{{ post.title|safe }}</h4>
-                            <p class="card-text" style="text-align: justify; line-height: 0.8;" >{{ post.content|first_words:20|safe }}</p>
-                            <p class="text-muted">
-                                <small>{{ post.time|date:"d/m/Y H:i" }}</small>
-                            </p>
-                            <span
-                                    class="main-tag badge badge-primary">{{ post.category.name }}</span>
-                            <!-- <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
-                                more</a> -->
-
-                        </div>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        
-    </div>
-</section>
-
-<!-- Section des Articles Populaires -->
-<section id="top-posts" class="section bg-light">
-    <div class="container">
-        <h2 class="text-center section-title">Articles Populaires</h2>
-        <div id="top-posts-container" class="row">
-            {% for post in top_posts %}
-            <div class="col-md-4">
-                <div class="card card-plain card-blog">
-                    <a href="{% url 'post_detail' post.slug %}">
-                        <div class="card-image">
-                            <div data-radius="none" class="card" style="
-              background-image: url('{{ media_url }}{{ post.image }}');
-              width: 100%;
-              height: 200px;
-              aspect-ratio: 16/9; 
-    background-size: cover;
-    background-position: center;
-              "></div>
-
-                            <div class="category text-info" href="{% url 'post_detail' post.slug %}"  style="margin-bottom: 20px;"></div>
-                            <h4 class="card-text text-center" style="font-weight: 600;">{{ post.title|safe }}</h4>
-                            <p class="card-text" style="text-align: justify; line-height: 0.8;">{{ post.content|first_words:20|safe }}</p>
-                            <p class="text-muted">
-                                <small>{{ post.time|date:"d/m/Y H:i" }}</small>
-                            </p>
-                            <span
-                                    class="main-tag badge badge-primary">{{ post.category.name }}</span>
-                            <!-- <a href="{% url 'post_detail' post.slug %}" class="btn-round btn btn-danger btn-sm">Read
-                                more</a> -->
-
-                        </div>
-                    </a>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    
-</section>

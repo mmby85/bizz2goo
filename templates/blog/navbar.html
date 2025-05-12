@@ -4,15 +4,19 @@
 <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
     <div class="container">
         <div class="navbar-header">
-           <img
-            src = '{% static 'blog/assets/img/logo test.png' %}'>
-
-           </img>
-
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbarCollapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/"> {# Often the logo is also a link to home #}
+               <img src="{% static 'blog/assets/img/logo test.png' %}" alt="Site Logo" style="height: 30px; margin-top: -5px; display: inline-block;"> {# Added alt and some basic styling for inline display and size #}
+            </a>
+            {# Removed the invalid </img> tag #}
         </div>
 
-
-        <div class="collapse navbar-collapse">
+        <div class="collapse navbar-collapse" id="myNavbarCollapse"> {# Added ID here #}
             <ul class="nav navbar-nav navbar-right">
                 <li>
                     <a href="/">
@@ -27,8 +31,8 @@
 
                 {% if user.is_authenticated %}
                     {% if user.is_staff or user|has_author_profile %}
-                        <li class="nav-item">
-                          <a class="nav-link" href="{% url 'create_post' %}">Create Post</a>
+                        <li class="nav-item"> {# Bootstrap 3 would typically just use <li> without nav-item #}
+                          <a class="nav-link" href="{% url 'create_post' %}">Create Post</a> {# Bootstrap 3 a tags don't need nav-link class #}
                         </li>
                     {% endif %}
 
