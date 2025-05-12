@@ -103,3 +103,49 @@ class CategoryForm(forms.ModelForm):
         model = Category
         fields = '__all__'
         # You can specify fields to exclude if needed
+
+
+# blog/forms.py
+from django import forms
+
+PROFILE_CHOICES = [
+    ('porteur_projet', 'Porteur de projet'),
+    ('structure_accompagnement', "Structure d'accompagnement (Incubateur, Pépinière, Technopole...)"),
+    ('organisme_financement', 'Organisme de financement (Banque, Micro-Finance, SICAR...)'),
+]
+
+class LeadGenerationForm(forms.Form):
+    profil = forms.ChoiceField(
+        choices=PROFILE_CHOICES,
+        widget=forms.RadioSelect(attrs={'class': 'form-check-input'}), # For radio buttons
+        label="Profil"
+    )
+    email = forms.EmailField(
+        label="Email *",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email *'})
+    )
+    nom_prenom = forms.CharField(
+        label="Nom et prénom",
+        required=False, # Assuming this is optional based on screenshot (no asterisk)
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom et prénom'})
+    )
+    telephone = forms.CharField(
+        label="Téléphone",
+        required=False, # Assuming optional
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Téléphone'})
+    )
+    gouvernorat = forms.CharField(
+        label="Gouvernorat",
+        required=False, # Assuming optional
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Gouvernorat'})
+    )
+    # You might want to add a hidden field for the source of the lead, e.g., which ad they clicked
+    # source_ad_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Optional: if you want to style the radio select label differently or add a general class
+        # self.fields['profil'].widget.attrs.update({'class': 'profile-radio-group'})
+        # For individual radio buttons, you might need custom widget rendering or JS.
+        # The default rendering of RadioSelect will create <li> or <p> tags around each input and label.
+        # You'll style these in your CSS.

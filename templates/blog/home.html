@@ -5,54 +5,95 @@
 
 {% block body %}
 
+<style>
+    /* Global or Base Styles (Consider moving to a main CSS file) */
+    .partner-section { /* Existing style */
+        background: #f8f9fa; padding: 80px 0; overflow: hidden;
+    }
+    .partner-grid { /* Existing style */
+        display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 0 1rem;
+    }
+    .partner-item { /* Existing style */
+        flex: 0 1 180px; margin: 1rem; padding: 1rem; transition: all 0.3s ease;
+    }
+    .logo-container { /* Existing style */
+        width: 100%; padding-bottom: 60%; position: relative; background: white;
+        border-radius: 8px; overflow: hidden;
+    }
+    .partner-logo { /* Existing style */
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        max-width: 95%; max-height: 95%; object-fit: contain; filter: grayscale(100%);
+        transition: all 0.3s ease;
+    }
+    .partner-item:hover .partner-logo { /* Existing style */
+        filter: grayscale(0%); transform: translate(-50%, -50%) scale(1.05);
+    }
+    @media (max-width: 768px) { .partner-item { flex-basis: 140px; } }
 
-<div class="">
+    /* Styles for new bottom ad section */
+    .bottom-ad-section {
+        margin-top: 40px;
+        padding: 20px 0;
+        text-align: center;
+        background-color: #f8f9fa; /* Optional: background color */
+    }
+    .bottom-ad-section img {
+        max-width: 100%; /* Responsive image */
+        /* max-height: 200px; Example max height for banner */
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .bottom-ad-section a {
+        display: inline-block; /* Ensure link wraps image correctly */
+    }
+</style>
 
-    {% include "blog/articlesTabV2htmx.html" %}
-
+<div class=""> {# This div might be for overall page padding or structure #}
+    {# This is where the dynamic content including posts and sidebar will be loaded/updated #}
+    {# The id="content-container" is inside articlesTabV2htmx.html and is the target for HTMX swaps #}
+    {% include "blog/articlesTabV2htmx.html" with ckposts=ckposts category=category sidebar_ads=sidebar_ads top_posts=top_posts categories=categories media_url=media_url %}
 </div>
 
 <div class="main main-raised">
-
-   
-    <div class="team-5 section-image" 
-    style="background-image: url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});">
+    
+   <!-- Section Nos Rédacteurs -->
+<div class="authors-section" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});">
     <div class="container">
-        <div class="row">
+        <h2 class="section-title text-center mb-5">Nos Rédacteurs</h2>
+        <div class="row g-4 justify-content-center">
             {% for author in top_authors %}
-            <div class="col-md-6">
-                <div class="card card-profile card-plain">
-                    <div class="col-md-5">
-                        <div class="card-image">
-                            <a href="{% url 'author_profile' author.user.username %}">
-                                <img class="img" src="{{ author.profile_picture.url }}" alt="{{ author.user.username }}" />
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-7">
-                        <div class="card-content">
-                            <h4 class="card-title">{{ author.user.username }}</h4>
-                            <h6 class="category text-muted">Auteur de mois</h6>
-                            <p class="card-description">
-                                {{ author.bio|truncatewords:20 }}
-                            </p>
-                            <div class="footer">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-2">
+                <div class="author-card">
+                    <div class="card-inner">
+                        <div class="author-image">
+                            <img src="{% if author.profile_picture %}{{ author.profile_picture.url }}{% else %}{% static 'blog/assets/img/default-avatar.png' %}{% endif %}" 
+                                 alt="{{ author.user.username }}" 
+                                 class="img-fluid">
+                            <div class="social-links">
                                 {% if author.twitter %}
-                                    <a href="{{ author.twitter }}" class="btn btn-just-icon btn-simple btn-white">
-                                        <i class="fa fa-twitter"></i>
-                                    </a>
+                                <a href="{{ author.twitter }}" target="_blank" class="social-icon">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
                                 {% endif %}
                                 {% if author.facebook %}
-                                    <a href="{{ author.facebook }}" class="btn btn-just-icon btn-simple btn-white">
-                                        <i class="fa fa-facebook-square"></i>
-                                    </a>
+                                <a href="{{ author.facebook }}" target="_blank" class="social-icon">
+                                    <i class="fab fa-facebook-f"></i>
+                                </a>
                                 {% endif %}
                                 {% if author.gmail %}
-                                    <a href="mailto:{{ author.gmail }}" class="btn btn-just-icon btn-simple btn-white">
-                                        <i class="fa fa-google"></i>
-                                    </a>
+                                <a href="mailto:{{ author.gmail }}" class="social-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </a>
                                 {% endif %}
                             </div>
+                        </div>
+                        <div class="author-info">
+                            <h3 class="author-name">{{ author.user.get_full_name|default:author.user.username }}</h3>
+                            <p class="author-role">{{ author.metier }}</p>
+                            <a href="{% url 'author_profile' author.user.username %}" class="profile-link">
+                                Voir le profil <i class="fas fa-arrow-right"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -62,33 +103,210 @@
     </div>
 </div>
 
-    <div class="subscribe-line">
+<style>
+    .authors-section {
+        padding: 4rem 0;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+
+    .section-title {
+        font-size: 2.5rem;
+        color: #fff;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .author-card {
+        position: relative;
+        height: 100%;
+        transition: transform 0.3s ease;
+    }
+
+    .card-inner {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .author-card:hover .card-inner {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
+    }
+
+    .author-image {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .author-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .author-card:hover .author-image img {
+        transform: scale(1.05);
+    }
+
+    .social-links {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 15px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .author-card:hover .social-links {
+        opacity: 1;
+    }
+
+    .social-icon {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        transition: all 0.3s ease;
+    }
+
+    .social-icon:hover {
+        background: #fff;
+        transform: translateY(-3px);
+    }
+
+    .author-info {
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .author-name {
+        color: #fff;
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .author-role {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-link {
+        color: #fff;
+        text-decoration: none;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.3s ease;
+    }
+
+    .profile-link:hover {
+        color: #00c9ff;
+    }
+
+    @media (max-width: 768px) {
+        .author-image {
+            height: 200px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+    <!-- Partners Section -->
+    <section class="partner-section">
+        <div class="container">
+            <h2 class="text-center mb-5 section-title" style="font-size: 3rem; margin-bottom: 32px; font-weight: 600; color: #3c4858;">
+                Nos Partenaires
+            </h2>
+            <div class="partner-grid">
+                <!-- Partner 1 -->
+                <div class="partner-item">
+                    <a href="https://www.facebook.com/Projecto.tn/" target="_blank" class="d-block">
+                        <div class="logo-container">
+                            <img src="{% static 'blog/assets/img/Logo projecto.png' %}" alt="Projecto.tn" class="partner-logo">
+                        </div>
+                    </a>
+                </div>
+                <!-- Partner 2 -->
+                <div class="partner-item">
+                    <a href="https://www.facebook.com/GeecEvent/" target="_blank" class="d-block">
+                        <div class="logo-container">
+                            <img src="{% static 'blog/assets/img/Logo GEEC.jpg' %}" alt="Geec Event" class="partner-logo">
+                        </div>
+                    </a>
+                </div>
+                <!-- Partner 3, 4, 5 (Example) -->
+                <div class="partner-item">
+                    <a href="https://curvesnsmiles.com/" target="_blank" class="d-block">
+                        <div class="logo-container">
+                            <img src="{% static 'blog/assets/img/image 6 (5).png' %}" alt="Curves n Smiles" class="partner-logo">
+                        </div>
+                    </a>
+                </div>
+                {# Add more partners as needed #}
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW: Bottom Advertisement Section -->
+    {% if bottom_home_ad %}
+    <section class="bottom-ad-section">
+        <div class="container">
+            {% if bottom_home_ad.url %}
+                <a href="{{ bottom_home_ad.url }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ bottom_home_ad.image.url }}" alt="{{ bottom_home_ad.title }}">
+                </a>
+            {% else %}
+                <img src="{{ bottom_home_ad.image.url }}" alt="{{ bottom_home_ad.title }}">
+            {% endif %}
+        </div>
+    </section>
+    {% endif %}
+
+    <div class="subscribe-line"> {# Assuming 'hidden' class controls visibility via JS/CSS #}
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <h3 class="title">Get Tips & Tricks every Week!</h4>
-                        <p class="description">
-                            Join our newsletter and get news in your inbox every week! We hate spam too, so no
-                            worries about this.
-                        </p>
+                    <h3 class="title" style="font-family: Roboto;">🚀 La Newsletter GOZONE</h3>
+                    <p class="description">
+                        Actus, conseils, outils : tout ce qu’il vous faut pour avancer dans le business, sans bruit inutile.
+                        📩 Abonnez-vous à notre newsletter — on l’envoie seulement quand on a du vrai contenu à partager.
+                    </p>
                 </div>
                 <div class="col-md-6">
                     <div class="card card-plain card-form-horizontal">
                         <div class="card-content">
-                            <form method action>
+                            <form method="POST" action=""> {# Add your newsletter form action #}
+                                {% csrf_token %} {# If this is a Django form submission #}
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="input-group">
-                                            <span class="input-group-addon">
-                                                <i class="material-icons">mail</i>
-                                            </span>
-                                            <input type="email" value placeholder="Your Email..."
-                                                class="form-control" />
+                                            <span class="input-group-addon"><i class="material-icons">mail</i></span>
+                                            <input type="email" name="email" placeholder="Votre Email..." class="form-control" required />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="button"
-                                            class="btn btn-primary btn-round btn-block">Subscribe</button>
+                                        <button type="submit" class="btn btn-primary btn-round btn-block">S’abonner</button>
                                     </div>
                                 </div>
                             </form>
@@ -99,5 +317,4 @@
         </div>
     </div>
 </div>
-
 {% endblock %}

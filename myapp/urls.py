@@ -37,5 +37,7 @@ urlpatterns = [
     path("post/delete/<int:id>",views.deletepost,name="deletepost"),
     path("contact",views.contact_us,name="contact"),
     path('get_subcategories/', views.get_subcategories, name='get_subcategories'),
+    path('contactez-nous/creation-societe/', views.lead_generation_form_view, name='lead_generation_form'),
+
     
 ]

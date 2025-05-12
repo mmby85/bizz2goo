@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from .models import Post, Comment, Contact, AuthorProfile, CKPost, SubCategory, Category
+from .models import Post, Comment, Contact, AuthorProfile, CKPost, SubCategory, Category, Advertisement
 from ckeditor.widgets import CKEditorWidget
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -34,6 +34,29 @@ class AuthorProfileInline(admin.StackedInline):
     can_delete = False
     verbose_name_plural = 'Author Profile'
     fk_name = 'user'  # Explicitly specify the foreign key
+
+# blog/admin.py
+@admin.register(Advertisement)
+class AdvertisementAdmin(admin.ModelAdmin):
+    list_display = ('title', 'position', 'link_type', 'category', 'is_active', 'display_order', 'created_at')
+    list_filter = ('is_active', 'position', 'category', 'link_type')
+    search_fields = ('title',)
+    # Define fieldsets for better organization in admin
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'image', 'is_active', 'position', 'display_order')
+        }),
+        ('Lien de l\'annonce', {
+            'fields': ('link_type', 'external_url'),
+            'description': "Si 'Formulaire Interne' est choisi, l'URL externe sera ignorée. "
+                           "Si 'Lien Externe' est choisi, l'URL externe est requise."
+        }),
+        ('Ciblage (Optionnel)', {
+            'classes': ('collapse',), # Make it collapsible
+            'fields': ('category',),
+        }),
+    )
+    list_editable = ('is_active', 'display_order')
 
 
 # Extend the UserAdmin to include the AuthorProfile inline

@@ -21,7 +21,7 @@
                 
                 <div class="category text-info" style ="margin-bottom: 20px;"><span class="main-tag badge badge-primary">{{ post.category.name }}</span></div>
                 <h4 class="card-text">{{ post.title|safe }}</h4>
-                <p class="card-text">{{ post.content|first_words:20|safe }}</p>
+                <p class="card-text" style="text-align: justify; line-height: 0.8;">{{ post.content|first_words:20|safe }}</p>
                 <p class="text-muted">
                 <small>{{ post.time|date:"d/m/Y H:i" }}</small>
                 </p>

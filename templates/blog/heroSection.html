@@ -1,12 +1,12 @@
 {% load static %}
 
-<div id="hero-section" class="page-header header-filter header-small" data-parallax="true"
-     style="background-image: url('{% if category and category.image %}{{ category.image.url }}{% else %}{% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %}{% endif %}');">
+<div id="hero-section" class="page-header header-filter " data-parallax="true"
+     style="background-image: url('{% if category and category.image %}{{ category.image.url }}{% else %}{% static 'blog/assets/img/Homepage.jpg' %}{% endif %}');height: 75vh;">
     <div class="container">
         <div class="row">
             <div class="col-md-8 col-md-offset-2 text-center">
-                <h2 class="title">A Place for Entrepreneurs to Share and Discover New Stories</h1>
-                <p>Category: {% if category %}{{ category.name }}{% else %}All{% endif %}</p>
+                <h2 class="title">Where leaders, entrepreneurs and managers grow and inspire</h1>
+                <!-- <p>Category: {% if category %}{{ category.name }}{% else %}All{% endif %}</p> -->
             </div>
         </div>
     </div>
