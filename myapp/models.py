@@ -84,6 +84,7 @@ class Advertisement(models.Model):
     POSITION_CHOICES = [
         ('sidebar', 'Sidebar Ad (Vertical)'),
         ('bottom_banner_home', 'Bottom Banner Home (Horizontal)'),
+        ('bottom_banner_category', 'Bottom Banner Category (Horizontal)'), # <-- NEW
     ]
 
     title = models.CharField(max_length=200, help_text="Internal title for the ad.")
@@ -95,12 +96,10 @@ class Advertisement(models.Model):
         default='external',
         help_text="Choisir si l'annonce redirige vers un lien externe ou le formulaire interne."
     )
-    # Renamed 'url' to 'external_url' for clarity
     external_url = models.URLField(
         blank=True, null=True, 
         help_text="URL externe (si 'Lien Externe Personnalisé' est choisi)."
     )
-    # Removed the old 'url' field
 
     is_active = models.BooleanField(default=True, help_text="Is this ad currently active?")
     position = models.CharField(
@@ -110,11 +109,11 @@ class Advertisement(models.Model):
         help_text="Where this ad will be displayed."
     )
     category = models.ForeignKey(
-        'Category', # Use string if Category is defined later in the file or to avoid circular import
-        on_delete=models.SET_NULL,
+        'Category',
+        on_delete=models.SET_NULL, # Important: if category deleted, ad isn't deleted but category link is lost
         blank=True, null=True,
         related_name="advertisements",
-        help_text="Optional: Show this ad ONLY when this category is active (for sidebar ads)."
+        help_text="Required for 'Bottom Banner Category' & optional for 'Sidebar Ad'. Specifies which category this ad is tied to."
     )
     display_order = models.IntegerField(default=0, help_text="Order of display (lower numbers first).")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -124,26 +123,23 @@ class Advertisement(models.Model):
 
     def get_absolute_url(self):
         if self.link_type == 'internal_form':
-            return reverse('lead_generation_form') # Assuming your URL name is 'lead_generation_form'
-            # If you want to pass ad_id:
-            # return f"{reverse('lead_generation_form')}?ad_id={self.id}"
+            return reverse('lead_generation_form')
         elif self.link_type == 'external' and self.external_url:
             return self.external_url
-        return None # Or '#' or some default if no link is appropriate
+        return None
 
     class Meta:
         ordering = ['position', 'category', 'display_order', '-created_at']
 
-    # Clean method to ensure external_url is provided if link_type is 'external'
     def clean(self):
         from django.core.exceptions import ValidationError
         if self.link_type == 'external' and not self.external_url:
             raise ValidationError({'external_url': "L'URL externe est requise lorsque le type de lien est 'Lien Externe Personnalisé'."})
-        if self.link_type == 'internal_form' and self.external_url:
-            # Optionally clear external_url if internal form is chosen
-            # self.external_url = None 
-            pass # Or raise a warning/error if both are set when not needed
-
+        
+        # Ensure category is set for bottom_banner_category ads
+        if self.position == 'bottom_banner_category' and not self.category:
+            raise ValidationError({'category': "Une catégorie doit être associée pour les 'Bottom Banner Category'."})
+        
 class CKPost(models.Model):
     title = models.CharField(max_length=600)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True,

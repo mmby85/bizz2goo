@@ -50,26 +50,44 @@
         <hr><br>
           <div class="media">
             <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
-              <div class="avatar big-avatar" style="width: 90px;height: 90px;">
+              <div class="avatar big-avatar" style="width: 110px;height: 110px;">
                 {% if author_profile.profile_picture %}
-                  <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture">
+                  <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture" style="width: 110%;">
                 {% endif %}
               </div>
             </a>
             <div class="media-body">
               <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
                 <a href="{% url 'author_profile' author_profile.user.username %}">
-                  {{ author_profile.user.username }}
+                  {{ author_profile.user.get_full_name|default:author_profile.user.username }}
                 </a>
               </h4>
               {% if author_profile.bio %}
-                <p>{{ author_profile.bio }}</p>
+                <p>{{ author_profile.metier }}</p>
               {% endif %}
             </div>
           </div>
           <hr><br>
       </div>
       {% endif %}
+
+
+<!-- Bottom Category Advertisement Section for Post Detail -->
+{% if bottom_category_ad %}
+<section class="bottom-ad-section-post-detail" style="padding: 30px 0; text-align: center; background-color: #f8f9fa; margin-top: 2rem;">
+    <div class="container">
+        {% with ad_url=bottom_category_ad.get_absolute_url %}
+            {% if ad_url %}
+                <a href="{{ ad_url }}" {% if bottom_category_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                    <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+                </a>
+            {% else %}
+                <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+            {% endif %}
+        {% endwith %}
+    </div>
+</section>
+{% endif %}
 
       <!-- Comments Section -->
       <div class="row" style="margin-left: 100px; margin-right: 100px;">
