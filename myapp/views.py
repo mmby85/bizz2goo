@@ -54,6 +54,8 @@ def index(request):
     })
 
 
+# blog/views.py
+
 def new_index(request):
     categories = Category.objects.all()
     top_authors = (
@@ -62,68 +64,56 @@ def new_index(request):
         .order_by('-total_likes')
     )
 
-    # Initial category for hero section and potentially for initial post/ad loading
-    # Try to get "Featured", then first, then None
     initial_hero_category = None
     try:
-        initial_hero_category = Category.objects.get(name="Featured")
+        initial_hero_category = Category.objects.get(name="Featured") # Or your preferred default
     except Category.DoesNotExist:
         initial_hero_category = Category.objects.first()
 
-    # For the initial load of articlesTabV2htmx.html:
-    # Option 1: Show "All" posts initially
     ckposts_initial = CKPost.objects.all().order_by("-time")
-    category_for_initial_tab_content = None # This tells articlesTab to use general titles/descriptions
+    category_for_initial_tab_content = None 
     top_posts_initial = CKPost.objects.all().order_by("-likes")[:3]
-
-    # Option 2: Show posts from initial_hero_category initially (Uncomment to use)
-    # if initial_hero_category:
-    #     ckposts_initial = CKPost.objects.filter(category=initial_hero_category).order_by("-time")
-    #     category_for_initial_tab_content = initial_hero_category
-    #     top_posts_initial = CKPost.objects.filter(category=initial_hero_category).order_by("-likes")[:3]
-    # else: # Fallback if no initial_hero_category
-    #     ckposts_initial = CKPost.objects.all().order_by("-time")
-    #     category_for_initial_tab_content = None
-    #     top_posts_initial = CKPost.objects.all().order_by("-likes")[:3]
-
-
-    # Fetch bottom banner ad for home page
-    bottom_home_ad = Advertisement.objects.filter(
-        position='bottom_banner_home',
-        is_active=True
-    ).order_by('display_order', '?').first() # '?' for random if multiple ads match
-
-    # Fetch initial sidebar ads
-    # Priority: Ads for category_for_initial_tab_content (if any), then general ads
     sidebar_ads_initial = Advertisement.objects.none()
-    if category_for_initial_tab_content:
+    bottom_category_ad_initial = None # For the included articlesTab
+
+    # If you have a default category for the initial tab content (e.g., "Featured")
+    # And want to show its specific bottom ad in the tab content.
+    # Example: if initial_hero_category should dictate the tab content
+    # category_for_initial_tab_content = initial_hero_category 
+    # if category_for_initial_tab_content:
+    #     ckposts_initial = CKPost.objects.filter(category=category_for_initial_tab_content).order_by("-time")
+    #     top_posts_initial = CKPost.objects.filter(category=category_for_initial_tab_content).order_by("-likes")[:3]
+    #     sidebar_ads_initial = Advertisement.objects.filter(
+    #         position='sidebar', is_active=True, category=category_for_initial_tab_content
+    #     ).order_by('display_order')
+    #     bottom_category_ad_initial = Advertisement.objects.filter(
+    #         position='bottom_banner_category', is_active=True, category=category_for_initial_tab_content
+    #     ).order_by('display_order', '?').first()
+
+
+    if not sidebar_ads_initial.exists(): # Fallback to general sidebar ads if no specific ones
         sidebar_ads_initial = Advertisement.objects.filter(
-            position='sidebar',
-            is_active=True,
-            category=category_for_initial_tab_content
+            position='sidebar', is_active=True, category__isnull=True
         ).order_by('display_order')
-    
-    if not sidebar_ads_initial.exists(): # Fallback to general sidebar ads
-        sidebar_ads_initial = Advertisement.objects.filter(
-            position='sidebar',
-            is_active=True,
-            category__isnull=True
-        ).order_by('display_order')
+
+    # This is the main bottom ad for the home page itself, distinct from tab content
+    bottom_home_ad_main = Advertisement.objects.filter(
+        position='bottom_banner_home', is_active=True
+    ).order_by('display_order', '?').first()
 
     context = {
-        'categories': categories,         # For category filter buttons in articlesTab
-        'top_authors': top_authors,       # For "Nos Rédacteurs" section in home.html
+        'categories': categories,
+        'top_authors': top_authors,
         'media_url': settings.MEDIA_URL,
         
-        # Context for the {% include "blog/articlesTabV2htmx.html" %}
         'ckposts': ckposts_initial,
-        'category': category_for_initial_tab_content, # For hero, description, titles within articlesTab
+        'category': category_for_initial_tab_content,
         'sidebar_ads': sidebar_ads_initial,
-        'top_posts': top_posts_initial, # For "Articles Populaires" within articlesTab
+        'top_posts': top_posts_initial,
+        'bottom_category_ad': bottom_category_ad_initial, # Pass this to articlesTabV2htmx.html
 
-        # Context for home.html specific sections
-        'bottom_home_ad': bottom_home_ad,
-        'initial_hero_category': initial_hero_category, # if hero is outside articlesTab and needs its own category
+        'bottom_home_ad': bottom_home_ad_main, # For the home.html's own bottom ad
+        'initial_hero_category': initial_hero_category,
     }
     return render(request, "blog/home.html", context)
 
@@ -217,58 +207,59 @@ def create_old(request):
         return render(request, "create_old.html", context={"form": form})
 
 
+# blog/views.py
+
 def posts_by_category(request, id):
     media_url = settings.MEDIA_URL
-    all_categories_for_filters = Category.objects.all() # For the category filter buttons
+    all_categories_for_filters = Category.objects.all()
     
-    current_view_category = None # The category object for the current view (e.g., for title, description)
-    ckposts_list = CKPost.objects.all() # Base queryset
+    current_view_category = None
+    ckposts_list = CKPost.objects.all()
     top_posts_list = None
+    sidebar_ads_list = Advertisement.objects.none()
+    bottom_category_ad = None # Initialize
 
     if id == 'all':
         ckposts_list = ckposts_list.order_by("-time")
-        current_view_category = None # No specific category selected
-        # For 'all', show general sidebar ads (category is Null)
+        current_view_category = None
         sidebar_ads_list = Advertisement.objects.filter(
-            position='sidebar',
-            is_active=True,
-            category__isnull=True
+            position='sidebar', is_active=True, category__isnull=True
         ).order_by('display_order')
         top_posts_list = CKPost.objects.all().order_by("-likes")[:3]
+        # No specific bottom_category_ad for "all"
     else:
         current_view_category = get_object_or_404(Category, id=id)
         ckposts_list = ckposts_list.filter(category=current_view_category).order_by("-time")
         
-        # Fetch ads for this specific category first
         sidebar_ads_list = Advertisement.objects.filter(
-            position='sidebar',
-            is_active=True,
-            category=current_view_category
+            position='sidebar', is_active=True, category=current_view_category
         ).order_by('display_order')
-        
-        # If no specific ads for this category, fetch general sidebar ads
         if not sidebar_ads_list.exists():
             sidebar_ads_list = Advertisement.objects.filter(
-                position='sidebar',
-                is_active=True,
-                category__isnull=True
+                position='sidebar', is_active=True, category__isnull=True
             ).order_by('display_order')
         
         top_posts_list = CKPost.objects.filter(category=current_view_category).order_by("-likes")[:3]
-        # Fallback for top posts if category has posts but no liked ones
         if not top_posts_list.exists() and ckposts_list.exists():
             top_posts_list = ckposts_list.order_by("-likes")[:3] 
-        elif not top_posts_list.exists(): # If no posts in category at all
-             top_posts_list = CKPost.objects.none()
+        elif not top_posts_list.exists():
+            top_posts_list = CKPost.objects.none()
 
+        # Fetch the bottom banner ad for this category
+        bottom_category_ad = Advertisement.objects.filter(
+            position='bottom_banner_category',
+            is_active=True,
+            category=current_view_category
+        ).order_by('display_order', '?').first() # '?' for random if multiple
 
     context = {
         'ckposts': ckposts_list,
         'media_url': media_url,
-        'categories': all_categories_for_filters, # For re-rendering category links
-        'category': current_view_category,   # For hero, description, titles
+        'categories': all_categories_for_filters,
+        'category': current_view_category,
         'sidebar_ads': sidebar_ads_list,
-        'top_posts': top_posts_list,     # For "Articles Populaires" section
+        'top_posts': top_posts_list,
+        'bottom_category_ad': bottom_category_ad, # Add to context
     }
     return render(request, 'blog/articlesTabV2htmx.html', context)
 
@@ -556,22 +547,31 @@ def add_comment(request):
     return JsonResponse({"error": "Invalid request method."}, status=405)
 
 
+# blog/views.py
+
 def post_detail(request, slug):
     post = get_object_or_404(CKPost, slug=slug)
     author_profile = None
     can_edit = False
 
-    # Check if user is authenticated and is the author
     if request.user.is_authenticated and request.user == post.user:
         can_edit = True
 
-    # Get author profile if exists
     if post.user and hasattr(post.user, 'authorprofile'):
         author_profile = post.user.authorprofile
 
     related_posts = CKPost.objects.filter(category=post.category).exclude(slug=post.slug)[:3]
     top_level_comments = post.comments.filter(parent__isnull=True)
     media_url = "/media/"
+
+    # Fetch the bottom banner ad for this post's category
+    bottom_category_ad = None
+    if post.category: # Ensure post has a category
+        bottom_category_ad = Advertisement.objects.filter(
+            position='bottom_banner_category',
+            is_active=True,
+            category=post.category
+        ).order_by('display_order', '?').first()
 
     context = {
         "post": post,
@@ -580,6 +580,7 @@ def post_detail(request, slug):
         "media_url": media_url,
         "top_level_comments": top_level_comments,
         "can_edit": can_edit,
+        "bottom_category_ad": bottom_category_ad, # Add to context
     }
     return render(request, "blog/post-detail.html", context)
 

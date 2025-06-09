@@ -8,85 +8,115 @@
         .posts-and-sidebar-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 2.5rem;
+            gap: 2.5rem; /* Adjust gap as needed */
         }
 
         .main-posts-content {
-            flex-grow: 4;
+            flex-grow: 4;  /* Allows main content to take more space */
             flex-shrink: 1;
-            flex-basis: 0%;
-            min-width: 0;
+            flex-basis: 0%; /* Allows flex-grow to dictate size */
+            min-width: 0; /* Important for flex items to shrink below content size */
         }
 
         .sidebar-ads-column {
-            flex-grow: 1;
+            flex-grow: 1;  /* Allows sidebar to take less space */
             flex-shrink: 1;
             flex-basis: 0%;
-            min-width: 220px;
+            min-width: 220px; /* Minimum width before wrapping/shrinking further */
         }
 
         .sidebar-ads-column .sidebar-sticky-content {
             position: sticky;
-            top: 20px;
+            top: 20px; /* Adjust based on your header height */
+            /* Consider adding height constraints or overflow handling if sidebar content is very long */
         }
 
         .sidebar-ad-item img {
-            width: 100%;
-            height: auto;
+            width: 100%; /* Make image fill the container width */
+            max-width: 300px; /* Optional: Set a max-width if needed */
+            height: auto; /* Maintain aspect ratio */
             margin-bottom: 15px;
-            margin-left: 95px;
+            /* Removed fixed margin-left: 95px; for responsiveness */
+            margin-left: auto;  /* Center the image if its width is less than container */
+            margin-right: auto; /* Center the image if its width is less than container */
+            display: block; /* Needed for auto margins to work for centering */
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            object-fit: cover;
+            object-fit: cover; /* Cover ensures the image covers the area nicely */
         }
         .sidebar-ad-item a {
-            display: block;
+            display: block; /* Ensures the link takes up block space */
+            text-align: center; /* Helps in centering the image if needed */
         }
 
         /* Responsive adjustments */
-        @media (max-width: 991px) {
+        @media (max-width: 991px) { /* Stacks columns on medium screens and below (Bootstrap lg breakpoint) */
             .posts-and-sidebar-container {
                 flex-direction: column;
-                gap: 2rem;
+                gap: 2rem; /* Adjust vertical gap when stacked */
             }
             .main-posts-content,
             .sidebar-ads-column {
                 flex-grow: 1;
-                flex-basis: 100%;
+                flex-basis: 100%; /* Each takes full width */
                 min-width: 100%;
             }
             .sidebar-ads-column {
-                margin-top: 2rem;
+                margin-top: 2rem; /* Space between content and sidebar when stacked */
+                min-width: unset; /* Reset min-width when stacked */
             }
+             .sidebar-ads-column .sidebar-sticky-content {
+                 position: static; /* Disable sticky positioning on smaller screens */
+             }
+             .sidebar-ad-item img {
+                 /* You might want to adjust max-width or margins specifically for mobile */
+                 max-width: 100%; /* Ensure image doesn't overflow its container */
+             }
         }
 
         /* Card image styling */
         .card-img-top-custom {
             width: 100%;
+            /* Using padding-bottom for aspect ratio (56.25% = 16:9) */
             padding-bottom: 56.25%;
             background-size: cover;
             background-position: center;
-            border-radius: 8px;
+            border-radius: 8px; /* Match this with card's border-radius if any */
+            display: block; /* Ensure it behaves like a block element */
+        }
+
+        /* Card content styling - Keeping original styles as requested */
+        .card-plain.card-blog {
+            display: flex; /* Ensure card itself is a flex container */
+            flex-direction: column; /* Stack image, body vertically */
+            height: 100%; /* Ensure cards in a row take same height */
         }
         .card-plain.card-blog .card-body {
             padding: 0.75rem 0.25rem;
+            flex-grow: 1; /* Allows body to expand and push footer down */
+            display: flex;
+            flex-direction: column;
         }
         .card-plain.card-blog .card-title {
             font-weight: 600;
             margin-bottom: 0.5rem;
             font-size: 18px;
-            line-height: 1.1;
-            color: #05012e;
+            line-height: 1.1; /* Tight line height for title */
+            color: #05012e; /* Original color */
+             text-align: center; /* Centering title */
         }
         .card-plain.card-blog .card-text {
-            text-align:center;
+            /* text-align:center; */ /* Removed text-align center from CSS, apply inline if needed per instance */
             line-height: 1.4;
             font-size: 16px;
-            color: #555;
+            color: #555; /* Original color */
             margin-bottom: 0.5rem;
+            flex-grow: 1; /* Allow text to take available space */
         }
         .card-plain.card-blog .text-muted {
             font-size: 12px;
+             margin-top: auto; /* Pushes the date/time to the bottom */
+             padding-top: 0.5rem; /* Add some space above the date */
         }
         .card-plain.card-blog .text-muted .material-icons {
             font-size: 1em;
@@ -94,14 +124,19 @@
             margin-right: 3px;
         }
         .card-plain.card-blog .badge {
-            margin-bottom: 0.75rem;
-            font-size: 1.2rem;
-            font-family: Roboto;
+            margin-bottom: 0rem; /* Adjusted margin */
+            margin-top: 0.75rem; /* Space above badge */
+            font-size: 1rem; /* Slightly smaller badge font */
+            font-family: Roboto; /* Original font */
+            align-self: center; /* Center badge horizontally */
         }
 
         /* Styles for category description and read-more toggle */
         #category-description-text {
             transition: max-height 0.35s ease-in-out;
+            /* text-align: justify; /* Justify text for better block appearance */
+            /* Removed text-align center */
+            line-height: 1.6; /* Slightly increased line-height for readability */
         }
 
         .clamped-text {
@@ -113,13 +148,40 @@
             text-align: center;
             margin-top: 10px;
             font-weight: bold;
-            color: #1260CC;
+            color: #1260CC; /* Original color */
             text-decoration: underline;
             cursor: pointer;
         }
-    </style>
 
+        /* Utility class for better spacing */
+        .section {
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        /* Ensure containers handle width fluidly */
+        .container {
+             max-width: 1140px; /* Standard Bootstrap lg max-width */
+             margin-left: auto;
+             margin-right: auto;
+             padding-left: 15px;
+             padding-right: 15px;
+             width: 100%; /* Ensures container takes full width on smaller screens */
+        }
+
+        /* Minor adjustments for button consistency */
+        .category-link.btn {
+             white-space: normal; /* Allow text wrapping on buttons if needed */
+             word-break: break-word;
+        }
+
+body{
+    background-color: #fff;
+}
+    </style>
 </head>
+
+<body> <!-- Added body tag for completeness -->
 
 <div id="content-container">
     <!-- Hero Section -->
@@ -151,7 +213,7 @@
                        hx-swap="innerHTML"
                        class="category-link btn btn-outline-secondary text-center w-100"
                        style="color: #fff;  border-color: #05012e;">
-                        {{ cat_item.name }}
+                        {{ cat_item.name|upper }}
                     </a>
                 </div>
                 {% endfor %}
@@ -161,20 +223,34 @@
 
     <!-- Category Description -->
     <section id="category-description-section" class="section">
-        <div class="container" style="width: 55%;">
-            {% if category %}
-                <h2 class="text-center section-title" style="font-weight: 600;color: #3c4858;font-family: Roboto;">{{ category.name }}</h2>
-                {% if category.description %}
+        <div class="" style="margin-left: 15%; margin-right: 15%;">
+            {% if category and category.description %}
+                {# Case 1: A specific category with its own description #}
+                <h2 class="text-center" style="font-weight: 600; color: #3c4858; font-family: Roboto;">{{ category.name|upper }}</h2>
                 <div id="category-description-wrapper" class="widget">
-                    <p id="category-description-text" class="text-center " style="font-size: 20px; font-family: Roboto; text-align: justify; line-height: 1.4; font-weight: 400;" data-is-expanded="false"> {# Added data-is-expanded #}
+                    <p id="category-description-text" class="text-center" style="font-size: 20px; font-family: Roboto; line-height: 1.4; font-weight: 400;" data-is-expanded="false">
                         {{ category.description|safe }}
                     </p>
                     {# "Lire plus" link will be added by JavaScript if needed #}
                 </div>
-                {% endif %}
             {% else %}
-                 <!-- <h2 class="text-center section-title" style="font-weight: 700;">Tous les Articles</h2>
-                 <p class="text-center" style="font-size: 1.1rem; font-family: 'IBM Plex Sans', sans-serif; text-align: justify; line-height: 1.5; font-weight: 400;">Découvrez nos dernières publications sur une variété de sujets passionnants.</p> -->
+                {# Case 2: No category selected (e.g. initial homepage load) OR a category is selected (e.g. "All Articles") but it lacks a specific .description #}
+                {% if category and category.name %}
+                    {# If a category object exists (e.g., 'All Articles' category from view), use its name, styled like other category names #}
+                    <h2 class="text-center" style="font-weight: 600; color: #3c4858; font-family: Roboto;">{{ category.name|upper }}</h2>
+                {% else %}
+                    {# Fallback title for true homepage / no category context at all. Styled as per original commented-out section. #}
+                    <h2 class="text-center" style="font-weight: 600; color: #3c4858; font-family: Roboto;">Bienvenue sur GOZONE</h2>
+                {% endif %}
+
+                <div id="category-description-wrapper" class="widget">
+                    <p id="category-description-text" class="text-center" style="font-size: 20px; font-family: Roboto; line-height: 1.4; font-weight: 400;" data-is-expanded="false">
+                        Premier blog en Tunisie et dans la région MENA 100 % dédié au Business Development & Management.
+                        Nous décryptons les mutations du marché pour vous livrer des contenus à forte valeur: articles engagés, guides pratiques, études de cas inspirantes, outils concrets.
+                        Entrepreneurs, managers, dirigeants de PME : explorez, innovez, réussissez à l’ère du digital.
+                    </p>
+                    {# "Lire plus" link will be added by JavaScript if this generic text is long enough #}
+                </div>
             {% endif %}
         </div>
     </section>
@@ -182,35 +258,36 @@
     <!-- Section des Articles & Sidebar -->
     <section id="posts-main-area" class="section">
         <div class="container">
-            <h3 class="title text-center" style="margin-bottom: 50px">
-                Articles
+            <h3 class="title text-center" style="margin-bottom: 50px ;font-weight: 600; color: #3c4858; font-family: Roboto;">
+                ARTICLES
             </h3>
             <div class="posts-and-sidebar-container">
                 <!-- Main Posts Column -->
                 <div class="main-posts-content">
-                    <div id="posts-container" class="row">
+                    <div id="posts-container" class="row gy-4"> <!-- Added gy-4 for vertical gap between posts -->
                         {% for post in ckposts %}
+                            {# Adjusted grid classes slightly for consistency if needed, but original looks fine #}
                             {% if sidebar_ads %}
-                                <div class="col-lg-6 col-md-6 col-sm-12 mb-4">
+                                <div class="col-lg-6 col-md-6 col-sm-12"> {# mb-4 removed, using gy-4 on row now #}
                             {% else %}
-                                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+                                <div class="col-lg-4 col-md-6 col-sm-12"> {# mb-4 removed, using gy-4 on row now #}
                             {% endif %}
-                                    <div class="card card-plain card-blog h-100">
-                                        <a href="{% url 'post_detail' post.slug %}" class="d-flex flex-column h-100">
+                                    <div class="card card-plain card-blog"> <!-- Removed h-100, relying on flex setup -->
+                                        <a href="{% url 'post_detail' post.slug %}" class="d-block"> <!-- Use d-block instead of flex column on link if card is flex -->
                                             <div class="card-image" style="margin-bottom: 15px;">
                                                 <div class="card-img-top-custom" style="
                                                     background-image: url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'blog/assets/img/placeholder-image.jpg' %}{% endif %}');">
                                                 </div>
                                             </div>
-                                            <div class="card-body d-flex flex-column">
-                                                <h4 class="card-title text-center">{{ post.title|safe }}</h4>
-                                                <p class="card-text text-center">
+                                            <div class="card-body">
+                                                <h4 class="card-title">{{ post.title|safe }}</h4> <!-- Removed text-center, handled by CSS -->
+                                                <p class="card-text"> <!-- Removed text-center, handled by CSS -->
                                                     {{ post.content|striptags|truncatewords_html:20|safe }}
                                                 </p>
-                                                <p class="text-muted mt-auto ">
+                                                <p class="text-muted"> <!-- Removed mt-auto, handled by flex-grow on body elements -->
                                                     <span><i class="material-icons">access_time</i> {{ post.time|date:"d M Y" }}</span>
                                                 </p>
-                                                <span class="badge badge-primary text-center" style="background-color: #000066;">{{ post.category.name }}</span>
+                                                <span class="badge badge-primary" style="background-color: #000066;">{{ post.category.name|upper }}</span> <!-- Removed text-center, handled by CSS -->
                                             </div>
                                         </a>
                                     </div>
@@ -250,26 +327,26 @@
     <!-- Section des Articles Populaires -->
     <section id="top-posts" class="section bg-light">
         <div class="container">
-            <h3 class="title text-center">Articles Populaires</h3>
-            <div id="top-posts-container" class="row">
+            <h3 class=" text-center" style="font-weight: 600; color: #3c4858; font-family: Roboto;">ARTICLES POPULAIRES</h3>
+            <div id="top-posts-container" class="row gy-4"> <!-- Added gy-4 for vertical gap -->
                 {% for post in top_posts %}
-                <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
-                    <div class="card card-plain card-blog h-100">
-                        <a href="{% url 'post_detail' post.slug %}" class="d-flex flex-column h-100">
+                <div class="col-lg-4 col-md-6 col-sm-12"> {# mb-4 removed, using gy-4 on row now #}
+                    <div class="card card-plain card-blog"> <!-- Removed h-100 -->
+                        <a href="{% url 'post_detail' post.slug %}" class="d-block">
                              <div class="card-image" style="margin-bottom: 15px;">
                                 <div class="card-img-top-custom" style="
                                     background-image: url('{% if post.image %}{{ post.image.url }}{% else %}{% static 'blog/assets/img/placeholder-image.jpg' %}{% endif %}');">
                                 </div>
                             </div>
-                            <div class="card-body d-flex flex-column">
-                                <h4 class="card-title text-center">{{ post.title|safe }}</h4>
-                                <p class="card-text text-center">
+                            <div class="card-body">
+                                <h4 class="card-title">{{ post.title|safe }}</h4> <!-- Removed text-center -->
+                                <p class="card-text"> <!-- Removed text-center -->
                                     {{ post.content|striptags|truncatewords_html:20|safe }}
                                 </p>
-                                <p class="text-muted mt-auto ">
+                                <p class="text-muted"> <!-- Removed mt-auto -->
                                     <span><i class="material-icons">access_time</i> {{ post.time|date:"d M Y" }}</span>
                                 </p>
-                                <span class="badge badge-primary text-center" style="background-color: #000066;">{{ post.category.name }}</span>
+                                <span class="badge badge-primary" style="background-color: #000066;">{{ post.category.name|upper }}</span> <!-- Removed text-center -->
                             </div>
                         </a>
                     </div>
@@ -283,6 +360,9 @@
         </div>
     </section>
 
+</div> <!-- End #content-container -->
+
+<!-- Original JavaScript for Read More -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initial setup for category description
@@ -297,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // When HTMX swaps, we assume it's new content, so don't preserve expanded state
                 setupCategoryDescriptionClamping(false);
             }
+            // You might need to re-initialize other JS components here if they are replaced by HTMX
         });
     }
 
@@ -310,7 +391,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const wasExpanded = currentDescriptionParagraph.dataset.isExpanded === 'true';
                 setupCategoryDescriptionClamping(wasExpanded); // Preserve current state on resize
             }
-        }, 250);
+        }, 250); // Debounce resize events
     });
 });
 
@@ -337,7 +418,6 @@ function setupCategoryDescriptionClamping(preserveExpandedState) {
     }
 
     // Reset styles for accurate measurement IF NOT preserving an already expanded state.
-    // If preserving expanded, we assume it's already at 'max-height: none' or will be set so.
     if (!preserveExpandedState) {
         descriptionParagraph.style.maxHeight = 'none'; // Allow full scrollHeight calculation
         descriptionParagraph.classList.remove('clamped-text');
@@ -345,7 +425,6 @@ function setupCategoryDescriptionClamping(preserveExpandedState) {
     }
 
 
-    const MAX_LINES = 4; // <<<--- ADJUST THIS: Max lines to show initially
     let currentIsExpanded = descriptionParagraph.dataset.isExpanded === 'true'; // Read current state
 
     // If we are told to preserve an expanded state, ensure it's visually so.
@@ -358,35 +437,42 @@ function setupCategoryDescriptionClamping(preserveExpandedState) {
     // Check visibility for reliable measurements
     if (descriptionParagraph.offsetParent === null) {
         // console.warn("Description paragraph is not visible, cannot apply clamping yet.");
-        return;
+        return; // Exit if not visible, calculation won't work
     }
 
     const computedStyle = window.getComputedStyle(descriptionParagraph);
     const lineHeightString = computedStyle.lineHeight;
     let lineHeightPx;
 
+    // Robustly determine line-height in pixels
     if (lineHeightString === 'normal') {
+        // Create a temporary element to measure line height for 'normal'
         const temp = document.createElement('div');
-        temp.style.font = computedStyle.font;
+        temp.style.font = computedStyle.font; // Copy font styles
         temp.style.padding = '0'; temp.style.border = '0';
         temp.style.visibility = 'hidden'; temp.style.position = 'absolute';
         temp.innerHTML = 'A'; // Single character on a single line
         descriptionParagraph.appendChild(temp);
         lineHeightPx = temp.offsetHeight;
         descriptionParagraph.removeChild(temp);
-        if (lineHeightPx === 0 || isNaN(lineHeightPx)) { // Fallback for 'normal'
+        // Fallback if measurement fails
+        if (lineHeightPx === 0 || isNaN(lineHeightPx)) {
             const fontSizePx = parseFloat(computedStyle.fontSize);
-            lineHeightPx = isNaN(fontSizePx) ? 16 * 1.2 : fontSizePx * 1.2; // Default font size fallback
+            lineHeightPx = isNaN(fontSizePx) ? 16 * 1.2 : fontSizePx * 1.2; // Estimate based on font-size
         }
     } else {
         lineHeightPx = parseFloat(lineHeightString); // Assumes getComputedStyle returns 'px'
     }
 
+    // Final check if line height is valid
     if (isNaN(lineHeightPx) || lineHeightPx <= 0) {
         // console.warn("Could not reliably determine line-height in pixels. Clamping disabled.");
-        return;
+         descriptionParagraph.style.maxHeight = 'none'; // Ensure it's not clamped
+         descriptionParagraph.classList.remove('clamped-text');
+        return; // Cannot proceed without valid line height
     }
 
+    const MAX_LINES = 14; // <<<--- ADJUST THIS: Max lines to show initially
     const clampedMaxHeightInPx = MAX_LINES * lineHeightPx;
     const currentScrollHeight = descriptionParagraph.scrollHeight;
 
@@ -394,62 +480,64 @@ function setupCategoryDescriptionClamping(preserveExpandedState) {
     const scrollHeightTolerance = lineHeightPx * 0.25;
 
     if (currentScrollHeight > clampedMaxHeightInPx + scrollHeightTolerance) {
-        // Only create a new link if one doesn't exist (it should have been removed, but as a safeguard)
-        let newToggleLink = descriptionWrapper.querySelector('.read-more-toggle');
-        if (!newToggleLink) {
-            newToggleLink = document.createElement('a');
-            newToggleLink.href = '#';
-            newToggleLink.className = 'read-more-toggle';
-            descriptionWrapper.appendChild(newToggleLink); // Append early
-        }
+        // Content is long enough to require clamping
 
+        // Create and append the toggle link
+        let newToggleLink = document.createElement('a');
+        newToggleLink.href = '#';
+        newToggleLink.className = 'read-more-toggle';
+        descriptionWrapper.appendChild(newToggleLink);
         newToggleLink.style.display = 'block'; // Ensure it's visible
 
-
+        // Set initial state (clamped or expanded)
         if (!currentIsExpanded) { // Apply clamp if not already expanded
             descriptionParagraph.style.maxHeight = clampedMaxHeightInPx + 'px';
             descriptionParagraph.classList.add('clamped-text');
             newToggleLink.textContent = 'Lire plus';
         } else { // Was already expanded (e.g. due to preserveExpandedState)
-            descriptionParagraph.style.maxHeight = 'none';
+            descriptionParagraph.style.maxHeight = 'none'; // Ensure fully expanded
             descriptionParagraph.classList.remove('clamped-text');
             newToggleLink.textContent = 'Lire moins';
         }
 
-
-        newToggleLink.onclick = function(event) { // Use onclick for simplicity in re-attachment
+        // Add click listener to the toggle link
+        newToggleLink.onclick = function(event) {
             event.preventDefault();
             currentIsExpanded = descriptionParagraph.dataset.isExpanded === 'true'; // Re-read state
 
-            if (currentIsExpanded) { // Should collapse
+            if (currentIsExpanded) { // Collapse
                 descriptionParagraph.style.maxHeight = clampedMaxHeightInPx + 'px';
                 newToggleLink.textContent = 'Lire plus';
-                descriptionParagraph.classList.add('clamped-text');
+                descriptionParagraph.classList.add('clamped-text'); // Add immediately
                 descriptionParagraph.dataset.isExpanded = 'false';
-            } else { // Should expand
+            } else { // Expand
+                // Set max-height to scrollHeight for smooth transition
                 descriptionParagraph.style.maxHeight = descriptionParagraph.scrollHeight + 'px';
                 newToggleLink.textContent = 'Lire moins';
-                descriptionParagraph.classList.remove('clamped-text'); // Remove immediately for visual
+                descriptionParagraph.classList.remove('clamped-text'); // Remove immediately
                 descriptionParagraph.dataset.isExpanded = 'true';
 
+                // After transition, set maxHeight to 'none' to allow content reflow if window resizes
                 descriptionParagraph.addEventListener('transitionend', function onEnd() {
                     // Check if it's still meant to be expanded before setting maxHeight to 'none'
+                    // (Prevents issues if user clicks rapidly)
                     if (descriptionParagraph.dataset.isExpanded === 'true') {
                         descriptionParagraph.style.maxHeight = 'none';
                     }
-                    descriptionParagraph.removeEventListener('transitionend', onEnd);
-                }, { once: true });
+                    descriptionParagraph.removeEventListener('transitionend', onEnd); // Clean up listener
+                }, { once: true }); // Listener runs only once per expansion
             }
         };
     } else {
-        // Content is not long enough to clamp, ensure it's fully visible and no toggle link
+        // Content is not long enough to clamp
         descriptionParagraph.style.maxHeight = 'none';
         descriptionParagraph.classList.remove('clamped-text');
         descriptionParagraph.dataset.isExpanded = 'false'; // Not expanded because not clamped
+        // Ensure no toggle link is visible (it might exist from previous state)
         const toggleLink = descriptionWrapper.querySelector('.read-more-toggle');
-        if (toggleLink) toggleLink.style.display = 'none'; // Hide it
+        if (toggleLink) toggleLink.style.display = 'none'; // Hide it instead of removing, simpler
     }
 }
 </script>
 
-</div>
+</body> <!-- Added closing body tag -->
