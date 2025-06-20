@@ -1,7 +1,7 @@
 {% extends "blog/base.html" %}
 {% load static %}
 
-{% block title %} GOZONE - Business Development & Management {% endblock %} {# Updated title #}
+{% block title %} GOZONE - Business Development & Management {% endblock %}
 
 {% block body %}
 
@@ -47,160 +47,106 @@
         display: inline-block;
     }
 
-    /* Styles for the category-specific ad that might be loaded via articlesTabV2htmx.html */
-    .bottom-ad-section-category { /* For bottom_category_ad from the include */
-        margin-top: 3rem;
-        padding: 20px 0;
-        text-align: center;
-        /* background-color: #e9ecef; /* Slightly different bg if needed */
+    /* Styles for the DYNAMICALLY UPDATED category-specific ad in home.html */
+    /* This targets the content inside the #dynamic-category-ad-container */
+    #dynamic-category-ad-container .bottom-ad-section-category { /* YOUR ORIGINAL CLASS FOR THIS TYPE OF AD */
+        margin-top: 3rem; /* Your original margin */
+        padding: 20px 0; /* Your original padding */
+        text-align: center; /* Your original alignment */
+        /* background-color: #e9ecef; /* Your original bg or lack thereof */
     }
-    .bottom-ad-section-category img {
-        max-width: 85%; /* Or different styling as needed */
+    #dynamic-category-ad-container .bottom-ad-section-category img {
+        max-width: 85%; /* Your original max-width */
         height: auto;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
-    .bottom-ad-section-category a {
+    #dynamic-category-ad-container .bottom-ad-section-category a {
         display: inline-block;
     }
 
-    /* Author Section Styles (Copied from previous version) */
+    /* Author Section Styles (YOUR ORIGINAL STYLES) */
     .authors-section {
-        padding: 4rem 0;
-        background-size: cover;
-        background-position: center;
-        position: relative;
-        margin-top: 8px;
+        padding: 4rem 0; background-size: cover; background-position: center;
+        position: relative; margin-top: 8px;
     }
-    .authors-section .section-title { /* Scoped to authors-section */
-        font-size: 2.5rem;
-        color: #fff;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    .authors-section .section-title {
+        font-size: 2.5rem; color: #fff; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
     .author-card {
-        position: relative;
-        height: 100%;
-        width: 90%; /* As per your previous request */
-        margin-left: auto; /* Center the card if width is less than column */
-        margin-right: auto; /* Center the card */
-        transition: transform 0.3s ease;
-        margin-bottom: 0;
+        position: relative; height: 100%; width: 90%; margin-left: auto;
+        margin-right: auto; transition: transform 0.3s ease; margin-bottom: 0;
     }
     .card-inner {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        overflow: hidden;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        display: flex; /* Added to help structure */
-        flex-direction: column; /* Stack image and info */
-        height: 100%; /* Ensure inner card takes full height of author-card */
+        background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+        border-radius: 15px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;
     }
-    .author-card:hover .card-inner {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3);
-    }
-    .author-image {
-        position: relative;
-        height: 200px;
-        overflow: hidden;
-        flex-shrink: 0; /* Prevent image from shrinking */
-    }
-    .author-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-    .author-card:hover .author-image img {
-        transform: scale(1.05);
-    }
+    .author-card:hover .card-inner { transform: translateY(-10px); box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3); }
+    .author-image { position: relative; height: 200px; overflow: hidden; flex-shrink: 0; }
+    .author-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+    .author-card:hover .author-image img { transform: scale(1.05); }
     .social-links {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 12px;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+        display: flex; gap: 12px; opacity: 0; transition: opacity 0.3s ease;
     }
-    .author-card:hover .social-links {
-        opacity: 1;
-    }
+    .author-card:hover .social-links { opacity: 1; }
     .social-icon {
-        width: 30px;
-        height: 30px;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.9);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #333;
+        width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 255, 255, 0.9);
+        display: flex; align-items: center; justify-content: center; color: #333;
         transition: all 0.3s ease;
     }
-    .social-icon:hover {
-        background: #fff;
-        transform: translateY(-3px);
-    }
+    .social-icon:hover { background: #fff; transform: translateY(-3px); }
     .author-info {
-        padding: 1.2rem;
-        text-align: center;
-        flex-grow: 1; /* Allow info to take remaining space */
-        display: flex; /* For vertical alignment of content */
-        flex-direction: column; /* Stack name, role, link */
-        justify-content: center; /* Center content vertically if space allows */
+        padding: 1.2rem; text-align: center; flex-grow: 1; display: flex;
+        flex-direction: column; justify-content: center;
     }
-    .author-name {
-        color: #fff;
-        font-size: 1.5rem; /* Was 1.1rem, then 1.5rem in your provided code */
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
-    .author-role {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem; /* Was 0.75rem, then 1 in your provided code */
-        margin-bottom: 1rem;
-        flex-grow: 1; /* Allow role to push link down if text is short */
-    }
+    .author-name { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .author-role { color: rgba(255, 255, 255, 0.9); font-size: 1.5rem; margin-bottom: 1rem;font-weight: 500; flex-grow: 1; }
     .profile-link {
-        color: #fff;
-        text-decoration: none;
-        font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.3s ease;
-        margin-top: auto; /* Push link to bottom of info box */
+        color: #fff; text-decoration: none; font-weight: 500; display:block;
+        align-items: center; gap: 6px; transition: color 0.3s ease; margin-top: auto;
     }
-    .profile-link:hover {
-        color: #00c9ff;
+    .profile-link:hover { color: #00c9ff; }
+    @media (max-width: 768px) { .author-image { height: 170px; } .authors-section .section-title { font-size: 2rem; } }
+    @media (min-width: 992px) {
+    .custom-col-lg-20p {
+        flex: 0 0 auto; /* Important for Bootstrap's flexbox grid */
+        width: 20% !important; /* Use !important to ensure it overrides Bootstrap's .col-lg-2 */
     }
-    @media (max-width: 768px) {
-        .author-image { height: 170px; }
-        .authors-section .section-title { font-size: 2rem; }
-    }
+}
 </style>
 
-<div class=""> {# This div might be for overall page padding or structure #}
-    {# This is where the dynamic content including posts and sidebar will be loaded/updated #}
-    {# The id="content-container" is inside articlesTabV2htmx.html and is the target for HTMX swaps #}
-    {% include "blog/articlesTabV2htmx.html" with ckposts=ckposts category=category sidebar_ads=sidebar_ads top_posts=top_posts categories=categories media_url=media_url bottom_category_ad=bottom_category_ad %}
+{# This div is the stable target for the main articles tab content #}
+<div id="articles-tab-main-area">
+    {% comment %}
+    Initial rendering of the articles tab content.
+    `bottom_category_ad_initial` is passed as `bottom_category_ad`.
+    The OOB swap block inside articlesTabV2htmx.html will expect a context variable
+    named `bottom_category_ad`. It won't trigger OOB on initial load, but the variable needs to be there.
+    The actual ad display in #dynamic-category-ad-container below handles the first display.
+    {% endcomment %}
+    {% include "blog/articlesTabV2htmx.html" with ckposts=ckposts category=category sidebar_ads=sidebar_ads top_posts=top_posts categories=categories media_url=media_url bottom_category_ad=bottom_category_ad_initial %}
 </div>
 
-<div class="main main-raised">
+{# This div is kept from your original code. If its purpose is to load ads into #dynamic-category-ad-container via a 'loadCategoryAd' event (independently of category clicks), it can remain. Otherwise, if OOB swap is the only way that div updates, this hx-trigger mechanism might be redundant for this specific ad. #}
+<div
+    hx-trigger="loadCategoryAd from:body" {# Listen for 'loadCategoryAd' event bubbling from anywhere #}
+    hx-get="{% url 'htmx_get_category_ad_snippet' %}" {# URL for the ad snippet view #}
+    hx-target="#dynamic-category-ad-container" {# The div to update with the ad #}
+    hx-swap="innerHTML"
+    hx-indicator="#ad-loading-indicator" {# Element to show during this ad request #}
+    hx-vals="js:{category_id: event.detail.newCategoryId}" {# Get category_id from event detail payload #}
+    class="main main-raised"> {# Your original .main.main-raised div #}
 
    <!-- Section Nos Rédacteurs -->
-<div class="authors-section" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url({% static 'blog/assets/img/8E8A7AB4-8683-4F89-9F3D-58D26B397FE5.png' %});">
+   <div class="authors-section" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url({% static 'blog/assets/img/Homepage.jpg' %});">
     <div class="container">
         <h2 class="section-title text-center mb-5">Nos Rédacteurs</h2>
         <div class="row g-4 justify-content-center">
             {% for author in top_authors %}
-            <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex align-items-stretch mb-2"> {# Added d-flex and align-items-stretch #}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-2 custom-col-lg-20p d-flex align-items-stretch mb-2">
                 <div class="author-card">
                     <div class="card-inner">
                         <div class="author-image">
@@ -247,7 +193,6 @@
                 NOS PARTENAIRES
             </h2>
             <div class="partner-grid">
-                <!-- Partner 1 -->
                 <div class="partner-item">
                     <a href="https://www.facebook.com/Projecto.tn/" target="_blank" class="d-block">
                         <div class="logo-container">
@@ -255,7 +200,6 @@
                         </div>
                     </a>
                 </div>
-                <!-- Partner 2 -->
                 <div class="partner-item">
                     <a href="https://www.facebook.com/GeecEvent/" target="_blank" class="d-block">
                         <div class="logo-container">
@@ -263,7 +207,6 @@
                         </div>
                     </a>
                 </div>
-                <!-- Partner 3 -->
                 <div class="partner-item">
                     <a href="https://curvesnsmiles.com/" target="_blank" class="d-block">
                         <div class="logo-container">
@@ -271,13 +214,18 @@
                         </div>
                     </a>
                 </div>
-                {# Add more partners as needed #}
             </div>
         </div>
     </section>
 
-    <!-- Main Home Page Bottom Advertisement Section -->
-    {% if bottom_home_ad %} {# This uses the variable bottom_home_ad directly from new_index context #}
+    <!-- Placeholder for Dynamic Bottom Category Ad. HTMX OOB swap updates this when categories are clicked. -->
+    <!-- Initially populated with the ad for the default category. -->
+    <div id="dynamic-category-ad-container" >
+        {% include 'blog/partials/category_bottom_ad_snippet.html' with bottom_category_ad=bottom_category_ad %}
+    </div>
+
+    <!-- Main Home Page Bottom Advertisement Section (Your original general ad) -->
+    {% if bottom_home_ad %}
     <section class="bottom-ad-section">
         <div class="container">
             {% with ad_url=bottom_home_ad.get_absolute_url %}
@@ -293,7 +241,7 @@
     </section>
     {% endif %}
 
-    <div class="subscribe-line"> {# Assuming 'hidden' class controls visibility via JS/CSS #}
+    <div class="subscribe-line">
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
@@ -306,8 +254,8 @@
                 <div class="col-md-6">
                     <div class="card card-plain card-form-horizontal">
                         <div class="card-content">
-                            <form method="POST" action=""> {# Add your newsletter form action #}
-                                {% csrf_token %} {# If this is a Django form submission #}
+                            <form method="POST" action=""> {# Add your newsletter form action here #}
+                                {% csrf_token %}
                                 <div class="row">
                                     <div class="col-md-8">
                                         <div class="input-group">
@@ -316,7 +264,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="submit" class="btn btn-primary btn-round btn-block">S’abonner</button>
+                                        <button type="submit" class="btn btn-primary btn-round btn-block" style="background-image: linear-gradient(to right, #007bff 0%, #0069d9 50%, #0056b3 100%);">S’abonner</button>
                                     </div>
                                 </div>
                             </form>
@@ -327,4 +275,6 @@
         </div>
     </div>
 </div>
+<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
+
 {% endblock %}

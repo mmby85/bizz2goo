@@ -1,6 +1,8 @@
 {% extends "blog/base.html" %}
 {% load static %}
+{% load i18n %}
 {% block body %}
+
 {% include "blog/heroSection.html" with category=post.category %}
 
 <div class="main main-raised">
@@ -16,9 +18,8 @@
           </a>
           {% endif %}
           <h3 class="title-uppercase">
-            <small>Rédigé par  {{ post.user}} | </small>
-            <small class="title-uppercase text-muted">{{ post.time | date:"F d, Y" }}</small>
-
+            <small>Rédigé par  {{ author_profile.user.get_full_name|default:author_profile.user.username }} | </small>
+            <small class="title-uppercase text-muted">{{ post.time | date:"d F Y" }}</small>
           </h3>
         </div>
       </div>
@@ -45,49 +46,38 @@
       </div>
 
       <!-- Author Profile -->
-      {% if author_profile %}
-      <div class="row" style="margin-left: 100px; margin-right: 100px;">
-        <hr><br>
-          <div class="media">
-            <a class="pull-left" href="{% url 'author_profile' author_profile.user.username %}">
-              <div class="avatar big-avatar" style="width: 110px;height: 110px;">
-                {% if author_profile.profile_picture %}
-                  <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture" style="width: 110%;">
-                {% endif %}
-              </div>
-            </a>
-            <div class="media-body">
-              <h4 class="media-heading" style="color: #403d39; display: inline-block; font-weight: 600; margin-bottom: 10px; margin-top: 5px;">
-                <a href="{% url 'author_profile' author_profile.user.username %}">
-                  {{ author_profile.user.get_full_name|default:author_profile.user.username }}
-                </a>
-              </h4>
-              {% if author_profile.bio %}
-                <p>{{ author_profile.metier }}</p>
-              {% endif %}
-            </div>
-          </div>
-          <hr><br>
-      </div>
-      {% endif %}
+           <!-- Author Profile -->
+           {% if author_profile %}
+           <div class="row author-profile-row" style=" margin-right: 100px;"> <!-- Added class author-profile-row -->
+             
+               <div class="author-profile-flex-container"> <!-- New Flex Container -->
+                 <a class="author-avatar-link" href="{% url 'author_profile' author_profile.user.username %}">
+                   <div class="avatar author-avatar-wrapper">
+                     {% if author_profile.profile_picture %}
+                       <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture-img">
+                     {% else %}
+                       <!-- Optional: Placeholder if no profile picture -->
+                       <img src="{% static 'blog/assets/img/default-avatar.png' %}" alt="Default Avatar" class="author-picture-img">
+                     {% endif %}
+                   </div>
+                 </a>
+                 <div class="media-body author-info-body">
+                   <h4 class="media-heading author-name-heading">
+                     <a href="{% url 'author_profile' author_profile.user.username %}">
+                       {{ author_profile.user.get_full_name|default:author_profile.user.username }}
+                     </a>
+                   </h4>
+                   {% if author_profile.metier %} <!-- Changed from bio to metier as per your HTML -->
+                     <p class="author-metier">{{ author_profile.metier }}</p>
+                   {% endif %}
+                 </div>
+               </div>
+               
+           </div>
+           {% endif %}
 
 
-<!-- Bottom Category Advertisement Section for Post Detail -->
-{% if bottom_category_ad %}
-<section class="bottom-ad-section-post-detail" style="padding: 30px 0; text-align: center; background-color: #f8f9fa; margin-top: 2rem;">
-    <div class="container">
-        {% with ad_url=bottom_category_ad.get_absolute_url %}
-            {% if ad_url %}
-                <a href="{{ ad_url }}" {% if bottom_category_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                    <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
-                </a>
-            {% else %}
-                <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
-            {% endif %}
-        {% endwith %}
-    </div>
-</section>
-{% endif %}
+
 
       <!-- Comments Section -->
       <div class="row" style="margin-left: 100px; margin-right: 100px;">
@@ -173,6 +163,24 @@
         </div>
       </div>
     </div>
+
+    <!-- Bottom Category Advertisement Section for Post Detail -->
+{% if bottom_category_ad %}
+<section class="bottom-ad-section-post-detail" style="padding: 30px 0; text-align: center; background-color: #f8f9fa; margin-top: 2rem;">
+    <div class="container">
+        {% with ad_url=bottom_category_ad.get_absolute_url %}
+            {% if ad_url %}
+                <a href="{{ ad_url }}" {% if bottom_category_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                    <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+                </a>
+            {% else %}
+                <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 90%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+            {% endif %}
+        {% endwith %}
+    </div>
+</section>
+{% endif %}
+
   </section>
 </div>
 
@@ -264,5 +272,72 @@
       line-height: 1.6;
     }
   }
+  /* === Author Profile Styles === */
+  .author-profile-row, .comments-section-row {
+    /* Adjust margins as needed, or use Bootstrap padding/margin utilities on the parent container */
+    margin-right: auto; /* Center the row content */
+    max-width: 900px; /* Example max-width for these sections, adjust as needed */
+    padding-left: 15px; /* Add some padding if removing fixed margins */
+    padding-right: 15px;
+  }
+
+  .author-profile-flex-container {
+    display: flex;
+    align-items: center; /* Vertically aligns items to the center */
+    gap: 20px; /* Space between avatar and text info */
+    width: 100%; /* Ensure it takes full width of its parent row/column */
+  }
+
+  .author-avatar-link {
+    display: block; /* Good practice for links containing block elements */
+    flex-shrink: 0; /* Prevents the avatar from shrinking if text is long */
+  }
+
+  .author-avatar-wrapper {
+    width: 130px; /* Increased size */
+    height: 130px; /* Increased size, keep same as width for a circle */
+    border-radius: 50%; /* Makes it circular */
+    overflow: hidden; /* Clips the image to the circular boundary */
+    display: flex; /* To center the image within if it's smaller (though object-fit handles it well) */
+    justify-content: center;
+    align-items: center;
+    border: 3px solid #eee; /* Optional: adds a light border */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: subtle shadow */
+  }
+
+  .author-picture-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the area, centered, and crops if necessary */
+    display: block; /* Removes any extra space below the image */
+  }
+
+  .author-info-body {
+    /* Flexbox on parent already handles alignment, so specific margins might not be needed */
+    /* If you had specific margins on media-body before, you might want to remove or adjust them */
+  }
+
+  .author-name-heading {
+    color: #403d39;
+    font-weight: 600;
+    margin-top: 0; /* Adjust as needed, flex align-items might make this less critical */
+    margin-bottom: 5px; /* Reduced margin a bit */
+  }
+  .author-name-heading a {
+    color: inherit; /* Inherit color from h4 */
+    text-decoration: none;
+  }
+  .author-name-heading a:hover {
+    text-decoration: underline;
+  }
+
+  .author-metier {
+    margin-top: 0;
+    margin-bottom: 0; /* Remove bottom margin if it's the last item */
+    color: #555;
+    font-size: 1.7rem;
+    font-weight: 400;
+  }
+
 </style>
 {% endblock %}

@@ -1,0 +1,518 @@
+{% extends "blog/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title|default:"Contactez GOZONE" }}{% endblock %}
+
+{% block body %}
+<style>
+    /* Global Resets & Base Styles */
+    html { scroll-behavior: smooth; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        line-height: 1.65; /* Slightly increased for better readability with larger fonts */
+        color: #343a40;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Page Title Section */
+    .page-title-section {
+        padding: 70px 0 40px;
+        text-align: center;
+        background:#f8f9fa;
+        color:black ;
+        margin-bottom: 40px;
+    }
+    .page-title-section h1 {
+        font-weight: 700;
+        font-size: clamp(2.6rem, 5.5vw, 3.8rem); /* Increased */
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Lead Form Content Section */
+    .lead-form-content-section {
+        padding: 40px 0;
+    }
+
+    /* Text Introduction Area */
+    .text-intro h1 {
+        font-size: clamp(2.2rem, 4.5vw, 2.9rem); /* Increased */
+        font-weight: 700;
+        line-height: 1.35; /* Adjusted */
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+    }
+    .text-intro p {
+        color: #555e68;
+        font-size: clamp(1.05rem, 2.8vw, 1.2rem); /* Increased */
+        line-height: 1.8; /* Adjusted */
+        margin-bottom: 1.3rem;
+    }
+    .text-intro p strong { color: #343a40; }
+
+    /* --- Enhanced Form Card Container --- */
+    .form-card-container {
+        background-color: #ffffff;
+        padding: clamp(35px, 6vw, 55px); /* Slightly increased max padding */
+        border-radius: 20px; /* Slightly larger radius */
+        box-shadow: 0 18px 45px rgba(0, 40, 100, 0.13); /* Slightly adjusted shadow */
+        margin-top: 1rem;
+        border: 1px solid #eef2f7;
+    }
+
+    /* Form Title Inside the Card */
+    .form-card-container .form-card-title {
+        font-size: clamp(1.6rem, 4.5vw, 2rem); /* Increased */
+        font-weight: 600;
+        color: #343a40;
+        margin-bottom: 40px; /* Increased space after title */
+        text-align: center;
+        padding-bottom: 25px; /* Increased */
+        border-bottom: 1px solid #e9ecef;
+        line-height: 1.45; /* Adjusted */
+    }
+    .form-card-container .form-card-title span {
+        color: #007bff;
+        font-weight: 700;
+    }
+
+    /* Form Elements Styling */
+    .form-card-container .form-group {
+        margin-bottom: 2rem; /* Increased vertical rhythm */
+    }
+
+    .form-card-container .form-label {
+        color: #525f6c;
+        font-size: 1.3rem; /* Increased */
+        font-weight: 500;
+        margin-bottom: 0.75rem; /* Increased space before input */
+        display: block;
+    }
+    .form-card-container .form-label .required-asterisk {
+        color: #e74c3c;
+        font-weight: bold;
+        margin-left: 4px; /* Slightly more space */
+    }
+
+    .form-card-container .form-control,
+    .form-card-container .form-select {
+        background-color: #fdfdff;
+        border: 1px solid #d8dfe5;
+        color: #343a40;
+        border-radius: 12px; /* Slightly larger */
+        padding: 0.95rem 1.3rem; /* Adjusted padding */
+        font-size: 1.3rem;
+        transition: border-color 0.25s ease-out, box-shadow 0.25s ease-out, background-color 0.2s ease-out;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    .form-card-container .form-control::placeholder {
+        color: #8a96a3;
+        opacity: 1;
+        font-size: 1.2rem; /* Explicitly set placeholder size */
+    }
+    .form-card-container .form-control:focus,
+    .form-card-container .form-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.22rem rgba(0,123,255,0.15), inset 0 1px 1px rgba(0,0,0,0.03);
+        background-color: #fff;
+        outline: none;
+    }
+    .form-card-container textarea.form-control {
+        min-height: 130px; /* Increased */
+        resize: vertical;
+        padding-top: 1.1rem; /* Adjusted */
+    }
+
+    /* Custom Radio & Checkbox Styling */
+    .form-card-container .form-check {
+        padding: 8px 10px; /* Increased clickable area padding */
+        margin-bottom: 0.9rem; /* Increased vertical spacing between options */
+        display: flex;
+        align-items: center;
+        border-radius: 10px; /* Match input fields */
+        transition: background-color 0.2s ease-in-out;
+        cursor: pointer;
+    }
+    .form-card-container .form-check:hover {
+        background-color: #f4f7f9;
+    }
+    .form-card-container .form-check-input[type="radio"],
+    .form-card-container .form-check-input[type="checkbox"] {
+        -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        height: 22px; width: 22px; /* Slightly larger control */
+        border: 2px solid #b0bac5;
+        background-color: #fff;
+        margin-right: 1rem; /* Increased space to label */
+        cursor: pointer;
+        position: relative;
+        vertical-align: middle;
+        flex-shrink: 0;
+        transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+        margin-top: 2px; /* Fine-tune alignment with larger text */
+    }
+    .form-card-container .form-check-input[type="radio"] { border-radius: 50%; }
+    .form-card-container .form-check-input[type="checkbox"] { border-radius: 6px; /* Slightly larger */ }
+
+    .form-card-container .form-check-input[type="radio"]:checked,
+    .form-card-container .form-check-input[type="checkbox"]:checked {
+        border-color: #007bff;
+        background-color: #007bff;
+    }
+    .form-card-container .form-check-input[type="radio"]:checked::before {
+        content: ""; display: block; width: 9px; height: 9px; /* Adjusted for larger control */
+        border-radius: 50%;
+        background-color: #fff;
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    }
+    .form-card-container .form-check-input[type="checkbox"]:checked::before {
+        content: "";
+        display: block;
+        width: 100%; height: 100%;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 60%; /* Adjusted for new input size */
+        margin-left: 10px;
+        position: absolute; top: 0; left: 0;
+    }
+    .form-card-container .form-check-label {
+        color: #434c55;
+        font-size: 1.3rem; /* Increased label size */
+        font-weight: 500;
+        cursor: pointer;
+        margin-bottom: 0;
+        margin-left: 10px;
+        line-height: 1.55; /* Adjusted for larger font */
+    }
+
+    /* Help Text */
+    .form-card-container .help-text {
+        font-size: 1rem; /* Increased */
+        color: #7a8693;
+        display: block;
+        margin-top: -0.8rem; /* Adjusted */
+        margin-bottom: 0.9rem; /* Adjusted */
+        padding-left: 2px;
+    }
+
+    /* Submit Button */
+    .form-card-container .btn-submit-lead {
+        background-image: linear-gradient(to right, #007bff 0%, #0069d9 50%, #0056b3 100%);
+        background-size: 200% auto;
+        border: none;
+        color: #fff;
+        padding: 1rem 2rem; /* Increased padding */
+        font-size: 1.15rem; /* Increased */
+        font-weight: 600;
+        border-radius: 12px; /* Match inputs */
+        text-transform: uppercase;
+        letter-spacing: 0.7px; /* Adjusted */
+        width: 100%;
+        box-shadow: 0 6px 20px rgba(0,105,217,0.3); /* Adjusted shadow */
+        transition: all 0.35s ease;
+        cursor: pointer;
+    }
+    .form-card-container .btn-submit-lead:hover {
+        background-position: right center;
+        box-shadow: 0 8px 24px rgba(0,105,217,0.4); /* Adjusted shadow */
+        transform: translateY(-2px);
+    }
+    .form-card-container .btn-submit-lead:active {
+        transform: translateY(0);
+        box-shadow: 0 4px 15px rgba(0,105,217,0.28); /* Adjusted shadow */
+    }
+
+    /* Alerts (Django Messages) */
+    .form-card-container .alert {
+        border-radius: 12px; /* Match other elements */
+        font-size: 1rem; /* Increased */
+        padding: 1rem 1.5rem; /* Adjusted */
+        margin-bottom: 2rem; /* Adjusted */
+        border-width: 1px;
+        border-style: solid;
+    }
+    .form-card-container .alert-success { color: #0c4b33; background-color: #d1e7dd; border-color: #badbcc; }
+    .form-card-container .alert-danger, .form-card-container .alert-error { color: #721c24; background-color: #f8d7da; border-color: #f5c2c7; }
+    .form-card-container .alert-info { color: #034f60; background-color: #cff4fc; border-color: #b6effb; }
+    .form-card-container .alert-warning { color: #664d03; background-color: #fff3cd; border-color: #ffecb5; }
+
+    /* Form Field Errors */
+    .form-card-container .form-field-error {
+        font-size: 1.3rem; /* Increased */
+        color: #c0392b;
+        font-weight: 500;
+        display: block;
+        margin-top: 0.6rem; /* Adjusted */
+        padding: 0.5rem 0.9rem; /* Adjusted */
+        background-color: #fdecea;
+        border-radius: 8px; /* Adjusted */
+        border-left: 3px solid #e74c3c;
+    }
+
+    /* Conditional display for 'autre' fields */
+    .form-card-container .conditional-field {
+        display: block;
+        max-height: 0;
+        opacity: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out, margin-top 0.4s ease-in-out, padding 0.4s ease-in-out;
+        margin-top: 0;
+        padding: 0 12px; /* Adjusted */
+        background-color: #f9fafc;
+        border-radius: 10px; /* Adjusted */
+    }
+    .form-card-container .conditional-field.visible {
+        opacity: 1;
+        max-height: 380px; /* Increased to accommodate potentially larger fonts */
+        margin-top: 1.2rem; /* Adjusted */
+        padding: 18px 12px; /* Adjusted */
+        border: 1px solid #e8eef3;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 991.98px) {
+        .text-intro { text-align: center; }
+    }
+    @media (max-width: 767.98px) {
+        .page-title-section { padding: 50px 0 30px; }
+        .lead-form-content-section { padding: 20px 0; }
+        .form-card-container { padding: 30px 20px; } /* Adjusted padding for smaller screens */
+        .form-card-container .form-card-title { font-size: 1.5rem; margin-bottom: 30px; padding-bottom: 20px; } /* Adjusted */
+        .form-card-container .form-label { font-size: 1.3rem; }
+        .form-card-container .form-control, .form-card-container .form-select { font-size: 1.3rem; padding: 0.9rem 1.1rem;}
+        .form-card-container .form-check-label { font-size: 1.3rem; }
+        .form-card-container .btn-submit-lead { font-size: 1.3rem; padding: 0.9rem 1.5rem; }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Scroll to form if #anchor is present or after a delay
+    function scrollToForm() {
+        if (window.location.hash) {
+            try {
+                const element = document.querySelector(window.location.hash);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    return true; // Scrolled
+                }
+            } catch (e) { console.warn("Invalid selector in hash:", window.location.hash); }
+        }
+        return false; // Not scrolled
+    }
+
+    if (!scrollToForm()) {
+        setTimeout(() => {
+            const formSection = document.getElementById('{{ form_section_id|default:"gozone-contact-form-section" }}');
+            if (formSection && !window.location.hash) { // Only scroll if no hash scroll happened
+                formSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 800); // Slightly shorter delay
+    }
+
+    // Conditional display for "profil_gozone_autre_details"
+    const profilRadios = document.querySelectorAll('input[name="profil_gozone"]');
+    const profilAutreDiv = document.getElementById('profil_gozone_autre_details_div');
+
+    function toggleProfilAutre() {
+        if (!profilAutreDiv) return;
+        let show = false;
+        profilRadios.forEach(radio => {
+            if (radio.checked && radio.value === 'autre_profil') {
+                show = true;
+            }
+        });
+        if (show) {
+            profilAutreDiv.classList.add('visible');
+            const inputField = profilAutreDiv.querySelector('input, textarea');
+            if (inputField) inputField.required = true;
+        } else {
+            profilAutreDiv.classList.remove('visible');
+            const inputField = profilAutreDiv.querySelector('input, textarea');
+            if (inputField) inputField.required = false;
+        }
+    }
+
+    profilRadios.forEach(radio => radio.addEventListener('change', toggleProfilAutre));
+    toggleProfilAutre(); // Initial check
+
+    // Conditional display for "besoins_gozone_autre_details"
+    const besoinsCheckboxes = document.querySelectorAll('input[name="besoins_gozone"]');
+    const besoinsAutreDiv = document.getElementById('besoins_gozone_autre_details_div');
+
+    function toggleBesoinsAutre() {
+        if (!besoinsAutreDiv) return;
+        let show = false;
+        besoinsCheckboxes.forEach(checkbox => {
+            if (checkbox.value === 'autre_besoin' && checkbox.checked) {
+                show = true;
+            }
+        });
+        if (show) {
+            besoinsAutreDiv.classList.add('visible');
+            const inputField = besoinsAutreDiv.querySelector('input, textarea');
+            if (inputField) inputField.required = true;
+
+        } else {
+            besoinsAutreDiv.classList.remove('visible');
+             const inputField = besoinsAutreDiv.querySelector('input, textarea');
+            if (inputField) inputField.required = false;
+        }
+    }
+
+    besoinsCheckboxes.forEach(checkbox => checkbox.addEventListener('change', toggleBesoinsAutre));
+    toggleBesoinsAutre(); // Initial check
+
+    // Add 'form-control' class to Django form widgets if not already present
+    // This is useful if you are not using a widget that adds it automatically (e.g. django-crispy-forms)
+    const formElements = document.querySelectorAll('.form-card-container form input:not([type="radio"]):not([type="checkbox"]):not([type="submit"]):not([type="button"]):not([type="file"]), .form-card-container form textarea, .form-card-container form select');
+    formElements.forEach(el => {
+        if (!el.classList.contains('form-control')) {
+            el.classList.add('form-control');
+        }
+    });
+});
+</script>
+
+
+<div id="hero">
+    {% include "blog/heroSection.html" %}
+</div>
+
+<div class="page-title-section">
+    <div class="container">
+        <h1>{{ page_title|default:"Contactez l'équipe GOZONE" }}</h1>
+    </div>
+</div>
+
+<div class="main">
+    <div class="lead-form-content-section">
+        <div class="container">
+            <div class="row justify-content-center"> {# Centering row content for better look if one col is shorter #}
+                <div class="col-lg-7 text-intro mb-5 mb-lg-0">
+                    <h1>Une question, un projet ? Parlons-en !</h1>
+                    <p>GOZONE est le premier blog en Tunisie dédié au business development et au management. Nous sommes là pour vous accompagner.</p>
+                    <p>En partenariat avec des acteurs clés de l’écosystème, nous aidons les entrepreneurs, dirigeants, chefs de projet et consultants à concrétiser leurs ambitions : de la création d’entreprise à la digitalisation, en passant par la formation et l'étude de projet.</p>
+                    <p class="mt-4"><strong>Remplissez ce formulaire pour une prise de contact rapide et efficace. Notre équipe vous répondra dans les plus brefs délais.</strong></p>
+                </div>
+
+                <div class="col-lg-5" id="{{ form_section_id|default:"gozone-contact-form-section" }}">
+                    <div class="form-card-container">
+                        <h2 class="form-card-title">Une question, un <span>projet</span> ?<br>Dites-nous tout !</h2>
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %}" role="alert">
+                                    {{ message }}
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                
+                        <form method="POST" action="{% url 'gozone_contact_form' %}" novalidate>
+                            {% csrf_token %}
+                
+                            {# Standard Contact Fields - APPLY .required-asterisk to all required fields #}
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.nom_prenom.id_for_label }}">
+                                    {{ form.nom_prenom.label }}{% if form.nom_prenom.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {{ form.nom_prenom }}
+                                {% if form.nom_prenom.errors %}<div class="form-field-error">{% for error in form.nom_prenom.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.email.id_for_label }}">
+                                    {{ form.email.label }}{% if form.email.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}<div class="form-field-error">{% for error in form.email.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.telephone.id_for_label }}">
+                                    {{ form.telephone.label }}{% if form.telephone.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {{ form.telephone }}
+                                {% if form.telephone.errors %}<div class="form-field-error">{% for error in form.telephone.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.organisation.id_for_label }}">
+                                    {{ form.organisation.label }}{% if form.organisation.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {{ form.organisation }}
+                                {% if form.organisation.errors %}<div class="form-field-error">{% for error in form.organisation.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            {# Profil GOZONE Radio Buttons #}
+                            <div class="form-group">
+                                <label class="form-label">
+                                    {{ form.profil_gozone.label }}{% if form.profil_gozone.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {% for radio in form.profil_gozone %}
+                                <div class="form-check">
+                                    {{ radio.tag }}
+                                    <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                </div>
+                                {% endfor %}
+                                {% if form.profil_gozone.errors %}<div class="form-field-error">{% for error in form.profil_gozone.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            {# Profil GOZONE Autre Details (conditionally shown by JS) #}
+                            <div class="form-group conditional-field" id="profil_gozone_autre_details_div">
+                                <label class="form-label" for="{{ form.profil_gozone_autre_details.id_for_label }}">
+                                    {{ form.profil_gozone_autre_details.label }}
+                                    {# Conditional required asterisk can be tricky if requirement changes via JS #}
+                                    {# Assuming it's required if visible, add asterisk here or via JS #}
+                                     <span class="required-asterisk">*</span>
+                                </label>
+                                {{ form.profil_gozone_autre_details }}
+                                {% if form.profil_gozone_autre_details.errors %}<div class="form-field-error">{% for error in form.profil_gozone_autre_details.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            {# Besoins GOZONE Checkboxes #}
+                            <div class="form-group">
+                                <label class="form-label">
+                                    {{ form.besoins_gozone.label }}{% if form.besoins_gozone.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {% if form.besoins_gozone.help_text %}<small class="help-text">{{ form.besoins_gozone.help_text }}</small>{% endif %}
+                                {% for checkbox in form.besoins_gozone %}
+                                <div class="form-check">
+                                    {{ checkbox.tag }}
+                                    <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                </div>
+                                {% endfor %}
+                                {% if form.besoins_gozone.errors %}<div class="form-field-error">{% for error in form.besoins_gozone.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            {# Besoins GOZONE Autre Details (conditionally shown by JS) #}
+                             <div class="form-group conditional-field" id="besoins_gozone_autre_details_div">
+                                <label class="form-label" for="{{ form.besoins_gozone_autre_details.id_for_label }}">
+                                    {{ form.besoins_gozone_autre_details.label }}
+                                    <span class="required-asterisk">*</span>
+                                </label>
+                                {{ form.besoins_gozone_autre_details }}
+                                {% if form.besoins_gozone_autre_details.errors %}<div class="form-field-error">{% for error in form.besoins_gozone_autre_details.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            {# Message complémentaire #}
+                            <div class="form-group">
+                                <label class="form-label" for="{{ form.message_complementaire.id_for_label }}">
+                                    {{ form.message_complementaire.label }}{% if form.message_complementaire.field.required %} <span class="required-asterisk">*</span>{% endif %}
+                                </label>
+                                {{ form.message_complementaire }}
+                                {% if form.message_complementaire.errors %}<div class="form-field-error">{% for error in form.message_complementaire.errors %}{{ error }}{% endfor %}</div>{% endif %}
+                            </div>
+                
+                            <div class="text-center mt-4 pt-2">
+                                <button type="submit" class="btn btn-submit-lead">Envoyer le Message</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

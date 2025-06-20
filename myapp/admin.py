@@ -61,7 +61,7 @@ class AdvertisementAdminForm(forms.ModelForm):
 
 @admin.register(Advertisement)
 class AdvertisementAdmin(admin.ModelAdmin):
-    form = AdvertisementAdminForm # Use the custom form
+    form = AdvertisementAdminForm
     list_display = ('title', 'position', 'link_type', 'category', 'is_active', 'display_order', 'created_at')
     list_filter = ('is_active', 'position', 'category', 'link_type')
     search_fields = ('title',)
@@ -71,31 +71,17 @@ class AdvertisementAdmin(admin.ModelAdmin):
         }),
         ('Lien de l\'annonce', {
             'fields': ('link_type', 'external_url'),
-            'description': ("Si 'Formulaire Interne' est choisi, l'URL externe sera ignorée. "
+            'description': ("Si un type de 'Formulaire Interne' est choisi, l'URL externe sera ignorée. " # Updated description
                            "Si 'Lien Externe' est choisi, l'URL externe est requise.")
         }),
-        ('Ciblage par Catégorie', { # Changed title for clarity
-            # 'classes': ('collapse',), # Keep it always visible for now or use JS to control
+        ('Ciblage par Catégorie', {
             'fields': ('category',),
             'description': ("Requis pour 'Bottom Banner Category'. Optionnel pour 'Sidebar Ad' "
                            "pour cibler une catégorie spécifique. Laisser vide pour les 'Sidebar Ad' généraux.")
         }),
     )
     list_editable = ('is_active', 'display_order')
-
-    # To make the JavaScript work on add page as well, we can add it here
-    # or ensure the onchange attribute on the widget fires correctly initially.
-    # A more robust way is using a custom admin/js/dynamic_form_fields.js file.
-    # For now, the onchange on the widget itself should work for edits.
-    # For initial load of add page, the category field might be hidden if default position doesn't require it.
-    # We can add a small script to the template or use a more complex JS solution.
-    # A simpler approach is to ensure the default 'position' or the form init correctly sets visibility.
-
-    # Let's ensure the category field is initially shown/hidden correctly based on initial position
-    # This is better handled via custom JS in form.Media or admin template override.
-    # For simplicity here, the onchange on the widget covers edit.
-    # Admin users will need to select position first on 'add' page for category to show/hide.
-
+    
 class CustomUserAdmin(UserAdmin):
     inlines = (AuthorProfileInline,)
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'get_is_author') # Renamed for consistency

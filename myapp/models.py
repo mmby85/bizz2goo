@@ -79,25 +79,26 @@ class SubCategory(models.Model):
 class Advertisement(models.Model):
     LINK_TYPE_CHOICES = [
         ('external', 'Lien Externe Personnalisé'),
-        ('internal_form', 'Formulaire Interne (Création Société)'),
+        ('internal_form_livre', 'Formulaire Interne (Livre Création Société)'), # Renamed for clarity
+        ('internal_form_gozone', 'Formulaire Interne (Contact GOZONE)'),   # <<< NEW CHOICE
     ]
     POSITION_CHOICES = [
         ('sidebar', 'Sidebar Ad (Vertical)'),
         ('bottom_banner_home', 'Bottom Banner Home (Horizontal)'),
-        ('bottom_banner_category', 'Bottom Banner Category (Horizontal)'), # <-- NEW
+        ('bottom_banner_category', 'Bottom Banner Category (Horizontal)'),
     ]
 
     title = models.CharField(max_length=200, help_text="Internal title for the ad.")
     image = models.ImageField(upload_to='ads/', help_text="Image for the advertisement.")
-    
+
     link_type = models.CharField(
-        max_length=20,
+        max_length=30, # Increased length to accommodate longer choice values
         choices=LINK_TYPE_CHOICES,
         default='external',
-        help_text="Choisir si l'annonce redirige vers un lien externe ou le formulaire interne."
+        help_text="Choisir si l'annonce redirige vers un lien externe ou un formulaire interne."
     )
     external_url = models.URLField(
-        blank=True, null=True, 
+        blank=True, null=True,
         help_text="URL externe (si 'Lien Externe Personnalisé' est choisi)."
     )
 
@@ -110,10 +111,10 @@ class Advertisement(models.Model):
     )
     category = models.ForeignKey(
         'Category',
-        on_delete=models.SET_NULL, # Important: if category deleted, ad isn't deleted but category link is lost
+        on_delete=models.SET_NULL,
         blank=True, null=True,
         related_name="advertisements",
-        help_text="Required for 'Bottom Banner Category' & optional for 'Sidebar Ad'. Specifies which category this ad is tied to."
+        help_text="Required for 'Bottom Banner Category' & optional for 'Sidebar Ad'."
     )
     display_order = models.IntegerField(default=0, help_text="Order of display (lower numbers first).")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -122,8 +123,10 @@ class Advertisement(models.Model):
         return f"{self.title} ({self.get_position_display()})"
 
     def get_absolute_url(self):
-        if self.link_type == 'internal_form':
+        if self.link_type == 'internal_form_livre': # Updated value
             return reverse('lead_generation_form')
+        elif self.link_type == 'internal_form_gozone': # <<< NEW
+            return reverse('gozone_contact_form') # <<< New URL name we will create
         elif self.link_type == 'external' and self.external_url:
             return self.external_url
         return None
@@ -135,11 +138,10 @@ class Advertisement(models.Model):
         from django.core.exceptions import ValidationError
         if self.link_type == 'external' and not self.external_url:
             raise ValidationError({'external_url': "L'URL externe est requise lorsque le type de lien est 'Lien Externe Personnalisé'."})
-        
-        # Ensure category is set for bottom_banner_category ads
+
         if self.position == 'bottom_banner_category' and not self.category:
             raise ValidationError({'category': "Une catégorie doit être associée pour les 'Bottom Banner Category'."})
-        
+         
 class CKPost(models.Model):
     title = models.CharField(max_length=600)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="posts", blank=True, null=True,
