@@ -149,3 +149,103 @@ class LeadGenerationForm(forms.Form):
         # For individual radio buttons, you might need custom widget rendering or JS.
         # The default rendering of RadioSelect will create <li> or <p> tags around each input and label.
         # You'll style these in your CSS.
+
+# --- New Form for GOZONE Contact ---
+GOZONE_PROFILE_CHOICES = [
+    ('porteur_projet', 'Porteur de projet'),
+    ('chef_entreprise', 'Chef d’entreprise / dirigeant'),
+    ('organisme_accompagnement', 'Organisme d’accompagnement (incubateur, centre de formation , etc.)'),
+    ('organisme_financement', 'Organisme de financement (banque, micro-finance, SICAR , etc.)'),
+    ('ong', 'Organisation Non Gouvernementale (ONG)'),
+    ('professionnel', 'Professionnel (manager, ingénieur, technicien, etc.)'),
+    ('expert_consultant', 'Expert / consultant / formateur'),
+    ('etudiant', 'Etudiant'),
+    ('autre_profil', 'Autre'),
+]
+
+GOZONE_NEEDS_CHOICES = [
+    ('creation_entreprise', 'Appui à la création d’entreprise ou au montage de projet'),
+    ('etudes_techniques', 'Études techniques (étude d’impact environnemental, Étude de sécurité,)'),
+    ('conseil_organisationnel', 'Conseil ou accompagnement organisationnel (systèmes de management, restructuration, etc.)'),
+    ('formation_professionnelle', 'Formation professionnelle sur mesure'),
+    ('digitalisation_processus', 'Digitalisation de processus internes'),
+    ('organisation_evenement', 'Organisation d’un événement ou atelier sur mesure'),
+    ('collaboration_partenariat', 'Collaboration ou partenariat avec GOZONE'),
+    ('autre_besoin', 'Autre'),
+]
+
+class GozoneContactForm(forms.Form):
+    # Standard contact fields (can be shared or duplicated if styling differs greatly)
+    nom_prenom = forms.CharField(
+        label="Nom et Prénom*",
+        max_length=100,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Votre nom complet'})
+    )
+    email = forms.EmailField(
+        label="Adresse Email*",
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'exemple@domaine.com'})
+    )
+    telephone = forms.CharField(
+        label="Numéro de Téléphone (Optionnel)",
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+216 XX XXX XXX'})
+    )
+    organisation = forms.CharField(
+        label="Organisation / Société (Optionnel)",
+        max_length=150,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de votre organisation'})
+    )
+
+    # GOZONE specific fields
+    profil_gozone = forms.ChoiceField(
+        choices=GOZONE_PROFILE_CHOICES,
+        widget=forms.RadioSelect, # Using RadioSelect as per your description
+        label="Votre profil*",
+        required=True
+    )
+    profil_gozone_autre_details = forms.CharField(
+        label="Si autre profil, veuillez préciser :",
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Précisez votre profil'})
+    )
+
+    besoins_gozone = forms.MultipleChoiceField(
+        choices=GOZONE_NEEDS_CHOICES,
+        widget=forms.CheckboxSelectMultiple, # Using CheckboxSelectMultiple for "Cochez ou précisez"
+        label="Vous êtes à la recherche de...*",
+        help_text="Cochez ou précisez votre demande (Votre besoin / prestation souhaitée)",
+        required=True
+    )
+    besoins_gozone_autre_details = forms.CharField(
+        label="Si autre besoin, veuillez préciser :",
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Décrivez votre besoin spécifique'})
+    )
+    message_complementaire = forms.CharField(
+        label="Message complémentaire (Optionnel)",
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Ajoutez des détails ou un message ici'})
+    )
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # You can add common classes or tweaks here if needed
+        # For radio/checkbox, styling is often template/CSS driven
+
+    def clean(self):
+        cleaned_data = super().clean()
+        profil = cleaned_data.get("profil_gozone")
+        profil_autre_details = cleaned_data.get("profil_gozone_autre_details")
+        besoins = cleaned_data.get("besoins_gozone")
+        besoins_autre_details = cleaned_data.get("besoins_gozone_autre_details")
+
+        if profil == 'autre_profil' and not profil_autre_details:
+            self.add_error('profil_gozone_autre_details', "Veuillez préciser votre profil si vous avez sélectionné 'Autre'.")
+
+        if besoins and 'autre_besoin' in besoins and not besoins_autre_details:
+            self.add_error('besoins_gozone_autre_details', "Veuillez préciser votre besoin si vous avez coché 'Autre'.")
+            
+        return cleaned_data

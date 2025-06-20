@@ -19,7 +19,7 @@ from .permissions import IsAuthor  # Import your custom permission
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
-from .forms import LeadGenerationForm # Import your new form
+from .forms import LeadGenerationForm, GozoneContactForm
 
 logger = logging.getLogger(__name__)
 
@@ -57,65 +57,78 @@ def index(request):
 # blog/views.py
 
 def new_index(request):
-    categories = Category.objects.all()
+    categories_qs = Category.objects.all() # For filter buttons
     top_authors = (
         AuthorProfile.objects.filter(is_author=True)
         .annotate(total_likes=Sum('user__ckpost__likes'))
-        .order_by('-total_likes')
+        .order_by('-total_likes')[:6]
     )
 
-    initial_hero_category = None
+    # --- Variables for the template context ---
+    ckposts_for_initial_render = CKPost.objects.all().order_by("-time") # Default: All posts
+    category_for_hero_and_description = None # Default: Generic hero/description
+    top_posts_for_initial_render = CKPost.objects.all().order_by("-likes")[:3] # Default: Top from all
+    sidebar_ads_for_initial_render = Advertisement.objects.filter(
+        position='sidebar', is_active=True, category__isnull=True # Default: General sidebar ads
+    ).order_by('display_order')
+    
+    # --- Try to load "Featured" category specifically for initial prominent display ---
     try:
-        initial_hero_category = Category.objects.get(name="Featured") # Or your preferred default
+        featured_category_obj = Category.objects.get(name__iexact="Featured") # Case-insensitive
+        logger.info(f"Found 'Featured' category: {featured_category_obj.name}")
+        
+        featured_posts = CKPost.objects.filter(category=featured_category_obj).order_by("-time")
+        if featured_posts.exists():
+            logger.info("'Featured' category has posts. Using it for initial display.")
+            ckposts_for_initial_render = featured_posts
+            category_for_hero_and_description = featured_category_obj # Use Featured for hero/desc
+            top_posts_for_initial_render = CKPost.objects.filter(category=featured_category_obj).order_by("-likes")[:3]
+            if not top_posts_for_initial_render.exists():
+                 top_posts_for_initial_render = featured_posts.order_by("-likes")[:3]
+
+            featured_sidebar_ads = Advertisement.objects.filter(
+                position='sidebar', is_active=True, category=featured_category_obj
+            ).order_by('display_order')
+            if featured_sidebar_ads.exists():
+                sidebar_ads_for_initial_render = featured_sidebar_ads
+            
+        else:
+            logger.info("'Featured' category exists but has no posts. Defaulting to general view for hero/description, and all posts.")
+            # All defaults (generic hero/desc, all posts, general sidebar) remain.
+            
     except Category.DoesNotExist:
-        initial_hero_category = Category.objects.first()
+        logger.info("'Featured' category not found. Defaulting to general view for hero/description, and all posts.")
+        # All defaults remain.
 
-    ckposts_initial = CKPost.objects.all().order_by("-time")
-    category_for_initial_tab_content = None 
-    top_posts_initial = CKPost.objects.all().order_by("-likes")[:3]
-    sidebar_ads_initial = Advertisement.objects.none()
-    bottom_category_ad_initial = None # For the included articlesTab
+    # --- DYNAMIC CATEGORY AD CONTAINER: Empty on initial load ---
+    # Pass an empty queryset for the initial state of bottom category ads.
+    initial_bottom_category_ads_list = Advertisement.objects.none() 
+    logger.info("The #dynamic-category-ad-container will be initially empty (no category-specific ads).")
 
-    # If you have a default category for the initial tab content (e.g., "Featured")
-    # And want to show its specific bottom ad in the tab content.
-    # Example: if initial_hero_category should dictate the tab content
-    # category_for_initial_tab_content = initial_hero_category 
-    # if category_for_initial_tab_content:
-    #     ckposts_initial = CKPost.objects.filter(category=category_for_initial_tab_content).order_by("-time")
-    #     top_posts_initial = CKPost.objects.filter(category=category_for_initial_tab_content).order_by("-likes")[:3]
-    #     sidebar_ads_initial = Advertisement.objects.filter(
-    #         position='sidebar', is_active=True, category=category_for_initial_tab_content
-    #     ).order_by('display_order')
-    #     bottom_category_ad_initial = Advertisement.objects.filter(
-    #         position='bottom_banner_category', is_active=True, category=category_for_initial_tab_content
-    #     ).order_by('display_order', '?').first()
-
-
-    if not sidebar_ads_initial.exists(): # Fallback to general sidebar ads if no specific ones
-        sidebar_ads_initial = Advertisement.objects.filter(
-            position='sidebar', is_active=True, category__isnull=True
-        ).order_by('display_order')
-
-    # This is the main bottom ad for the home page itself, distinct from tab content
-    bottom_home_ad_main = Advertisement.objects.filter(
+    # --- General "bottom of home page" ad (this is a separate, single ad) ---
+    bottom_home_ad_main_general = Advertisement.objects.filter(
         position='bottom_banner_home', is_active=True
-    ).order_by('display_order', '?').first()
+    ).order_by('display_order', '?').first() # This remains .first() as it's a single slot
 
     context = {
-        'categories': categories,
+        'categories': categories_qs,
         'top_authors': top_authors,
         'media_url': settings.MEDIA_URL,
         
-        'ckposts': ckposts_initial,
-        'category': category_for_initial_tab_content,
-        'sidebar_ads': sidebar_ads_initial,
-        'top_posts': top_posts_initial,
-        'bottom_category_ad': bottom_category_ad_initial, # Pass this to articlesTabV2htmx.html
-
-        'bottom_home_ad': bottom_home_ad_main, # For the home.html's own bottom ad
-        'initial_hero_category': initial_hero_category,
+        'ckposts': ckposts_for_initial_render,
+        'category': category_for_hero_and_description, # For hero/description sections
+        'sidebar_ads': sidebar_ads_for_initial_render, # List of sidebar ads
+        'top_posts': top_posts_for_initial_render,
+        
+        # For the dynamic category-specific ads (plural name)
+        'bottom_category_ads_initial': initial_bottom_category_ads_list, 
+        
+        # For the single general ad at the very bottom of the home page
+        'bottom_home_ad': bottom_home_ad_main_general,
     }
     return render(request, "blog/home.html", context)
+
+# blog/views.py
 
 def signup(request):
     if request.method == 'POST':
@@ -139,6 +152,53 @@ def signup(request):
 
     return render(request, "signup.html")
 
+
+def get_category_ad_snippet_htmx(request):
+    # 1. Get category_id from query parameter
+    category_id_from_request = request.GET.get('category_id', 'all') 
+    logger.info(f"get_category_ad_snippet_htmx received category_id: {category_id_from_request}")
+
+    bottom_ad_to_display = None # Initialize
+    
+    # 2. Check if we are looking for a specific category's ad or the "all" case
+    if category_id_from_request and category_id_from_request.lower() != 'all':
+        try:
+            # 3. Convert ID to integer and fetch Category object
+            cat_id_int = int(category_id_from_request)
+            target_category = get_object_or_404(Category, id=cat_id_int)
+            logger.info(f"Target category for ad: {target_category.name}")
+
+            # 4. Fetch the corresponding advertisement
+            bottom_ad_to_display = Advertisement.objects.filter(
+                position='bottom_banner_category', # Make sure this 'position' string matches your Advertisement model
+                is_active=True,
+                category=target_category # Filter by the specific category object
+            ).order_by('display_order', '?').first() # '?' for random if multiple with same order
+
+            if bottom_ad_to_display:
+                logger.info(f"Ad found for category '{target_category.name}': {bottom_ad_to_display.title}")
+            else:
+                logger.info(f"No 'bottom_banner_category' ad found for category: {target_category.name}")
+
+        except ValueError:
+            # category_id_from_request was not a valid integer (e.g., if something other than 'all' or a number was passed)
+            logger.warning(f"Invalid category_id format '{category_id_from_request}' received for ad snippet. It's not 'all' and not an integer.")
+            # bottom_ad_to_display remains None
+        except Category.DoesNotExist:
+            logger.warning(f"Category with id '{category_id_from_request}' not found for ad snippet.")
+            # bottom_ad_to_display remains None
+    else:
+        # Case: category_id_from_request is 'all' or was not provided (defaulted to 'all')
+        # For "all" articles, we typically don't show a specific category's bottom ad.
+        # So, bottom_ad_to_display remains None.
+        # If you HAD a default ad for the "all" view, you would fetch it here, e.g.:
+        # bottom_ad_to_display = Advertisement.objects.filter(position='bottom_banner_category', is_active=True, is_default_for_all=True).first()
+        logger.info("Request for 'all' category ad, or no category_id provided. No specific category ad will be shown.")
+            
+    # 5. Render the snippet template
+    return render(request, 'blog/partials/category_bottom_ad_snippet.html', {
+        'bottom_category_ad': bottom_ad_to_display # Pass the fetched ad (or None) to the template
+    })
 
 def signin(request):
     if request.method == 'POST':
@@ -209,57 +269,80 @@ def create_old(request):
 
 # blog/views.py
 
-def posts_by_category(request, id):
+def posts_by_category(request, id): # id is category_id string or 'all'
     media_url = settings.MEDIA_URL
-    all_categories_for_filters = Category.objects.all()
+    all_categories_for_filters = Category.objects.all() # For the filter buttons
     
-    current_view_category = None
-    ckposts_list = CKPost.objects.all()
-    top_posts_list = None
-    sidebar_ads_list = Advertisement.objects.none()
-    bottom_category_ad = None # Initialize
+    category_for_template = None # For hero/description sections
+    ckposts_list = CKPost.objects.all() 
+    top_posts_list = CKPost.objects.none() 
+    sidebar_ads_list = Advertisement.objects.none() 
+    
+    # This will be a list/queryset of ads for the 'bottom_banner_category' position
+    bottom_category_ads_list = Advertisement.objects.none() 
 
-    if id == 'all':
+    if id.lower() == 'all':
+        logger.info("Category 'all' selected. Generic hero/description. No specific bottom category ads.")
+        # category_for_template remains None
         ckposts_list = ckposts_list.order_by("-time")
-        current_view_category = None
         sidebar_ads_list = Advertisement.objects.filter(
             position='sidebar', is_active=True, category__isnull=True
         ).order_by('display_order')
         top_posts_list = CKPost.objects.all().order_by("-likes")[:3]
-        # No specific bottom_category_ad for "all"
-    else:
-        current_view_category = get_object_or_404(Category, id=id)
-        ckposts_list = ckposts_list.filter(category=current_view_category).order_by("-time")
-        
-        sidebar_ads_list = Advertisement.objects.filter(
-            position='sidebar', is_active=True, category=current_view_category
-        ).order_by('display_order')
-        if not sidebar_ads_list.exists():
-            sidebar_ads_list = Advertisement.objects.filter(
-                position='sidebar', is_active=True, category__isnull=True
-            ).order_by('display_order')
-        
-        top_posts_list = CKPost.objects.filter(category=current_view_category).order_by("-likes")[:3]
-        if not top_posts_list.exists() and ckposts_list.exists():
-            top_posts_list = ckposts_list.order_by("-likes")[:3] 
-        elif not top_posts_list.exists():
-            top_posts_list = CKPost.objects.none()
+        # bottom_category_ads_list remains Advertisement.objects.none()
 
-        # Fetch the bottom banner ad for this category
-        bottom_category_ad = Advertisement.objects.filter(
-            position='bottom_banner_category',
-            is_active=True,
-            category=current_view_category
-        ).order_by('display_order', '?').first() # '?' for random if multiple
+    else: # A specific category ID is provided
+        try:
+            category_pk = int(id)
+            specific_category_from_db = get_object_or_404(Category, id=category_pk)
+            
+            category_for_template = specific_category_from_db # Use this for hero/desc
+            logger.info(f"Specific category '{specific_category_from_db.name}' selected.")
+
+            ckposts_list = ckposts_list.filter(category=specific_category_from_db).order_by("-time")
+            
+            # Sidebar Ads
+            sidebar_ads_list = Advertisement.objects.filter(
+                position='sidebar', is_active=True, category=specific_category_from_db
+            ).order_by('display_order')
+            if not sidebar_ads_list.exists(): # Fallback to general sidebar ads
+                sidebar_ads_list = Advertisement.objects.filter(
+                    position='sidebar', is_active=True, category__isnull=True
+                ).order_by('display_order')
+            
+            # Top Posts
+            top_posts_list = CKPost.objects.filter(category=specific_category_from_db).order_by("-likes")[:3]
+            if not top_posts_list.exists() and ckposts_list.exists():
+                top_posts_list = ckposts_list.order_by("-likes")[:3]
+            
+            # Fetch ALL bottom_banner_category ads for this specific category, ordered
+            bottom_category_ads_list = Advertisement.objects.filter(
+                position='bottom_banner_category',
+                is_active=True,
+                category=specific_category_from_db
+            ).order_by('display_order') # Order them by display_order
+            
+            if bottom_category_ads_list.exists():
+                logger.info(f"{bottom_category_ads_list.count()} bottom category ad(s) found for '{specific_category_from_db.name}'.")
+            else:
+                logger.info(f"No bottom category ads found for '{specific_category_from_db.name}'.")
+
+        except ValueError:
+            logger.error(f"Invalid category ID format for posts_by_category: {id}")
+            # category_for_template remains None, bottom_category_ads_list remains empty
+            return HttpResponse("Invalid category ID format.", status=400)
+        # get_object_or_404 handles DoesNotExist
 
     context = {
         'ckposts': ckposts_list,
         'media_url': media_url,
-        'categories': all_categories_for_filters,
-        'category': current_view_category,
-        'sidebar_ads': sidebar_ads_list,
+        'categories': all_categories_for_filters, 
+        'category': category_for_template, # For hero/description
+        'sidebar_ads': sidebar_ads_list, # List of sidebar ads
         'top_posts': top_posts_list,
-        'bottom_category_ad': bottom_category_ad, # Add to context
+        
+        # Pass the LIST of bottom category-specific ads (plural name)
+        'bottom_category_ads': bottom_category_ads_list, 
     }
     return render(request, 'blog/articlesTabV2htmx.html', context)
 
@@ -623,39 +706,151 @@ def hero_section(request, category_id):  # Added a new view for the Hero Section
     return render(request, 'blog/heroSection.html', {'category': category})
 
 
+PROFIL_CHOICES_DICT = {
+    'etudiant': 'Étudiant / Porteur de projet',
+    'entrepreneur': 'Entrepreneur / Dirigeant de société',
+    'investisseur': 'Investisseur',
+    'autre': 'Autre',
+}
+
+from django.core.mail import send_mail, BadHeaderError
+
 def lead_generation_form_view(request):
     if request.method == 'POST':
         form = LeadGenerationForm(request.POST)
         if form.is_valid():
-            # Process the data (e.g., save to database, send email)
             profil = form.cleaned_data['profil']
-            email = form.cleaned_data['email']
+            email_from_user = form.cleaned_data['email'] # Renamed to avoid clash with email module
             nom_prenom = form.cleaned_data['nom_prenom']
-            telephone = form.cleaned_data['telephone']
-            gouvernorat = form.cleaned_data['gouvernorat']
-            
-            # Example: Print to console (replace with actual logic)
-            print(f"New Lead: Profil={profil}, Email={email}, Nom={nom_prenom}, Tel={telephone}, Gouv={gouvernorat}")
-            
-            # Store in a model (You'll need to create a Lead model for this)
-            # Lead.objects.create(
-            #     profil=profil, email=email, nom_prenom=nom_prenom, 
-            #     telephone=telephone, gouvernorat=gouvernorat
-            # )
+            telephone = form.cleaned_data.get('telephone', 'N/A') # Use .get for optional
+            gouvernorat = form.cleaned_data.get('gouvernorat', 'N/A') # Use .get for optional
 
-            messages.success(request, 'Merci ! Vos informations ont été soumises avec succès.')
-            return redirect('lead_generation_form') # Redirect to the same page to show success message or to a thank you page
-        else:
-            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
-    else:
-        form = LeadGenerationForm()
-        # You could pre-fill source_ad_id if passed via GET parameter from ad
-        # ad_id = request.GET.get('ad_id')
-        # if ad_id:
-        #     form.fields['source_ad_id'].initial = ad_id
+            # --- Start Email Sending Logic ---
+            subject = f"Nouvelle demande d'information (Livre Création Société) - {nom_prenom}"
             
+            # Get the display label for profil
+            profil_label = dict(form.fields['profil'].choices).get(profil, profil) # More robust way
+
+            message_body = f"""
+            Une nouvelle demande d'information a été soumise via le formulaire du livre :
+
+            Profil: {profil_label}
+            Nom et Prénom: {nom_prenom}
+            Email du demandeur: {email_from_user}
+            Téléphone: {telephone}
+            Gouvernorat: {gouvernorat}
+
+            ---
+            Ceci est un message automatisé.
+            """
+            sender_email = settings.DEFAULT_FROM_EMAIL
+            recipient_list = [settings.LIVRE_FORM_RECIPIENT_EMAIL]
+
+            try:
+                send_mail(subject, message_body, sender_email, recipient_list)
+                messages.success(request, 'Merci ! Vos informations ont été soumises et envoyées avec succès.')
+                
+                # Optional: Send a confirmation email to the user
+                # subject_user = "Confirmation de votre demande d'information"
+                # message_user = f"Bonjour {nom_prenom},\n\nNous avons bien reçu votre demande concernant le livre 'Créer sa société en Tunisie en 2025'.\nNous reviendrons vers vous dans les plus brefs délais.\n\nCordialement,\nL'équipe [Your Website Name]"
+                # try:
+                #     send_mail(subject_user, message_user, sender_email, [email_from_user])
+                # except Exception as e_user:
+                #     print(f"Failed to send confirmation email to user: {e_user}") # Log this error
+
+                # Redirect to the same page, but with an anchor to the form section
+                # This helps if the success message is at the top.
+                return redirect(request.path_info + '#lead-form')
+            
+            except BadHeaderError:
+                # Django's send_mail raises BadHeaderError if subject, message, or from_email contain newlines
+                messages.error(request, "Erreur d'en-tête invalide lors de la tentative d'envoi de l'email.")
+            except Exception as e:
+                # Catch other potential errors (e.g., SMTP server down, authentication failure)
+                print(f"Erreur lors de l'envoi de l'email : {e}") # Log this error for debugging
+                messages.error(request, "Une erreur s'est produite lors de l'envoi de votre demande. Veuillez réessayer plus tard ou nous contacter directement.")
+            # If email sending fails, the form (with data) will be re-rendered below with the error message.
+
+        else: # Form is not valid
+            messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
+    else: # GET request
+        form = LeadGenerationForm()
+
     context = {
         'form': form
     }
+    # Ensure 'blog/lead_form.html' is the correct path to your template
     return render(request, 'blog/lead_form.html', context)
 
+def gozone_contact_view(request):
+    if request.method == 'POST':
+        form = GozoneContactForm(request.POST)
+        if form.is_valid():
+            nom_prenom = form.cleaned_data['nom_prenom']
+            email_from_user = form.cleaned_data['email']
+            telephone = form.cleaned_data.get('telephone', 'N/A')
+            organisation = form.cleaned_data.get('organisation', 'N/A')
+            
+            profil_gozone_key = form.cleaned_data['profil_gozone']
+            profil_gozone_label = dict(form.fields['profil_gozone'].choices).get(profil_gozone_key, profil_gozone_key)
+            profil_gozone_autre_details = form.cleaned_data.get('profil_gozone_autre_details', '')
+
+            besoins_gozone_keys = form.cleaned_data['besoins_gozone']
+            besoins_labels = [dict(form.fields['besoins_gozone'].choices).get(key, key) for key in besoins_gozone_keys]
+            besoins_gozone_str = ", ".join(besoins_labels)
+            besoins_gozone_autre_details = form.cleaned_data.get('besoins_gozone_autre_details', '')
+            message_complementaire = form.cleaned_data.get('message_complementaire', 'N/A')
+
+            subject = f"Nouvelle prise de contact GOZONE - {nom_prenom}"
+            
+            message_body = f"""
+            Une nouvelle demande de contact a été soumise via le formulaire GOZONE :
+
+            Informations de Contact:
+            -------------------------
+            Nom et Prénom: {nom_prenom}
+            Email: {email_from_user}
+            Téléphone: {telephone}
+            Organisation/Société: {organisation}
+
+            Détails de la demande:
+            ----------------------
+            Profil: {profil_gozone_label}
+            """
+            if profil_gozone_key == 'autre_profil' and profil_gozone_autre_details:
+                message_body += f"  Précision Profil Autre: {profil_gozone_autre_details}\n"
+            
+            message_body += f"\nRecherche de / Besoins: {besoins_gozone_str}\n"
+            if 'autre_besoin' in besoins_gozone_keys and besoins_gozone_autre_details:
+                message_body += f"  Précision Besoin Autre: {besoins_gozone_autre_details}\n"
+            
+            message_body += f"\nMessage complémentaire:\n{message_complementaire}\n"
+            message_body += """
+            ---
+            Ceci est un message automatisé.
+            """
+
+            sender_email = settings.DEFAULT_FROM_EMAIL
+            # You might want a different recipient for this form, or use the same ADMIN_EMAIL_RECIPIENT
+            recipient_list = [settings.CONTACT_FORM_RECIPIENT_EMAIL] 
+
+            try:
+                send_mail(subject, message_body, sender_email, recipient_list)
+                messages.success(request, 'Merci ! Votre message a été envoyé avec succès. Nous vous contacterons bientôt.')
+                return redirect(request.path_info + '#gozone-contact-form-section') # Anchor to the form
+            except BadHeaderError:
+                messages.error(request, "Erreur d'en-tête invalide lors de la tentative d'envoi de l'email.")
+            except Exception as e:
+                logger.error(f"Erreur lors de l'envoi de l'email (GOZONE Contact): {e}")
+                messages.error(request, "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer plus tard.")
+        else:
+            messages.error(request, 'Veuillez corriger les erreurs dans le formulaire.')
+    else:
+        form = GozoneContactForm()
+
+    context = {
+        'form': form,
+        'page_title': "Contactez l'équipe GOZONE", # For dynamic title in template if needed
+        'form_section_id': 'gozone-contact-form-section' # For scrolling
+    }
+    return render(request, 'blog/gozone_contact_form.html', context)

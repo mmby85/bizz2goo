@@ -1,0 +1,17 @@
+{% if bottom_category_ads %} {# Check if the list/queryset exists and is not empty #}
+    {% for ad_item in bottom_category_ads %}
+        <section class="bottom-ad-section-category mb-3"> {# Added margin-bottom for spacing if multiple ads #}
+            <div class="container">
+                {% with ad_url=ad_item.get_absolute_url %}
+                    {% if ad_url %}
+                        <a href="{{ ad_url }}" {% if ad_item.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                            <img src="{{ ad_item.image.url }}" alt="{{ ad_item.title }}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+                        </a>
+                    {% else %}
+                        <img src="{{ ad_item.image.url }}" alt="{{ ad_item.title }}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </section>
+    {% endfor %}
+{% endif %}
