@@ -167,4 +167,6 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER # Or a specific "From" address like 'noreply@yourdomain.com'
 
 # This is where the notification emails will be sent TO
-ADMIN_EMAIL_RECIPIENT = os.environ.get('ADMIN_EMAIL_RECIPIENT')
+LIVRE_FORM_RECIPIENT_EMAIL = os.environ.get('LIVRE_FORM_RECIPIENT')
+CONTACT_FORM_RECIPIENT_EMAIL = os.environ.get('CONTACT_FORM_RECIPIENT')
+

@@ -744,7 +744,7 @@ def lead_generation_form_view(request):
             Ceci est un message automatisé.
             """
             sender_email = settings.DEFAULT_FROM_EMAIL
-            recipient_list = [settings.ADMIN_EMAIL_RECIPIENT]
+            recipient_list = [settings.LIVRE_FORM_RECIPIENT_EMAIL]
 
             try:
                 send_mail(subject, message_body, sender_email, recipient_list)
@@ -832,7 +832,7 @@ def gozone_contact_view(request):
 
             sender_email = settings.DEFAULT_FROM_EMAIL
             # You might want a different recipient for this form, or use the same ADMIN_EMAIL_RECIPIENT
-            recipient_list = [settings.ADMIN_EMAIL_RECIPIENT] 
+            recipient_list = [settings.CONTACT_FORM_RECIPIENT_EMAIL] 
 
             try:
                 send_mail(subject, message_body, sender_email, recipient_list)
