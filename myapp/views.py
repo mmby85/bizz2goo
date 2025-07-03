@@ -20,6 +20,8 @@ from rest_framework.decorators import permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from .forms import LeadGenerationForm, GozoneContactForm
+from django.core.mail import send_mail
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +59,42 @@ def index(request):
 # blog/views.py
 
 def new_index(request):
+    # === START: ADDED LOGIC FOR NEWSLETTER FORM ===
+    if request.method == 'POST':
+        # The newsletter form on home.html posts to this view.
+        # We get the submitted email from the POST data.
+        newsletter_email = request.POST.get('email')
+
+        if newsletter_email:
+            subject = "Nouvel abonné à la newsletter GOZONE"
+            message_body = f"Une nouvelle personne s'est abonnée à la newsletter avec l'adresse email suivante :\n\n{newsletter_email}"
+            
+            sender_email = settings.EMAIL_HOST_USER 
+            
+            # The recipient email from your .env file
+            # Note: Based on your other views, the setting is likely named CONTACT_FORM_RECIPIENT_EMAIL in settings.py
+            # If that doesn't work, try settings.CONTACT_FORM_RECIPIENT_EMAIL
+            recipient_list = [settings.CONTACT_FORM_RECIPIENT_EMAIL] 
+
+             # === ADD THIS DEBUG LINE ===
+            print(f"DEBUG: Attempting to send newsletter to: {recipient_list}")
+            # ===========================
+
+            try:
+                send_mail(subject, message_body, sender_email, recipient_list)
+                messages.success(request, "Merci ! Vous êtes maintenant abonné à notre newsletter.")
+            except Exception as e:
+                # Log the error for debugging purposes
+                logger.error(f"Erreur lors de l'envoi de l'email de la newsletter : {e}")
+                messages.error(request, "Une erreur est survenue. Veuillez réessayer plus tard.")
+            
+            # Redirect to the same page to prevent form re-submission on refresh.
+            # This also ensures the success/error message is displayed.
+            return redirect(request.path_info)
+    # === END: ADDED LOGIC FOR NEWSLETTER FORM ===
+
+
+    # The original GET request logic remains unchanged below
     categories_qs = Category.objects.all() # For filter buttons
     top_authors = (
         AuthorProfile.objects.filter(is_author=True)
@@ -94,21 +132,18 @@ def new_index(request):
             
         else:
             logger.info("'Featured' category exists but has no posts. Defaulting to general view for hero/description, and all posts.")
-            # All defaults (generic hero/desc, all posts, general sidebar) remain.
             
     except Category.DoesNotExist:
         logger.info("'Featured' category not found. Defaulting to general view for hero/description, and all posts.")
-        # All defaults remain.
 
     # --- DYNAMIC CATEGORY AD CONTAINER: Empty on initial load ---
-    # Pass an empty queryset for the initial state of bottom category ads.
     initial_bottom_category_ads_list = Advertisement.objects.none() 
     logger.info("The #dynamic-category-ad-container will be initially empty (no category-specific ads).")
 
     # --- General "bottom of home page" ad (this is a separate, single ad) ---
     bottom_home_ad_main_general = Advertisement.objects.filter(
         position='bottom_banner_home', is_active=True
-    ).order_by('display_order', '?').first() # This remains .first() as it's a single slot
+    ).order_by('display_order', '?').first()
 
     context = {
         'categories': categories_qs,
@@ -116,14 +151,12 @@ def new_index(request):
         'media_url': settings.MEDIA_URL,
         
         'ckposts': ckposts_for_initial_render,
-        'category': category_for_hero_and_description, # For hero/description sections
-        'sidebar_ads': sidebar_ads_for_initial_render, # List of sidebar ads
+        'category': category_for_hero_and_description,
+        'sidebar_ads': sidebar_ads_for_initial_render,
         'top_posts': top_posts_for_initial_render,
         
-        # For the dynamic category-specific ads (plural name)
         'bottom_category_ads_initial': initial_bottom_category_ads_list, 
         
-        # For the single general ad at the very bottom of the home page
         'bottom_home_ad': bottom_home_ad_main_general,
     }
     return render(request, "blog/home.html", context)

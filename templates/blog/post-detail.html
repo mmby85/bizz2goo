@@ -1,343 +1,335 @@
 {% extends "blog/base.html" %}
 {% load static %}
 {% load i18n %}
+
 {% block body %}
 
 {% include "blog/heroSection.html" with category=post.category %}
 
 <div class="main main-raised">
-  <section class="blog-posts grid-system">
-    <div class="container py-8">
-      <!-- Blog Header -->
-      <div class="row justify-content-center">
-        <div class="col-md-20 text-center">
-          <h2 class="text-center" style="font-family: Roboto; font-weight: 600; color: #05012e;" >{{ post.title }}</h2>
-          {% if can_edit %}
-          <a href="{% url 'edit_post' slug=post.slug %}" class="btn btn-warning btn-sm mt-2">
-            <i class="fas fa-edit"></i> Edit Post
-          </a>
-          {% endif %}
-          <h3 class="title-uppercase">
-            <small>Rédigé par  {{ author_profile.user.get_full_name|default:author_profile.user.username }} | </small>
-            <small class="title-uppercase text-muted">{{ post.time | date:"d F Y" }}</small>
-          </h3>
-        </div>
-      </div>
+    <div class="container py-4 py-md-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-12 col-md-11">
 
-      <!-- Blog Content -->
-      <div class="row justify-content-center mt-4 ml-auto mr-auto">
-        <div class="col-md-20 text-center">
-          <div class="category text-info" style="margin-bottom: 20px;">
-            <span class="main-tag badge badge-primary" style="background-color: #000066;">{{ post.category.name }}</span>
-          </div>
-         
-        </div>
+                <!-- ===== Post Header ===== -->
+                <div class="row justify-content-center">
+                  <div class="col-md-20 text-center">
+                    <h2 class="text-center" style="font-family: Roboto; font-weight: 600; color: #05012e;" >{{ post.title }}</h2>
+                    {% if can_edit %}
+                    <a href="{% url 'edit_post' slug=post.slug %}" class="btn btn-warning btn-sm mt-2">
+                      <i class="fas fa-edit"></i> Edit Post
+                    </a>
+                    {% endif %}
+                    <h3 class="title-uppercase">
+                      <small>Rédigé par  {{ author_profile.user.get_full_name|default:author_profile.user.username }} | </small>
+                      <small class="title-uppercase text-muted">{{ post.time | date:"d F Y" }}</small>
+                    </h3>
+                    <a class="main-tag badge badge-primary" style="background-color: #000066;margin-bottom: 16px;">{{ post.category.name }}</a>
+                  </div>
+                  
+                    
+                  
+                </div>
 
-        <div class="col-md-12 text-center">
-          <div class="card post-image" 
-               style="background-image: url('{{ media_url }}{{ post.image }}')">
-          </div>
-          <div class="col-md-12 mx-auto post-content-wrapper">
-            <div class="article-content text-justify">
-              {{ post.content | safe }}
+                <!-- ===== Post Image ===== -->
+                <div class="post-image-container mb-4 mb-md-5">
+                    <img src="{{ media_url }}{{ post.image }}" alt="{{ post.title }}" class="post-image-fluid">
+                </div>
+
+                <!-- ===== Post Content ===== -->
+                <article class="post-content">
+                    {{ post.content | safe }}
+                </article>
+
+                <!-- ===== Author Profile Section ===== -->
+                {% if author_profile %}
+                <section class="author-profile-section mt-5">
+                    <a class="author-avatar-link" href="{% url 'author_profile' author_profile.user.username %}">
+                        {% if author_profile.profile_picture %}
+                            <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-avatar-img">
+                        {% else %}
+                            <img src="{% static 'blog/assets/img/default-avatar.png' %}" alt="Default Avatar" class="author-avatar-img">
+                        {% endif %}
+                    </a>
+                    <div class="author-info-body">
+                        <h4 class="author-name-heading">
+                            <a href="{% url 'author_profile' author_profile.user.username %}">
+                                {{ author_profile.user.get_full_name|default:author_profile.user.username }}
+                            </a>
+                        </h4>
+                        {% if author_profile.metier %}
+                        <p class="author-metier">{{ author_profile.metier }}</p>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- ===== Comments Section ===== -->
+                <section class="comments-section mt-5">
+                    <h3 class="text-center mb-4">Commentaires</h3>
+
+                    <div id="comments-container">
+                        {% for comment in top_level_comments %}
+                            {% include 'blog/comment.html' with comment=comment post=post %}
+                        {% empty %}
+                            <p class="text-center text-muted">Soyez le premier à commenter !</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- New Comment Form -->
+                    <div class="comment-form-wrapper mt-4">
+                        <form method="POST" action="{% url 'add_comment' %}" hx-post="{% url 'add_comment' %}"
+                            hx-target="#comments-container" hx-swap="beforeend" id="comment-form">
+                            {% csrf_token %}
+                            <div class="form-group mb-3">
+                                <label for="username" class="visually-hidden">Nom</label>
+                                <input type="text" id="username" name="username" placeholder="Entrez votre nom" required
+                                    class="form-control" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="content" class="visually-hidden">Commentaire</label>
+                                <textarea id="content" name="content" placeholder="Écrivez votre commentaire ici..." required
+                                    class="form-control" rows="4"></textarea>
+                            </div>
+                            <input type="hidden" name="slug" value="{{ post.slug }}" />
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-comment">Commenter</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
             </div>
-          </div>
         </div>
-      </div>
-
-      <!-- Author Profile -->
-           <!-- Author Profile -->
-           {% if author_profile %}
-           <div class="row author-profile-row" style=" margin-right: 100px;"> <!-- Added class author-profile-row -->
-             
-               <div class="author-profile-flex-container"> <!-- New Flex Container -->
-                 <a class="author-avatar-link" href="{% url 'author_profile' author_profile.user.username %}">
-                   <div class="avatar author-avatar-wrapper">
-                     {% if author_profile.profile_picture %}
-                       <img src="{{ author_profile.profile_picture.url }}" alt="{{ author_profile.user.username }}" class="author-picture-img">
-                     {% else %}
-                       <!-- Optional: Placeholder if no profile picture -->
-                       <img src="{% static 'blog/assets/img/default-avatar.png' %}" alt="Default Avatar" class="author-picture-img">
-                     {% endif %}
-                   </div>
-                 </a>
-                 <div class="media-body author-info-body">
-                   <h4 class="media-heading author-name-heading">
-                     <a href="{% url 'author_profile' author_profile.user.username %}">
-                       {{ author_profile.user.get_full_name|default:author_profile.user.username }}
-                     </a>
-                   </h4>
-                   {% if author_profile.metier %} <!-- Changed from bio to metier as per your HTML -->
-                     <p class="author-metier">{{ author_profile.metier }}</p>
-                   {% endif %}
-                 </div>
-               </div>
-               
-           </div>
-           {% endif %}
-
-
-
-
-      <!-- Comments Section -->
-      <div class="row" style="margin-left: 100px; margin-right: 100px;">
-        <div class="comments media-area">
-          <h3 class="text-center">Commentaires</h3>
-
-          <style>
-            .btn-comment {
-              border-radius: 0.5rem;
-              background-color: #041C3F !important;
-              border-color: #041C3F !important;
-              color: white !important;
-            }
-
-            .comment-form-bg {
-              background-color: #E1E1E1;
-              border-radius: 1rem;
-              padding: 30px;
-              margin-top: 1rem;
-              position: relative;
-            }
-
-            .btn-custom {
-              background-color: #041C3F;
-              border-color: #041C3F;
-              color: white;
-              position: relative;
-              top: 10px;
-              left: 85%;
-            }
-
-            .btn-custom:hover {
-              background-color: #031633;
-              border-color: #031633;
-            }
-            .container{
-              padding-bottom: 32px;
-            }
-          </style>
-
-          <div id="comments-container">
-            {% for comment in top_level_comments %}
-            {% include 'blog/comment.html' with comment=comment post=post %}
-            {% endfor %}
-          </div>
-
-          <!-- New Comment Form -->
-          <div class="comment-form-bg">
-            <form
-              method="POST"
-              action="{% url 'add_comment' %}"
-              hx-post="{% url 'add_comment' %}"
-              hx-target="#comments-container"
-              hx-swap="beforeend"
-              id="comment-form"
-            >
-              {% csrf_token %}
-              <div class="form-group mb-3">
-                <label for="username" class="form-label fw-bold"></label>
-                <input
-                  type="text"
-                  id="username"
-                  name="username"
-                  placeholder="Entrez votre nom"
-                  required
-                  class="form-control"
-                />
-              </div>
-              <div class="form-group mb-3">
-                <label for="content" class="form-label fw-bold"></label>
-                <textarea
-                  id="content"
-                  name="content"
-                  placeholder="Écrivez votre commentaire ici..."
-                  required
-                  class="form-control"
-                ></textarea>
-              </div>
-              <input type="hidden" name="slug" value="{{ post.slug }}" />
-              <button type="submit" class="btn btn-custom w-100 btn-comment">Commenter</button>
-            </form>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- Bottom Category Advertisement Section for Post Detail -->
-{% if bottom_category_ad %}
-<section class="bottom-ad-section-post-detail" style="padding: 30px 0; text-align: center; background-color: #f8f9fa; margin-top: 2rem;">
-    <div class="container">
-        {% with ad_url=bottom_category_ad.get_absolute_url %}
-            {% if ad_url %}
-                <a href="{{ ad_url }}" {% if bottom_category_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                    <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 200px; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
-                </a>
-            {% else %}
-                <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" style="max-width: 100%; max-height: 90%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
-            {% endif %}
-        {% endwith %}
-    </div>
-</section>
-{% endif %}
+    <!-- ===== Bottom Advertisement Section ===== -->
+    {% if bottom_category_ad %}
+    <section class="bottom-ad-section-post-detail">
+        <div class="container">
+            {% with ad_url=bottom_category_ad.get_absolute_url %}
+            <a href="{{ ad_url|default:'#' }}" {% if bottom_category_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                <img src="{{ bottom_category_ad.image.url }}" alt="{{ bottom_category_ad.title }}" class="ad-image">
+            </a>
+            {% endwith %}
+        </div>
+    </section>
+    {% endif %}
 
-  </section>
 </div>
 
 <script>
-  function toggleReplyForm(event, commentId) {
-    event.preventDefault();
-    const replyForm = document.getElementById(`reply-form-${commentId}`);
-    const replyButton = event.currentTarget;
+    // Your Javascript for reply forms remains the same, it's perfect.
+    function toggleReplyForm(event, commentId) {
+        event.preventDefault();
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        const replyButton = event.currentTarget;
 
-    replyForm.classList.toggle('hidden');
+        replyForm.classList.toggle('hidden');
 
-    if (replyForm.classList.contains('hidden')) {
-        replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Reply';
-    } else {
-        replyButton.innerHTML = '<i class="fa fa-times mr-1"></i> Cancel';
+        if (replyForm.classList.contains('hidden')) {
+            replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Répondre';
+        } else {
+            replyButton.innerHTML = '<i class="fa fa-times mr-1"></i> Annuler';
+        }
     }
-  }
 
-  function resetReplyForm(event, commentId) {
-    const replyForm = document.getElementById(`reply-form-${commentId}`);
-    const replyButton = document.querySelector(`.reply-btn[data-comment-id="${commentId}"]`);
-    const usernameInput = replyForm.querySelector('#username');
-    const contentTextarea = replyForm.querySelector('#content');
+    function resetReplyForm(event, commentId) {
+        const replyForm = document.getElementById(`reply-form-${commentId}`);
+        const replyButton = document.querySelector(`.reply-btn[data-comment-id="${commentId}"]`);
+        const usernameInput = replyForm.querySelector('#username');
+        const contentTextarea = replyForm.querySelector('#content');
 
-    replyForm.classList.add('hidden');
-    replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Reply';
-    usernameInput.value = '';
-    contentTextarea.value = '';
-    replyButton.focus();
-  }
+        replyForm.classList.add('hidden');
+        replyButton.innerHTML = '<i class="fa fa-reply mr-1"></i> Répondre';
+        usernameInput.value = '';
+        contentTextarea.value = '';
+        replyButton.focus();
+    }
 </script>
 
 <style>
-  .post-image {
-    aspect-ratio: 16/9; 
-    background-size: cover;
-    background-position: center;
-    margin: 20px 0;
-    border-radius: 8px;
-  }
-
-  .post-content-wrapper {
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 0 20px;
-  }
-
-  .article-content {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    color: #444;
-  }
-
-  .article-content p {
-    margin-bottom: 1.5rem;
-  }
-
-  .article-content img {
-    max-width: 100%;
-    height: auto;
-    margin: 2rem 0;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  }
-
-  .article-content h2,
-  .article-content h3,
-  .article-content h4 {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    color: #2c3e50;
-  }
-
-  .form-group {
-    margin: 2px 0 0;
-  }
-
-  .reply-btn {
-    z-index: 10;
-  }
-
-  @media (max-width: 768px) {
-    .post-content-wrapper {
-      padding: 0 15px;
+    /* General Post Styling */
+    .post-header .category-badge {
+        display: inline-block;
+        padding: 0.4em 0.9em;
+        font-size: 0.8rem;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 50rem; /* pill shape */
+        text-transform: uppercase;
+        background-color: #05012e;
+        color: #fff;
+        text-decoration: none;
+        transition: background-color 0.3s;
     }
-    
-    .article-content {
-      font-size: 1rem;
-      line-height: 1.6;
+    .post-header .category-badge:hover {
+        background-color: #1260CC;
+        color: #fff;
     }
-  }
-  /* === Author Profile Styles === */
-  .author-profile-row, .comments-section-row {
-    /* Adjust margins as needed, or use Bootstrap padding/margin utilities on the parent container */
-    margin-right: auto; /* Center the row content */
-    max-width: 900px; /* Example max-width for these sections, adjust as needed */
-    padding-left: 15px; /* Add some padding if removing fixed margins */
-    padding-right: 15px;
-  }
 
-  .author-profile-flex-container {
-    display: flex;
-    align-items: center; /* Vertically aligns items to the center */
-    gap: 20px; /* Space between avatar and text info */
-    width: 100%; /* Ensure it takes full width of its parent row/column */
-  }
+    .post-title {
+        font-family: 'Roboto Slab', serif;
+        font-weight: 700;
+        color: #05012e;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+    }
 
-  .author-avatar-link {
-    display: block; /* Good practice for links containing block elements */
-    flex-shrink: 0; /* Prevents the avatar from shrinking if text is long */
-  }
+    .post-meta {
+        font-size: 0.9rem;
+    }
+    .post-meta .author-link {
+        color: #555;
+        font-weight: 500;
+        text-decoration: none;
+    }
+    .post-meta .author-link:hover {
+        color: #1260CC;
+    }
 
-  .author-avatar-wrapper {
-    width: 130px; /* Increased size */
-    height: 130px; /* Increased size, keep same as width for a circle */
-    border-radius: 50%; /* Makes it circular */
-    overflow: hidden; /* Clips the image to the circular boundary */
-    display: flex; /* To center the image within if it's smaller (though object-fit handles it well) */
-    justify-content: center;
-    align-items: center;
-    border: 3px solid #eee; /* Optional: adds a light border */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: subtle shadow */
-  }
+    /* Post Image */
+    .post-image-container {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    .post-image-fluid {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
 
-  .author-picture-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Ensures the image covers the area, centered, and crops if necessary */
-    display: block; /* Removes any extra space below the image */
-  }
+    /* Post Content */
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+        text-align: left; /* Better for readability than justify */
+    }
+    .post-content p { margin-bottom: 1.5rem; }
+    .post-content h1, .post-content h2, .post-content h3, .post-content h4, .post-content h5 {
+        font-family: 'Roboto Slab', serif;
+        margin-top: 2.5rem;
+        margin-bottom: 1.2rem;
+        color: #2c3e50;
+    }
+    .post-content img {
+        max-width: 100%;
+        height: auto;
+        margin: 2rem 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
 
-  .author-info-body {
-    /* Flexbox on parent already handles alignment, so specific margins might not be needed */
-    /* If you had specific margins on media-body before, you might want to remove or adjust them */
-  }
+    /* Author Profile Section */
+    .author-profile-section {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+    }
+    .author-avatar-link { flex-shrink: 0; }
+    .author-avatar-img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .author-info-body { flex-grow: 1; }
+    .author-name-heading {
+        margin: 0 0 5px 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    .author-name-heading a {
+        color: inherit;
+        text-decoration: none;
+    }
+    .author-name-heading a:hover { text-decoration: underline; }
+    .author-metier {
+        margin: 0;
+        color: #6c757d;
+        font-size: 1rem;
+    }
 
-  .author-name-heading {
-    color: #403d39;
-    font-weight: 600;
-    margin-top: 0; /* Adjust as needed, flex align-items might make this less critical */
-    margin-bottom: 5px; /* Reduced margin a bit */
-  }
-  .author-name-heading a {
-    color: inherit; /* Inherit color from h4 */
-    text-decoration: none;
-  }
-  .author-name-heading a:hover {
-    text-decoration: underline;
-  }
+    /* Comments Section */
+    .comments-section .text-center { color: #05012e; font-weight: 600; }
+    .comment-form-wrapper {
+        background-color: #f0f2f5;
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+    .btn-comment {
+        background-color: #05012e !important;
+        border-color: #05012e !important;
+        color: white !important;
+        padding: 12px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+    .btn-comment:hover {
+        background-color: #1260CC !important;
+        border-color: #1260CC !important;
+    }
+    .form-control:focus {
+        border-color: #1260CC;
+        box-shadow: 0 0 0 0.25rem rgba(18, 96, 204, 0.25);
+    }
 
-  .author-metier {
-    margin-top: 0;
-    margin-bottom: 0; /* Remove bottom margin if it's the last item */
-    color: #555;
-    font-size: 1.7rem;
-    font-weight: 400;
-  }
+    /* Bottom Ad Section */
+    .bottom-ad-section-post-detail {
+        padding: 40px 0;
+        text-align: center;
+        background-color: #f8f9fa;
+        margin-top: 3rem;
+    }
+    .bottom-ad-section-post-detail .ad-image {
+        max-width: 100%;
+        max-height: 420px; /* Increased for better visibility */
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+     /* ===== RESPONSIVE ADJUSTMENTS ===== */
+     @media (max-width: 768px) {
+        .post-title { font-size: 1.8rem; }
+        .post-content { font-size: 1rem; line-height: 1.7; max-width: 100%; }
+        .author-profile-section { flex-direction: column; text-align: center; max-width: 100%;}
+        .comments-section { max-width: 100%; }
 
+        /* CKEDITOR IMAGE FIX: On screens 768px or less, FORCE images to be responsive */
+        .post-content img {
+            max-width: 100% !important; /* Forces responsiveness over inline styles */
+            height: auto !important;    /* Maintains aspect ratio */
+            width: 100% !important;      /* Optional: Ensure it fills container width if needed */
+            margin: auto !important;
+        }
+    }
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .post-title { font-size: 1.8rem; }
+        .post-content { font-size: 1rem; line-height: 1.7; }
+        .author-profile-section { flex-direction: column; text-align: center; }
+    }
+    @media (max-width: 576px) {
+        .container { padding-left: 1rem; padding-right: 1rem; }
+        .comment-form-wrapper { padding: 1.5rem; }
+    }
+
+    /* Utility class for JS */
+    .hidden {
+        display: none !important;
+    }
 </style>
+
 {% endblock %}
