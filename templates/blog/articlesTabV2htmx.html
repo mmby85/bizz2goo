@@ -104,6 +104,7 @@
         line-height: 1.1; /* Tight line height for title */
         color: #05012e; /* Original color */
          text-align: center; /* Centering title */
+         
     }
     .card-plain.card-blog .card-text {
         /* text-align:center; */ /* Removed text-align center from CSS, apply inline if needed per instance */
@@ -111,7 +112,8 @@
         font-size: 16px;
         color: #555; /* Original color */
         margin-bottom: 0.5rem;
-        flex-grow: 1; /* Allow text to take available space */
+        flex-grow: 0; /* Allow text to take available space */
+        
     }
     .card-plain.card-blog .text-muted {
         font-size: 12px;
@@ -178,6 +180,66 @@
 body{
 background-color: #fff;
 }
+
+#category-description-section .container {
+    max-width: 1100px; /* Increased from 980px */
+}
+
+.description-card {
+    /* --- ENHANCED VISIBILITY --- */
+    /* 1. A slightly darker, more opaque background tint */
+    background: rgba(245, 247, 250, 0.85); /* Light blueish-gray, not pure white */
+
+    /* 2. A more prominent and darker shadow to "lift" the card */
+    box-shadow: 0 15px 45px rgba(60, 72, 88, 0.2);
+
+    /* 3. A visible, crisp border */
+    border: 1px solid rgba(220, 225, 230, 0.9);
+
+    /* --- Unchanged Glass & Sizing Effects --- */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px; /* Increased from 20px */
+    padding: 3.6rem; /* Increased from 3rem */
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.description-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 700;
+    /* --- 20% BIGGER FONT --- */
+    font-size: 3.3rem; /* Increased from 2.75rem */
+    color: #05012e;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.5px;
+}
+
+.description-text {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    /* --- 20% BIGGER FONT --- */
+    font-size: 2rem; /* Increased from 1.25rem */
+    line-height: 1.8;
+    color: #3c4858;
+    max-width: 840px; /* Increased to accommodate larger font */
+    margin: 0 auto;
+}
+
+/* Responsive adjustments for the even bigger fonts and card */
+@media (max-width: 767px) {
+    .description-card {
+        padding: 2.5rem 1.5rem; /* Increased padding */
+    }
+
+    .description-title {
+        font-size: 2.4rem; /* Scaled up for mobile */
+    }
+
+    .description-text {
+        font-size: 1.3rem; /* Scaled up for mobile */
+    }
+}
 </style>
 
 
@@ -223,30 +285,29 @@ background-color: #fff;
 
     <!-- Category Description -->
   
-  <section id="category-description-section" class="section">
-    <div class="" style="margin-left: 15%; margin-right: 15%;">
-        {% if category and category.description %}
-            {# Case 1: Specific category with a description #}
-            <h2 class="text-center" style="font-weight: 600; color: #3c4858; font-family: Roboto;">{{ category.name|upper }}</h2>
-            <div id="category-description-wrapper" class="widget">
-                <p id="category-description-text" class="text-center" style="font-size: 20px; font-family: Roboto; line-height: 1.4; font-weight: 400;" data-is-expanded="false">
-                    {{ category.description|safe }}
-                </p>
+    <section id="category-description-section" class="section">
+        <div class="container">
+            <div class="description-card">
+                {% if category and category.description %}
+                    <h2 class="description-title">{{ category.name|upper }}</h2>
+                    <div id="category-description-wrapper">
+                        <p id="category-description-text" class="description-text" data-is-expanded="false">
+                            {{ category.description|safe }}
+                        </p>
+                    </div>
+                {% else %}
+                    <h2 class="description-title">Bienvenue sur GOZONE</h2>
+                    <div id="category-description-wrapper">
+                        <p id="category-description-text" class="description-text" data-is-expanded="false">
+                            Premier blog en Tunisie et dans la région MENA 100 % dédié au Business Development & Management.
+                            Nous décryptons les mutations du marché pour vous livrer des contenus à forte valeur: articles engagés, guides pratiques, études de cas inspirantes, outils concrets.
+                            Entrepreneurs, managers, dirigeants de PME : explorez, innovez, réussissez à l’ère du digital.
+                        </p>
+                    </div>
+                {% endif %}
             </div>
-        {% else %}
-            {# Case 2: No specific category for description (category is None, or it's a specific category without a description) #}
-            {# This will also cover your "AllCategoryDisplay" object if it doesn't have a .description attribute #}
-            <h2 class="text-center" style="font-weight: 600; color: #3c4858; font-family: Roboto;">Bienvenue sur GOZONE</h2>
-            <div id="category-description-wrapper" class="widget">
-                <p id="category-description-text" class="text-center" style="font-size: 20px; font-family: Roboto; line-height: 1.4; font-weight: 400;" data-is-expanded="false">
-                    Premier blog en Tunisie et dans la région MENA 100 % dédié au Business Development & Management.
-                    Nous décryptons les mutations du marché pour vous livrer des contenus à forte valeur: articles engagés, guides pratiques, études de cas inspirantes, outils concrets.
-                    Entrepreneurs, managers, dirigeants de PME : explorez, innovez, réussissez à l’ère du digital.
-                </p>
-            </div>
-        {% endif %}
-    </div>
-</section>
+        </div>
+    </section>
 
     <!-- Section des Articles & Sidebar -->
     <section id="posts-main-area" class="section">
@@ -260,9 +321,9 @@ background-color: #fff;
                     <div id="posts-container" class="row gy-4">
                         {% for post in ckposts %}
                             {% if sidebar_ads %}
-                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                <div class="col-lg-6 col-md-6 col-sm-12" >
                             {% else %}
-                                <div class="col-lg-4 col-md-6 col-sm-12">
+                                <div class="col-lg-4 col-md-6 col-sm-12" >
                             {% endif %}
                                     <div class="card card-plain card-blog">
                                         <a href="{% url 'post_detail' post.slug %}" class="d-block">
@@ -274,7 +335,7 @@ background-color: #fff;
                                             <div class="card-body">
                                                 <h4 class="card-title">{{ post.title|safe }}</h4>
                                                 <p class="card-text">
-                                                    {{ post.content|striptags|truncatewords_html:20|safe }}
+                                                    {{ post.content|striptags|truncatewords_html:6|safe }}
                                                 </p>
                                                 <p class="text-muted">
                                                     <span><i class="material-icons">access_time</i> {{ post.time|date:"d M Y" }}</span>
@@ -333,7 +394,7 @@ background-color: #fff;
                             <div class="card-body">
                                 <h4 class="card-title">{{ post.title|safe }}</h4>
                                 <p class="card-text">
-                                    {{ post.content|striptags|truncatewords_html:20|safe }}
+                                    {{ post.content|striptags|truncatewords_html:6|safe }}
                                 </p>
                                 <p class="text-muted">
                                     <span><i class="material-icons">access_time</i> {{ post.time|date:"d M Y" }}</span>

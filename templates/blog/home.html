@@ -6,190 +6,233 @@
 {% block body %}
 
 <style>
-    /* Global or Base Styles (Consider moving to a main CSS file) */
-    .partner-section {
-        background: #f8f9fa; padding: 80px 0; overflow: hidden;
-    }
-    .partner-grid {
-        display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem; padding: 0 1rem;
-    }
-    .partner-item {
-        flex: 0 1 180px; margin: 1rem; padding: 1rem; transition: all 0.3s ease;
-    }
-    .logo-container {
-        width: 100%; padding-bottom: 60%; position: relative; background: white;
-        border-radius: 8px; overflow: hidden;
-    }
-    .partner-logo {
-        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        max-width: 95%; max-height: 95%; object-fit: contain; filter: grayscale(100%);
-        transition: all 0.3s ease;
-    }
-    .partner-item:hover .partner-logo {
-        filter: grayscale(0%); transform: translate(-50%, -50%) scale(1.05);
-    }
-    @media (max-width: 768px) { .partner-item { flex-basis: 140px; } }
-
-    /* Styles for MAIN home page bottom ad section */
-    .bottom-ad-section { /* For bottom_home_ad */
-        margin-top: 40px;
-        padding: 20px 0;
-        text-align: center;
-        background-color: #f8f9fa; /* Optional: background color */
-    }
-    .bottom-ad-section img {
-        max-width: 85%; /* Responsive image */
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    .bottom-ad-section a {
-        display: inline-block;
+    /* 
+    =============================================
+    General & Section Styles
+    =============================================
+    */
+    .section-title-custom {
+        font-family: 'Roboto', sans-serif;
+        font-size: 3rem;
+        margin-bottom: 32px;
+        font-weight: 600;
+        color: #3c4858;
     }
 
-    /* Styles for the DYNAMICALLY UPDATED category-specific ad in home.html */
-    /* This targets the content inside the #dynamic-category-ad-container */
-    #dynamic-category-ad-container .bottom-ad-section-category { /* YOUR ORIGINAL CLASS FOR THIS TYPE OF AD */
-        margin-top: 3rem; /* Your original margin */
-        padding: 20px 0; /* Your original padding */
-        text-align: center; /* Your original alignment */
-        /* background-color: #e9ecef; /* Your original bg or lack thereof */
-    }
-    #dynamic-category-ad-container .bottom-ad-section-category img {
-        max-width: 85%; /* Your original max-width */
-        height: auto;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    }
-    #dynamic-category-ad-container .bottom-ad-section-category a {
-        display: inline-block;
-    }
-
-    /* Author Section Styles (YOUR ORIGINAL STYLES) */
+    /* 
+    =============================================
+    Authors Section ("Nos Rédacteurs")
+    =============================================
+    */
     .authors-section {
-        padding: 4rem 0; background-size: cover; background-position: center;
-        position: relative; margin-top: 8px;
+        padding: 4rem 0;
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        margin-top: 8px;
     }
+
     .authors-section .section-title {
         font-size: 2.5rem; color: #fff; font-weight: 600; text-transform: uppercase;
         letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
     }
+
     .author-card {
-        position: relative; height: 100%; width: 90%; margin-left: auto;
-        margin-right: auto; transition: transform 0.3s ease; margin-bottom: 0;
+        position: relative; height: 100%;
+        transition: transform 0.3s ease;
     }
+
     .card-inner {
         background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
         border-radius: 15px; overflow: hidden; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease; display: flex; flex-direction: column; height: 100%;
     }
+
     .author-card:hover .card-inner { transform: translateY(-10px); box-shadow: 0 15px 45px rgba(0, 0, 0, 0.3); }
     .author-image { position: relative; height: 200px; overflow: hidden; flex-shrink: 0; }
     .author-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
     .author-card:hover .author-image img { transform: scale(1.05); }
+
     .social-links {
         position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
         display: flex; gap: 12px; opacity: 0; transition: opacity 0.3s ease;
     }
     .author-card:hover .social-links { opacity: 1; }
+
     .social-icon {
         width: 30px; height: 30px; border-radius: 50%; background: rgba(255, 255, 255, 0.9);
         display: flex; align-items: center; justify-content: center; color: #333;
         transition: all 0.3s ease;
     }
     .social-icon:hover { background: #fff; transform: translateY(-3px); }
+
     .author-info {
         padding: 1.2rem; text-align: center; flex-grow: 1; display: flex;
         flex-direction: column; justify-content: center;
     }
-    .author-name { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; }
-    .author-role { color: rgba(255, 255, 255, 0.9); font-size: 1.5rem; margin-bottom: 1rem;font-weight: 500; flex-grow: 1; }
+
+    .author-name { color: #fff; font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: 600; }
+    .author-role { color: rgba(255, 255, 255, 0.9); font-size: 0.9rem; font-weight: 400; flex-grow: 1; }
+    
     .profile-link {
-        color: #fff; text-decoration: none; font-weight: 500; display:block;
+        color: #fff; text-decoration: none; font-weight: 500; display: block;
         align-items: center; gap: 6px; transition: color 0.3s ease; margin-top: auto;
     }
     .profile-link:hover { color: #00c9ff; }
-    @media (max-width: 768px) { .author-image { height: 170px; } .authors-section .section-title { font-size: 2rem; } }
+
+    /* Custom 5-column layout for desktop */
     @media (min-width: 992px) {
-    .custom-col-lg-20p {
-        flex: 0 0 auto; /* Important for Bootstrap's flexbox grid */
-        width: 20% !important; /* Use !important to ensure it overrides Bootstrap's .col-lg-2 */
+        .custom-col-lg-20p {
+            flex: 0 0 auto;
+            width: 20% !important;
+        }
     }
-}
+
+    /* 
+    =============================================
+    Partners Section
+    =============================================
+    */
+    .partner-section {
+        background: #f8f9fa; padding: 4rem 0; overflow: hidden;
+    }
+
+    .partner-grid {
+        display: flex; flex-wrap: wrap; justify-content: center;
+        align-items: center; gap: 2rem; padding: 0 1rem;
+    }
+
+    .partner-item {
+        flex: 0 1 180px;
+        transition: all 0.3s ease;
+    }
+    
+    .logo-container {
+        width: 100%; padding-bottom: 75%; position: relative; background: white;
+        border-radius: 8px; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    
+    .partner-logo {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        max-width: 85%; max-height: 85%; object-fit: contain; filter: grayscale(100%);
+        transition: all 0.3s ease;
+    }
+    .partner-item:hover .partner-logo { filter: grayscale(0%); transform: translate(-50%, -50%) scale(1.05); }
+
+    /* 
+    =============================================
+    Advertisement Sections
+    =============================================
+    */
+    .bottom-ad-section, 
+    #dynamic-category-ad-container .bottom-ad-section-category {
+        margin-top: 2rem;
+        padding: 2rem 0;
+        text-align: center;
+        background-color: #f8f9fa;
+    }
+    .bottom-ad-section img,
+    #dynamic-category-ad-container .bottom-ad-section-category img {
+        max-width: 100%; /* Changed from 85% for better scaling */
+        height: auto;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    /* 
+    =============================================
+    Subscribe Section
+    =============================================
+    */
+    .subscribe-line {
+        padding: 3rem 0;
+    }
+    .subscribe-line .title {
+        font-family: 'Roboto', sans-serif;
+    }
+
+    /* 
+    =============================================
+    RESPONSIVE STYLES (Mobile First Approach)
+    =============================================
+    */
+    @media (max-width: 991px) {
+        /* Reduce spacing for author cards on tablets */
+        .authors-section .row {
+            --bs-gutter-x: 1.5rem;
+        }
+    }
+
+    @media (max-width: 767px) {
+        /* General Section Adjustments */
+        .section-title-custom { font-size: 2.2rem; }
+        .authors-section { padding: 3rem 0; }
+        .partner-section { padding: 3rem 0; }
+        
+        /* Authors Section on Mobile */
+        .authors-section .section-title { font-size: 2rem; }
+        .author-image { height: 170px; }
+        .author-name { font-size: 1.1rem; }
+        .author-role { font-size: 0.8rem; }
+        
+        /* Partners Section on Mobile */
+        .partner-grid { gap: 1.5rem; }
+        .partner-item { flex-basis: 120px; }
+    }
+
+    @media (max-width: 576px) {
+        .partner-item { flex-basis: 100px; }
+    }
+
 </style>
 
-{# This div is the stable target for the main articles tab content #}
+<!-- Main Articles Area (Loaded via HTMX) -->
 <div id="articles-tab-main-area">
-    {% comment %}
-    Initial rendering of the articles tab content.
-    `bottom_category_ad_initial` is passed as `bottom_category_ad`.
-    The OOB swap block inside articlesTabV2htmx.html will expect a context variable
-    named `bottom_category_ad`. It won't trigger OOB on initial load, but the variable needs to be there.
-    The actual ad display in #dynamic-category-ad-container below handles the first display.
-    {% endcomment %}
     {% include "blog/articlesTabV2htmx.html" with ckposts=ckposts category=category sidebar_ads=sidebar_ads top_posts=top_posts categories=categories media_url=media_url bottom_category_ad=bottom_category_ad_initial %}
 </div>
 
-{# This div is kept from your original code. If its purpose is to load ads into #dynamic-category-ad-container via a 'loadCategoryAd' event (independently of category clicks), it can remain. Otherwise, if OOB swap is the only way that div updates, this hx-trigger mechanism might be redundant for this specific ad. #}
-<div
-    hx-trigger="loadCategoryAd from:body" {# Listen for 'loadCategoryAd' event bubbling from anywhere #}
-    hx-get="{% url 'htmx_get_category_ad_snippet' %}" {# URL for the ad snippet view #}
-    hx-target="#dynamic-category-ad-container" {# The div to update with the ad #}
-    hx-swap="innerHTML"
-    hx-indicator="#ad-loading-indicator" {# Element to show during this ad request #}
-    hx-vals="js:{category_id: event.detail.newCategoryId}" {# Get category_id from event detail payload #}
-    class="main main-raised"> {# Your original .main.main-raised div #}
+<!-- Main content wrapper for sections below articles -->
+<div class="main main-raised">
 
-   <!-- Section Nos Rédacteurs -->
-   <div class="authors-section" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url({% static 'blog/assets/img/Homepage.jpg' %});">
-    <div class="container">
-        <h2 class="section-title text-center mb-5">Nos Rédacteurs</h2>
-        <div class="row g-4 justify-content-center">
-            {% for author in top_authors %}
-            <div class="col-12 col-sm-6 col-md-4 col-lg-2 custom-col-lg-20p d-flex align-items-stretch mb-2">
-                <div class="author-card">
-                    <div class="card-inner">
-                        <div class="author-image">
-                            <img src="{% if author.profile_picture %}{{ author.profile_picture.url }}{% else %}{% static 'blog/assets/img/default-avatar.png' %}{% endif %}"
-                                 alt="{{ author.user.username }}"
-                                 class="img-fluid">
-                            <div class="social-links">
-                                {% if author.twitter %}
-                                <a href="{{ author.twitter }}" target="_blank" class="social-icon">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                                {% endif %}
-                                {% if author.facebook %}
-                                <a href="{{ author.facebook }}" target="_blank" class="social-icon">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                                {% endif %}
-                                {% if author.gmail %}
-                                <a href="mailto:{{ author.gmail }}" class="social-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </a>
-                                {% endif %}
+    <!-- Section "Nos Rédacteurs" -->
+    <div class="authors-section" style="background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url({% static 'blog/assets/img/Homepage.jpg' %});">
+        <div class="container">
+            <h2 class="section-title text-center mb-5">Nos Rédacteurs</h2>
+            <div class="row g-4 justify-content-center">
+                {% for author in top_authors %}
+                <!-- Bootstrap columns handle the responsive stacking -->
+                <div class="col-6 col-md-4 col-lg-2 custom-col-lg-20p d-flex align-items-stretch mb-4">
+                    <div class="author-card">
+                        <div class="card-inner">
+                            <div class="author-image">
+                                <img src="{% if author.profile_picture %}{{ author.profile_picture.url }}{% else %}{% static 'blog/assets/img/default-avatar.png' %}{% endif %}"
+                                     alt="{{ author.user.username }}" class="img-fluid">
+                                <div class="social-links">
+                                    {% if author.twitter %}<a href="{{ author.twitter }}" target="_blank" class="social-icon"><i class="fab fa-twitter"></i></a>{% endif %}
+                                    {% if author.facebook %}<a href="{{ author.facebook }}" target="_blank" class="social-icon"><i class="fab fa-facebook-f"></i></a>{% endif %}
+                                    {% if author.gmail %}<a href="mailto:{{ author.gmail }}" class="social-icon"><i class="fas fa-envelope"></i></a>{% endif %}
+                                </div>
                             </div>
-                        </div>
-                        <div class="author-info">
-                            <h3 class="author-name">{{ author.user.get_full_name|default:author.user.username }}</h3>
-                            <p class="author-role">{{ author.metier }}</p>
-                            <a href="{% url 'author_profile' author.user.username %}" class="profile-link">
-                                Voir le profil <i class="fas fa-arrow-right"></i>
-                            </a>
+                            <div class="author-info">
+                                <h3 class="author-name">{{ author.user.get_full_name|default:author.user.username }}</h3>
+                                <p class="author-role">{{ author.metier }}</p>
+                                <a href="{% url 'author_profile' author.user.username %}" class="profile-link">
+                                    Voir le profil <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
     <!-- Partners Section -->
     <section class="partner-section">
         <div class="container">
-            <h2 class="text-center mb-5" style="font-family: Roboto ;font-size: 3rem; margin-bottom: 32px; font-weight: 600; color: #3c4858;">
+            <h2 class="section-title-custom text-center">
                 NOS PARTENAIRES
             </h2>
             <div class="partner-grid">
@@ -218,34 +261,46 @@
         </div>
     </section>
 
-    <!-- Placeholder for Dynamic Bottom Category Ad. HTMX OOB swap updates this when categories are clicked. -->
-    <!-- Initially populated with the ad for the default category. -->
-    <div id="dynamic-category-ad-container" >
+    <!-- Dynamic Bottom Category Ad (Loaded via HTMX) -->
+    <div id="dynamic-category-ad-container">
         {% include 'blog/partials/category_bottom_ad_snippet.html' with bottom_category_ad=bottom_category_ad %}
     </div>
 
-    <!-- Main Home Page Bottom Advertisement Section (Your original general ad) -->
+    <!-- Main Home Page Bottom Ad -->
     {% if bottom_home_ad %}
     <section class="bottom-ad-section">
         <div class="container">
             {% with ad_url=bottom_home_ad.get_absolute_url %}
-                {% if ad_url %}
-                    <a href="{{ ad_url }}" {% if bottom_home_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
-                        <img src="{{ bottom_home_ad.image.url }}" alt="{{ bottom_home_ad.title }}">
-                    </a>
-                {% else %}
+                <a href="{{ ad_url|default:'#' }}" {% if bottom_home_ad.link_type == 'external' %}target="_blank" rel="noopener noreferrer"{% endif %}>
                     <img src="{{ bottom_home_ad.image.url }}" alt="{{ bottom_home_ad.title }}">
-                {% endif %}
+                </a>
             {% endwith %}
         </div>
     </section>
     {% endif %}
 
+    <!-- Subscribe Section -->
     <div class="subscribe-line">
         <div class="container">
-            <div class="row">
+            {% if messages %}
+            <div style="margin-top: 20px;">
+                {% for message in messages %}
+                <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                    <div class="container">
+                        <div class="alert-icon"><i class="material-icons">check</i></div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true"><i class="material-icons">clear</i></span>
+                        </button>
+                        <b>{{ message }}</b>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="row align-items-center">
                 <div class="col-md-6">
-                    <h3 class="title" style="font-family: Roboto;">🚀 La Newsletter GOZONE</h3>
+                    <h3 class="title">🚀 La Newsletter GOZONE</h3>
                     <p class="description">
                         Actus, conseils, outils : tout ce qu’il vous faut pour avancer dans le business, sans bruit inutile.
                         📩 Abonnez-vous à notre newsletter — on l’envoie seulement quand on a du vrai contenu à partager.
@@ -253,18 +308,19 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card card-plain card-form-horizontal">
-                        <div class="card-content">
-                            <form method="POST" action=""> {# Add your newsletter form action here #}
+                        <div class="card-body">
+                            <form method="POST" action="">
                                 {% csrf_token %}
                                 <div class="row">
-                                    <div class="col-md-8">
+                                    <!-- Added mb-3 for spacing on mobile, mb-md-0 to remove it on desktop -->
+                                    <div class="col-md-8 mb-3 mb-md-0">
                                         <div class="input-group">
-                                            <span class="input-group-addon"><i class="material-icons">mail</i></span>
+                                            <span class="input-group-text"><i class="material-icons">mail</i></span>
                                             <input type="email" name="email" placeholder="Votre Email..." class="form-control" required />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <button type="submit" class="btn btn-primary btn-round btn-block" style="background-image: linear-gradient(to right, #007bff 0%, #0069d9 50%, #0056b3 100%);">S’abonner</button>
+                                        <button type="submit" class="btn btn-primary btn-round w-100" style="background-image: linear-gradient(to right, #007bff 0%, #0069d9 50%, #0056b3 100%);">S’abonner</button>
                                     </div>
                                 </div>
                             </form>
@@ -275,6 +331,5 @@
         </div>
     </div>
 </div>
-<script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 
 {% endblock %}

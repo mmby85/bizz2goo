@@ -1,6 +1,31 @@
+{% comment %}
+    File: your_app/templates/includes/_navbar.html
+{% endcomment %}
+
 {% load static %}
 {% load custom_filters %}
+<style>
+    .navbar-logo-img {
+    height: 180px;       /* The height of the logo on large screens */
+    width: auto;         /* This maintains the image's aspect ratio */
+    margin-top: -75px;   /* Negative margin to pull the oversized logo up and center it vertically */
 
+    /* A smooth transition effect when the screen is resized */
+    transition: height 0.3s ease, margin-top 0.3s ease;
+}
+
+/*
+ * Responsive styles for mobile screens.
+ * This @media query applies the styles inside it ONLY when the browser window
+ * is 767px wide or less (the standard Bootstrap 3 mobile breakpoint).
+*/
+@media (max-width: 767px) {
+    .navbar-logo-img {
+        height: 85px;      /* A smaller, more appropriate height for mobile */
+        margin-top: -25px; /* A smaller negative margin to keep it centered in the mobile navbar */
+    }
+}
+</style>
 <nav class="navbar navbar-primary navbar-transparent navbar-absolute">
     <div class="container">
         <div class="navbar-header">
@@ -10,34 +35,28 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/"> {# Often the logo is also a link to home #}
-               <img src="{% static 'blog/assets/img/logo white gozone.png' %}" alt="Site Logo" style="height: 200px; margin-top: -85px; display: inline-block;"> {# Added alt and some basic styling for inline display and size #}
+            <a class="navbar-brand" href="/">
+               <!-- MODIFIED: Removed inline style and added a class for responsive control -->
+               <img src="{% static 'blog/assets/img/logo white gozone.png' %}" alt="Site Logo" class="navbar-logo-img">
             </a>
-            {# Removed the invalid </img> tag #}
         </div>
 
-        <div class="collapse navbar-collapse" id="myNavbarCollapse"> {# Added ID here #}
+        <div class="collapse navbar-collapse" id="myNavbarCollapse">
             <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a href="/">
-                       Accueil
-                    </a>
+                    <a href="/">Accueil</a>
                 </li>
-                <!-- <li>
-                    <a href="{% url 'post_list' %}">
-                       Articles
-                    </a>
-                </li> -->
+                <!-- Other links can go here -->
 
                 {% if user.is_authenticated %}
                     {% if user.is_staff or user|has_author_profile %}
-                        <li class="nav-item"> {# Bootstrap 3 would typically just use <li> without nav-item #}
-                          <a class="nav-link" href="{% url 'create_post' %}">Create Post</a> {# Bootstrap 3 a tags don't need nav-link class #}
+                        <li>
+                          <a href="{% url 'create_post' %}">Create Post</a>
                         </li>
                     {% endif %}
 
-                    <li class="nav-item">
-                      <a class="nav-link" href="{% url 'author_profile' user.username %}">
+                    <li>
+                      <a href="{% url 'author_profile' user.username %}">
                         {% if user.first_name or user.last_name %}
                             {{ user.first_name|add:" "|add:user.last_name }}
                         {% else %}
@@ -45,8 +64,8 @@
                         {% endif %}
                       </a>
                     </li>
-                    <li class="nav-item">
-                      <a class="nav-link text-primary" href="{% url 'logout' %}">Logout</a>
+                    <li>
+                      <a href="{% url 'logout' %}">Logout</a>
                     </li>
 
                 {% else %}
